@@ -42,36 +42,40 @@ gbm.names <- c("gbm.forest","gbm.alp.tundra","gbm.shrub","gbm.gram","gbm.wetland
 ind.names <- c("f.ind","a.ind","s.ind","g.ind","w.ind")
 
 #### If adding fire scars to graphical maps
-fah <- shapefile("/Data/Base_Data/GIS/GIS_Data/Vector/Fire/FireAreaHistory_11182013.shp")
-emp.fire.years <- sort(as.numeric(unique(fah@data$FireYear))) # 1940:2013 max range
-emp.fire.years.all <- seq(emp.fire.years[1], tail(emp.fire.years,1))
-fireScarsFun <- function(x, y, year, years.avail){
-	if(year %in% years.avail) {
-		x <- x[x$FireYear==year,]
-		x <- rasterize(x,y,field=1)
-	} else {
-		x <- x[x$FireYear==years.avail[1],]
-		x <- rasterize(x,y,field=1)
-		x[!is.na(x)] <- NA
+write.emp.tifs <- FALSE
+if(write.emp.tifs){
+	fah <- shapefile("/Data/Base_Data/GIS/GIS_Data/Vector/Fire/FireAreaHistory_11182013.shp")
+	emp.fire.years <- sort(as.numeric(unique(fah@data$FireYear))) # 1940:2013 max range
+	emp.fire.years.all <- seq(emp.fire.years[1], tail(emp.fire.years,1))
+	fireScarsFun <- function(x, y, year, years.avail){
+		if(year %in% years.avail) {
+			x <- x[x$FireYear==year,]
+			x <- rasterize(x,y,field=1)
+		} else {
+			x <- x[x$FireYear==years.avail[1],]
+			x <- rasterize(x,y,field=1)
+			x[!is.na(x)] <- NA
+		}
+		x
 	}
-	x
-}
 
-fireScarsFunVec <- Vectorize(fireScarsFun, "year")
-emp.fire.brick <- fireScarsFunVec(x=fah, y=r.veg, year=emp.fire.years.all, years.avail=emp.fire.years)
-emp.fire.sum <- do.call("sum",c(emp.fire.brick, na.rm=T))
-emp.fire.brick <- brick(emp.fire.brick)
-names(emp.fire.brick) <- emp.fire.years.all
-names(emp.fire.sum) <- paste(emp.fire.years.all[1], tail(emp.fire.years.all, 1), sep="_")
-writeRaster(emp.fire.brick, "/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarbrick_annual_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
-writeRaster(emp.fire.sum, "/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarlayer_total_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
+	fireScarsFunVec <- Vectorize(fireScarsFun, "year")
+	emp.fire.brick <- fireScarsFunVec(x=fah, y=r.veg, year=emp.fire.years.all, years.avail=emp.fire.years)
+	emp.fire.sum <- do.call("sum",c(emp.fire.brick, na.rm=T))
+	emp.fire.brick <- brick(emp.fire.brick)
+	names(emp.fire.brick) <- emp.fire.years.all
+	names(emp.fire.sum) <- paste(emp.fire.years.all[1], tail(emp.fire.years.all, 1), sep="_")
+	writeRaster(emp.fire.brick, "/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarbrick_annual_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
+	writeRaster(emp.fire.sum, "/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarlayer_total_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
+} else {
+	emp.fire.brick <- brick("/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarbrick_annual_observed_statewide_1940_2013.tif")
+	emp.fire.sum <- raster("/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarlayer_total_observed_statewide_1940_2013.tif")
+}
 
 #### Load R workspace file
 load("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/GBMs/gbm_seasonal_all_models.RData")
 tree.numbers <- c(3355, 32, 2200, 152, 2478) # order: forest, alpine tundra, shrub, graminoid, wetland
 
-period <- "rcp45" # An rcp or "historical"
-model <- "CCSM4" # Specify CRU dataset if historical
 if(period=="historical"){
 	if(!exists("yrs")) yrs <- 1901:2009
 	tpDir <- "/Data/Base_Data/ALFRESCO_formatted/AK_1km(from800m)/cru_TS31/historical"
@@ -95,5 +99,4 @@ for(i in mo.ind){
 	print(i)
 }
 
-if(period=="historical") save.image(paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", model, "_", period, "_Jun-AugTP.RData"))
-if(period!="historical") save.image(paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", model, "_", period, "_Jun-AugTP.RData"))
+save.image(paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", model, "_", period, "_Jun-AugTP.RData"))
