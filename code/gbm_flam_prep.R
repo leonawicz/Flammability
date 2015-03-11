@@ -15,12 +15,13 @@ if(!exists("model")) stop("Argument 'model' not passed at command line.")
 if(!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
 if(!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
 
-library(gbm); library(rgdal); library(raster)
-rasterOptions(chunksize=10e12,maxmemory=10e13)
+library(rgdal)
+library(raster)
+rasterOptions(chunksize=10e9,maxmemory=10e10)
 
 #### If exluding ecoregions
 rm.eco <- T
-ecoreg <- raster(as.matrix(read.table("/workspace/Shared/[UNCLAIMED]/ALFRESCO_StatewideClimFlamm/Config/ecoreg_mark_mask_zero.txt",sep=""),skip=6,header=F)))
+ecoreg <- raster(as.matrix(read.table("/workspace/Shared/[UNCLAIMED]/ALFRESCO_StatewideClimFlamm/Config/ecoreg_mark_mask_zero.txt",skip=6,header=F)))
 drop.ind <- Which(ecoreg==4,cells=T)
 if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
 
@@ -77,10 +78,8 @@ load("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/GBMs/gbm_se
 tree.numbers <- c(3355, 32, 2200, 152, 2478) # order: forest, alpine tundra, shrub, graminoid, wetland
 
 if(period=="historical"){
-	if(!exists("yrs")) yrs <- 1901:2009
 	tpDir <- "/Data/Base_Data/ALFRESCO_formatted/AK_1km(from800m)/cru_TS31/historical"
 } else {
-	if(!exists("yrs")) yrs <- 2010:2099
 	tpDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide", period, model)
 }
 mo.ind <- 6:8
