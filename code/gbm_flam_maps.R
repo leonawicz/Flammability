@@ -21,24 +21,32 @@ library(gbm); library(rgdal); library(raster); library(rasterVis); library(paral
 rasterOptions(chunksize=10e12,maxmemory=10e13)
 ncores <- 32
 
+setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
+
 if(period=="historical"){
-	if(!exists(yrs)) yrs <- 1901:2009
-	tpDir <- "/Data/Base_Data/ALFRESCO_formatted/AK_1km(from800m)/cru_TS31/historical"
+	yrs <- 1901:2009
+	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "cru_TS31")
 } else {
-	if(!exists(yrs)) yrs <- 2010:2099
+	yrs <- 2006:2100
 	tpDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide", period, model)
 }
 
-load(paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", model, "_", period, "_Jun-AugTP.RData")
-load("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/GBMs/gbm_seasonal_all_models.RData")
+load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
+load("gbm_seasonal_all_models.RData")
 
 if(allcavm){
-	out <- "3models_tifs"
+	out <- "3models_tif"
+	plot.out <- "3models_png"
 	gbm.gram <- gbm.shrub <- gbm.wetland <- gbm.all.cavm
 	tree.numbers <- c(3355, 32, 1554, 1554, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland
-} else out <- "5models_tifs"
-dir.create(outDir <- file.path("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814", period, model, out), recursive=T, showWarnings=F)
+} else {
+	out <- "5models_tif"
+	plot.out <- "5models_png"
+}
+dir.create(outDir <- file.path("../data/gbmFlammability", period, model, out), recursive=T, showWarnings=F)
+dir.create(plotDir <- file.path("../plots/gbmFlammability", period, model, plot.out), recursive=T, showWarnings=F)
 
+# @knitr func_prep
 f <- function(p, bins=1){
 	d.names <- rownames(summary(get(gbm.names[p])))
 	tmp <- c()
@@ -59,34 +67,20 @@ f <- function(p, bins=1){
 	colnames(tmp) <- d.names
 	rownames(tmp) <- NULL
 	tmp <- data.frame(tmp)
-	assign("tmp.names", paste0("tmp_", c(paste0(0,c(1:9)), 10:bins)[1:bins]), envir=.GlobalEnv)
+	assign("tmp.names", paste0("tmp_", c(paste0(0,c(1:9)), 10:bins)[1:bins]), envir=.GlobalEnv) # global assignment side effects
 	brks <- round(seq(1, nrow(tmp), length.out=bins+1))
 	for(i in 1:bins){
 		if(i==bins) rows <- brks[i]:(brks[i+1]) else rows <- brks[i]:(brks[i+1]-1)
-		assign(tmp.names[i], tmp[rows,], envir=.GlobalEnv)
+		assign(tmp.names[i], tmp[rows,], envir=.GlobalEnv) # global assignment side effects
 	}
 	rm(tmp); gc()
-	#x <- matrix(predict.gbm(get(gbm.names[p]),tmp,n.trees=tree.numbers[p]/100),ncol=109)
 	return(p)
 }
 
-#preds <- mclapply(1:5,f,mc.cores=5)
+# @knitr func_predict
+getGBMpreds <- function(a,b, nam1, nam2) predict.gbm(get(nam1[b]), get(nam2[a]), n.trees=tree.numbers[b])
 
-getGBMpreds <- function(a,b) predict.gbm(get(gbm.names[b]), get(tmp.names[a]), n.trees=tree.numbers[b])
-
-preds <- list()
-for(zzz in 1:5){
-	model.index <- f(zzz, bins=ncores)
-	tmp.preds <- mclapply(1:ncores, getGBMpreds, b=model.index, mc.cores=ncores)
-	preds[[model.index]] <- matrix(unlist(tmp.preds), ncol=length(yrs))
-	print(zzz)
-}
-
-flam <- matrix(NA,nrow=length(veg.tmp),ncol=length(yrs))
-for(i in 1:5) flam[which(get(ind.names[i])),] <- preds[[i]]
-flam.range <- range(flam,na.rm=T)
-flam <- (flam-flam.range[1])/(flam.range[2]-flam.range[1])
-
+# @knitr func_write
 partifs <- function(i, outDir){
 	r <- r.veg
 	r <- setValues(r,flam[,i])
@@ -95,29 +89,40 @@ partifs <- function(i, outDir){
 	print(i)
 }
 
+# @knitr run
+preds <- list()
+for(zzz in 1:5){
+	model.index <- f(zzz, bins=ncores) # Prep data
+	tmp.preds <- mclapply(1:ncores, getGBMpreds, b=model.index, nam1=gbm.names, nam2=tmp.names, mc.cores=ncores) # GBM predictions
+	preds[[model.index]] <- matrix(unlist(tmp.preds), ncol=length(yrs))
+	print(zzz)
+}
+
+# Organize results
+flam <- matrix(NA,nrow=length(veg.tmp),ncol=length(yrs))
+for(i in 1:5) flam[which(get(ind.names[i])),] <- preds[[i]]
+flam.range <- range(flam,na.rm=T)
+flam <- (flam-flam.range[1])/(flam.range[2]-flam.range[1])
+
+# Write geotiffs
 mclapply(1:length(yrs), partifs, outDir=outDir, mc.cores=32)
 
-#############################
-# Make PNGs
-
+# @knitr plot
+# Setup
 at.vals <- c(0, 0.25, 0.5, 0.75, 1)
 colkey <- list(at=at.vals, labels=list(labels=c("Low", "Medium", "High", "Severe"), at=at.vals + 0.125))
 
-revRasterTheme <- function (pch = 19, cex = 0.7, region=brewer.pal(9, "YlOrRd")[-1],
-    ...)
-{
-    theme <- custom.theme.2(pch = pch, cex = cex, region = region,
-        ...)
-    theme$strip.background$col = "transparent"
-    theme$strip.shingle$col = "transparent"
-    theme$strip.border$col = "transparent"
+# Theme settings
+revRasterTheme <- function (pch = 19, cex = 0.7, region=brewer.pal(9, "YlOrRd")[-1], ...){
+    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
+    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
     theme$add.line$lwd = 0.4
     theme
 }
 
-parplot <- function(i, outDir){
-	r <- raster(paste0(outDir, "/gbm.flamm_",yrs[1]+i-1,".tif"))
-	dir.create(outDir, showWarnings=F)
+# parallelize levelplot
+parplot <- function(i, outDir, dataDir){
+	r <- raster(paste0(dataDir, "/gbm.flamm_",yrs[1]+i-1,".tif"))
 	png(paste0(outDir, "/gbm.flamm_", yrs[1]+i-1,".png"), height=1600, width=1600, res=200)
 	p <- levelplot(r, maxpixels=ncell(r), main=paste(yrs[1]+i-1,"flammability"), par.settings=revRasterTheme, contour=T, margin=F, at=at.vals, colorkey=colkey) #col=rev(heat.colors(30)))
 	print(p)
@@ -125,5 +130,5 @@ parplot <- function(i, outDir){
 	print(i)
 }
 
-mclapply(1:length(yrs), parplot, outDir=file.path(outDir, "PNGs"), mc.cores=32)
-
+# Write PNGs
+mclapply(1:length(yrs), parplot, outDir=plotDir, dataDir=outDir, mc.cores=32)

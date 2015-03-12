@@ -19,28 +19,26 @@ library(rgdal)
 library(raster)
 rasterOptions(chunksize=10e9,maxmemory=10e10)
 
+setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
+dir.create(outDir <- "gbmFlammability", showWarnings=F)
+
 #### If exluding ecoregions
 rm.eco <- T
-ecoreg <- raster(as.matrix(read.table("/workspace/Shared/[UNCLAIMED]/ALFRESCO_StatewideClimFlamm/Config/ecoreg_mark_mask_zero.txt",skip=6,header=F)))
+ecoreg <- raster(as.matrix(read.table("../data/ecoreg_mark_mask_zero.txt", skip=6, header=F)))
 drop.ind <- Which(ecoreg==4,cells=T)
 if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
 
-#### Functions not in use
-#f2 <- source(file.path(drive[2],"Users/mfleonawicz/tmp/R_functions/TaskSpecific/gbmFlammabilityMaps/gbmFlamTIFandPNGparent.Rfun.txt"))$value
-#f2b <- source(file.path(drive[2],"Users/mfleonawicz/tmp/R_functions/TaskSpecific/gbmFlammabilityMaps/gbmFlamTIFandPNG.Rfun.txt"))$value
-
 #### assembling the flammability based on the veg map
-r.veg <- raster("/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif")
-veg <- getValues(raster("/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif"))#,format="matrix")
-#rows <- nrow(veg); cols <- ncol(veg)
+r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")
+veg <- getValues(r.veg)
 if(any(is.na(veg))) veg[is.na(veg)] <- 0
 veg.tmp <- as.numeric(veg); rm(veg)
 veg.val <- as.numeric(veg.tmp!=0)*eco.ind*veg.tmp
 f.ind <- veg.val==2|veg.val==3|veg.val==4; a.ind <- veg.val==1; s.ind <- veg.val==5; g.ind <- veg.val==6; w.ind <- veg.val==7
 land.gray <- as.numeric(veg.tmp!=0)*(1-eco.ind)
 
-gbm.names <- c("gbm.forest","gbm.alp.tundra","gbm.shrub","gbm.gram","gbm.wetland")
-ind.names <- c("f.ind","a.ind","s.ind","g.ind","w.ind")
+gbm.names <- c("gbm.forest", "gbm.alp.tundra", "gbm.shrub", "gbm.gram", "gbm.wetland")
+ind.names <- c("f.ind", "a.ind", "s.ind", "g.ind", "w.ind")
 
 #### If adding fire scars to graphical maps
 write.emp.tifs <- FALSE
@@ -66,21 +64,21 @@ if(write.emp.tifs){
 	emp.fire.brick <- brick(emp.fire.brick)
 	names(emp.fire.brick) <- emp.fire.years.all
 	names(emp.fire.sum) <- paste(emp.fire.years.all[1], tail(emp.fire.years.all, 1), sep="_")
-	writeRaster(emp.fire.brick, "/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarbrick_annual_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
-	writeRaster(emp.fire.sum, "/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarlayer_total_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
+	writeRaster(emp.fire.brick, "../data/firescarbrick_annual_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
+	writeRaster(emp.fire.sum, "../data/firescarlayer_total_observed_statewide_1940_2013.tif", datatype="FLT4S", overwrite=T)
 } else {
-	emp.fire.brick <- brick("/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarbrick_annual_observed_statewide_1940_2013.tif")
-	emp.fire.sum <- raster("/workspace/Shared/Users/mfleonawicz/fire.perimeters/firescarlayer_total_observed_statewide_1940_2013.tif")
+	emp.fire.brick <- brick("../data/firescarbrick_annual_observed_statewide_1940_2013.tif")
+	emp.fire.sum <- raster("../data/firescarlayer_total_observed_statewide_1940_2013.tif")
 }
 
 #### Load R workspace file
-load("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/GBMs/gbm_seasonal_all_models.RData")
+load("gbm_seasonal_all_models.RData")
 tree.numbers <- c(3355, 32, 2200, 152, 2478) # order: forest, alpine tundra, shrub, graminoid, wetland
 
 if(period=="historical"){
-	tpDir <- "/Data/Base_Data/ALFRESCO_formatted/AK_1km(from800m)/cru_TS31/historical"
+	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "cru_TS31")
 } else {
-	tpDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide", period, model)
+	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, model)
 }
 mo.ind <- 6:8
 varid <- c("pr", "tas")
@@ -98,4 +96,4 @@ for(i in mo.ind){
 	print(i)
 }
 
-save.image(paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", model, "_", period, "_Jun-AugTP.RData"))
+save.image(paste0(outDir, "/", model, "_", period, "_Jun-AugTP.RData"))

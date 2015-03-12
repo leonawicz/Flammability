@@ -9,4 +9,4 @@
 #SBATCH --account=snap
 #SBATCH -p main
 
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/CMIP5_resample_2km_1km.R
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/clim_resample_2km_1km.R

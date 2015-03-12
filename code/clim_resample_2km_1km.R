@@ -10,7 +10,7 @@ rcp <- rep(rep(paste0("rcp",c(45,60,85)), each=2), 5)
 model <- rep(list.files(file.path(mainDir,"rcp60"))[-1], each=6)
 
 subDir <- file.path(mainDir, rcp, model, varid)
-outDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km", rcp, model, varid)
+outDir <- file.path("/big_scratch/mfleonawicz/Climate_1km", rcp, model, varid)
 for(i in 1:length(outDir)) dir.create(outDir[i], recursive=T, showWarnings=T)
 
 f <- function(i, subDir, outDir, msk){
