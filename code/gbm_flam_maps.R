@@ -17,7 +17,7 @@ if(!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MR
 if(!exists("allcavm")) allcavm <- FALSE
 if(!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
 
-library(gbm); library(rgdal); library(raster); library(fields); library(parallel)
+library(gbm); library(rgdal); library(raster); library(rasterVis); library(parallel)
 rasterOptions(chunksize=10e12,maxmemory=10e13)
 ncores <- 32
 
@@ -33,10 +33,11 @@ load(paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", m
 load("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/GBMs/gbm_seasonal_all_models.RData")
 
 if(allcavm){
-	outDir <- "3models_tifs"
+	out <- "3models_tifs"
 	gbm.gram <- gbm.shrub <- gbm.wetland <- gbm.all.cavm
 	tree.numbers <- c(3355, 32, 1554, 1554, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland
-} else outDir <- "5models_tifs"
+} else out <- "5models_tifs"
+dir.create(outDir <- file.path("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814", period, model, out), recursive=T, showWarnings=F)
 
 f <- function(p, bins=1){
 	d.names <- rownames(summary(get(gbm.names[p])))
@@ -86,20 +87,18 @@ for(i in 1:5) flam[which(get(ind.names[i])),] <- preds[[i]]
 flam.range <- range(flam,na.rm=T)
 flam <- (flam-flam.range[1])/(flam.range[2]-flam.range[1])
 
-partifs <- function(i){
+partifs <- function(i, outDir){
 	r <- r.veg
 	r <- setValues(r,flam[,i])
 	names(r) <- paste0("gbm.flamm_",yrs[1]+i-1)
-	writeRaster(r,paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", outDir, "/gbm.flamm_",yrs[1]+i-1,".tif"), datatype="FLT4S", overwrite=T)
+	writeRaster(r, paste0(outDir, "/gbm.flamm_",yrs[1]+i-1,".tif"), datatype="FLT4S", overwrite=T)
 	print(i)
 }
 
-mclapply(1:length(yrs), partifs, mc.cores=32)
+mclapply(1:length(yrs), partifs, outDir=outDir, mc.cores=32)
+
 #############################
 # Make PNGs
-
-library(raster); # library(fields)
-library(rasterVis)
 
 at.vals <- c(0, 0.25, 0.5, 0.75, 1)
 colkey <- list(at=at.vals, labels=list(labels=c("Low", "Medium", "High", "Severe"), at=at.vals + 0.125))
@@ -116,16 +115,15 @@ revRasterTheme <- function (pch = 19, cex = 0.7, region=brewer.pal(9, "YlOrRd")[
     theme
 }
 
-library(parallel)
-parplot <- function(i){
-	r <- raster(paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", outDir, "/gbm.flamm_",yrs[1]+i-1,".tif"))
-	dir.create(pngDir <- paste0("/workspace/Shared/Users/mfleonawicz/tmp/gbmFlammability/090814/", outDir, "/PNGs"), showWarnings=F)
-	png(paste0(pngDir, "/gbm.flamm_", yrs[1]+i-1,".png"), height=1600, width=1600, res=200)
+parplot <- function(i, outDir){
+	r <- raster(paste0(outDir, "/gbm.flamm_",yrs[1]+i-1,".tif"))
+	dir.create(outDir, showWarnings=F)
+	png(paste0(outDir, "/gbm.flamm_", yrs[1]+i-1,".png"), height=1600, width=1600, res=200)
 	p <- levelplot(r, maxpixels=ncell(r), main=paste(yrs[1]+i-1,"flammability"), par.settings=revRasterTheme, contour=T, margin=F, at=at.vals, colorkey=colkey) #col=rev(heat.colors(30)))
 	print(p)
 	dev.off()
 	print(i)
 }
 
-mclapply(1:length(yrs), parplot, mc.cores=32)
+mclapply(1:length(yrs), parplot, outDir=file.path(outDir, "PNGs"), mc.cores=32)
 
