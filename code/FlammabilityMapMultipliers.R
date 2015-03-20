@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/18/2015        ####
+#### Last updated:   03/19/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -26,23 +26,21 @@ if(cp2scratch){
 } else outDir2b <- NULL
 if(!cp_originals) outDir2a <- NULL
 
-# load scalars data frame for observed years
-load("../../../../../workspaces/gbmFlammability/ALF_ignit_premult.RData")
-
-# seteup
 library(raster)
+library(parallel)
+load("../../../../../workspaces/gbmFlammability/ALF_ignit_premult.RData") # scalars data frame for observed years
 files <- list.files(pattern="\\.tif$")
-yrs <- as.numeric(gsub("gbm.flamm_", "", gsub(".tif", "", files)))
+yrs <- as.numeric(gsub("gbm.flamm_", "", gsub("\\.tif", "", files)))
 files <- files[order(yrs)]
 yrs <- yrs[order(yrs)]
 
-# sample random coeffcients for unobserved years
+# Sample random coeffcients for unobserved years
 set.seed(47)
 a <- sample(c(0.05, 0.5, 0.95), length(yrs), prob=c(21/62, 20/62, 21/62), replace=T)
 
 if(all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- ignit.scalar[,2]
 
-library(parallel)
+# @knitr func
 f <- function(i, a, outDir, files, cp.origin=NULL, cp.new=NULL){
 	r <- raster(files[i])
 	if(!is.null(cp.origin)) writeRaster(r, file.path(cp.origin, files[i]), datatype="FLT4S", overwrite=T)
@@ -52,4 +50,5 @@ f <- function(i, a, outDir, files, cp.origin=NULL, cp.new=NULL){
 	print(i)
 }
 
+# @knit run
 mclapply(1:length(files), f, a=a, outDir=outDir, files=files, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)

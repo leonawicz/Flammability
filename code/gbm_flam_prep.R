@@ -1,10 +1,10 @@
-##############################################################################################
-#### This R script preps for generating climate-driven gradient-boosted flamability maps. ####
-##############################################################################################
+###############################################################################################
+#### This R script preps for generating climate-driven gradient-boosted flammability maps. ####
+###############################################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/10/2015        ####
+#### Last updated:   03/19/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -22,13 +22,18 @@ rasterOptions(chunksize=10e9,maxmemory=10e10)
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 dir.create(outDir <- "gbmFlammability", showWarnings=F)
 
-#### If exluding ecoregions
+# Load gbm models
+load("gbm_seasonal_all_models.RData")
+tree.numbers <- c(3355, 32, 2200, 152, 2478) # order: forest, alpine tundra, shrub, graminoid, wetland
+
+# @knitr eco_veg
+# If exluding ecoregions
 rm.eco <- T
 ecoreg <- raster(as.matrix(read.table("../data/ecoreg_mark_mask_zero.txt", skip=6, header=F)))
 drop.ind <- Which(ecoreg==4,cells=T)
 if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
 
-#### assembling the flammability based on the veg map
+# Assembling the flammability based on the veg map
 r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")
 veg <- getValues(r.veg)
 if(any(is.na(veg))) veg[is.na(veg)] <- 0
@@ -40,7 +45,8 @@ land.gray <- as.numeric(veg.tmp!=0)*(1-eco.ind)
 gbm.names <- c("gbm.forest", "gbm.alp.tundra", "gbm.shrub", "gbm.gram", "gbm.wetland")
 ind.names <- c("f.ind", "a.ind", "s.ind", "g.ind", "w.ind")
 
-#### If adding fire scars to graphical maps
+# @knit obs_fire
+# If adding fire scars to graphical maps
 write.emp.tifs <- FALSE
 if(write.emp.tifs){
 	fah <- shapefile("/Data/Base_Data/GIS/GIS_Data/Vector/Fire/FireAreaHistory_11182013.shp")
@@ -71,10 +77,8 @@ if(write.emp.tifs){
 	emp.fire.sum <- raster("../data/firescarlayer_total_observed_statewide_1940_2013.tif")
 }
 
-#### Load R workspace file
-load("gbm_seasonal_all_models.RData")
-tree.numbers <- c(3355, 32, 2200, 152, 2478) # order: forest, alpine tundra, shrub, graminoid, wetland
-
+# @knitr prep_save
+# Prepare and save workspace
 if(period=="historical"){
 	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "cru_TS31")
 } else {

@@ -1,10 +1,10 @@
-#######################################################################################################
-#### This R script generates climate-driven gradient-boosted flamability maps for use by ALFRESCO. ####
-#######################################################################################################
+########################################################################################################
+#### This R script generates climate-driven gradient-boosted flammability maps for use by ALFRESCO. ####
+########################################################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/10/2015        ####
+#### Last updated:   03/19/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -18,7 +18,7 @@ if(!exists("allcavm")) allcavm <- FALSE
 if(!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
 
 library(gbm); library(rgdal); library(raster); library(rasterVis); library(parallel)
-rasterOptions(chunksize=10e12,maxmemory=10e13)
+rasterOptions(chunksize=10e10,maxmemory=10e11)
 ncores <- 32
 
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")

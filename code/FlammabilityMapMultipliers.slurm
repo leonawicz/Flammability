@@ -1,8 +1,8 @@
 #!/bin/sh
-####SBATCH --exclusive
+#SBATCH --exclusive
 #SBATCH --mail-type=END
 #SBATCH --mail-user=mfleonawicz@alaska.edu
-#SBATCH --ntasks=1
+#SBATCH --ntasks=32
 #SBATCH --nodes=1
 ####SBATCH --nodelist=atlas01
 #SBATCH --job-name=FlamMultipliers
