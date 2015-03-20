@@ -1,7 +1,15 @@
+############################################################################################
+#### This R script clips 1-km AK-CAN geotiffs to the classic statewide ALFRESCO domain. ####
+############################################################################################
+
+#### Script author:  Matthew Leonawicz ####
+#### Maintainted by: Matthew Leonawicz ####
+#### Last updated:   03/19/2015        ####
+
+# @knitr setup
 library(parallel)
 library(raster)
 
-# @knitr setup
 comargs <- (commandArgs(TRUE))
 if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
 
@@ -28,6 +36,7 @@ if(cru){
 outDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", rcp, model, varid)
 for(i in 1:length(outDir)) dir.create(outDir[i], recursive=T, showWarnings=F)
 
+# @knitr func
 f <- function(i, files=NULL, subDir, outDir, msk){
 	if(is.null(files)){
 		files <- list.files(subDir[i], full=T, pattern=".tif$")
@@ -48,6 +57,7 @@ f <- function(i, files=NULL, subDir, outDir, msk){
 	return()
 }
 
+# @knitr run
 if(cru){
 	for(k in 1:length(subDir)){
 		files <- list.files(subDir[k], full=T, pattern=".tif$")

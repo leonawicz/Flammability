@@ -1,5 +1,12 @@
+###############################################################
+#### This R script resamples 2-km AK-CAN geotiffs to 1-km. ####
+###############################################################
 
+#### Script author:  Matthew Leonawicz ####
+#### Maintainted by: Matthew Leonawicz ####
+#### Last updated:   03/19/2015        ####
 
+# @knitr setup
 library(parallel)
 library(raster)
 msk <- raster("/Data/Base_Data/ALFRESCO_formatted/ALFRESCO_Master_Dataset/ALFRESCO_Model_Input_Datasets/AK_CAN_Inputs/Climate/5ModelAvg/sresa2/tas/tas_mean_C_alf_ar4_5modelAvg_sresa2_01_2001.tif")
@@ -18,7 +25,7 @@ f <- function(i, subDir, outDir, msk){
 	files <- list.files(subDir[i], full=T, pattern=".tif$")
 	for(j in 1:length(files)){
 		r <- raster(files[j])
-		r <- resample(r, msk, method="ngb")
+		r <- resample(r, msk, method="ngb") # Nearest neighbor for efficiency, scale change is small and use case doesn't require interpolation
 		r <- mask(r, msk)
 		writeRaster(r, file.path(outDir[i], basename(files[j])), datatype="FLT4S", overwrite=T)
 		print(length(files) - j)
