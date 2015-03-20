@@ -73,7 +73,6 @@ fireEventsFun <- function(d, pts, buffer.list=list(NULL), fun.list=list(NULL), b
 	ord <- order(yrs)
 	files <- files[ord]
 	yrs <- yrs[ord]
-	yrs <- yrs[1:10]; files <- files[1:10]; n <- 10
 	e.hold <- cells.list <- list()
 	for(i in 1:n){
 		if(i==1) {
