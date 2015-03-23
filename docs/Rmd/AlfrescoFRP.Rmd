@@ -44,7 +44,7 @@ This script is called by the SLURM script, `CompileData.slurm` after the initial
 ```{r func_empirical}
 ```
 
-### Observational data-specific setup}
+### Observational data-specific setup
 
 ```{r empirical_data_setup}
 ```
