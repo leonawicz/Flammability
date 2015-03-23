@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title></title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/spacelab.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+padding-top: 50px;
+padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar) */
+.section h2 {
+padding-top: 55px;
+margin-top: -55px;
+}
+.section h3 {
+padding-top: 55px;
+margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+color: black;
+}
+/* some padding for disqus */
+#disqus_thread {
+margin-top: 45px;
+}
+</style>
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; background-color: #303030; color: #cccccc; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; }
+td.sourceCode { padding-left: 5px; }
+pre, code { color: #cccccc; background-color: #303030; }
+code > span.kw { color: #f0dfaf; }
+code > span.dt { color: #dfdfbf; }
+code > span.dv { color: #dcdccc; }
+code > span.bn { color: #dca3a3; }
+code > span.fl { color: #c0bed1; }
+code > span.ch { color: #dca3a3; }
+code > span.st { color: #cc9393; }
+code > span.co { color: #7f9f7f; }
+code > span.ot { color: #efef8f; }
+code > span.al { color: #ffcfaf; }
+code > span.fu { color: #efef8f; }
+code > span.er { color: #c3bf9f; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-46129458-3', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<div class="navbar navbar-default navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Flammability</a>
+      </div>
+      <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="empty">Overview</a></li>
+
+          <li class="dropdown">
+            <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
+              <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
+              <li><a href="meanTPbyVegClass_CRU31.html">meanTPbyVegClass_CRU31.R</a></li>
+              <li><a href="meanTPbyVegClass_CMIP5.html">meanTPbyVegClass_CMIP5.R</a></li>
+            </ul>
+
+          <li class="dropdown">
+            <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="gbm.html">gbm.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">Flammability maps</li>
+              <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
+              <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">ALFRESCO prep</li>
+              <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+            </ul>
+
+          <li class="dropdown">
+            <a href="alfresco" class="dropdown-toggle" data-toggle="dropdown">ALFRESCO <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">Main scripts</li>
+              <li><a href="AlfrescoCalibration.html">AlfrescoCalibration.R</a></li>
+              <li><a href="AlfrescoFRP.html">AlfrescoFRP.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">Functions</li>
+              <li><a href="histPrep.html">histPrep.R</a></li>
+              <li><a href="fireSizePlot.html">fireSizePlot.R</a></li>
+              <li><a href="AByearPlot.html">AByearPlot.R</a></li>
+              <li><a href="CABvsFSPlot.html">CABvsFSPlot.R</a></li>
+              <li><a href="CABvsTimePlot.html">CABvsTimePlot.R</a></li>
+            </ul>
+
+          <li class="dropdown">
+            <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">ALFRESCO launcher</li>
+              <li class="divider"></li>
+              <li class="dropdown-header">Results app</li>
+            </ul>
+
+          <li><a href="http://leonawicz.github.io">All Projects</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <a class="btn btn-link" href="https://github.com/leonawicz/Flammability">
+            <i class="fa fa-github fa-lg"></i>
+            Github
+          </a>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+
+
+
+<div id="section" class="section level2">
+<h2></h2>
+</div>
+<div id="section-1" class="section level2">
+<h2></h2>
+</div>
+<div id="meantpbyvegclass_cru31.r" class="section level2">
+<h2>meanTPbyVegClass_CRU31.R</h2>
+<p>The <code>meanTPbyVegClass_CRU31.R</code> script calculates mean temperature and precipitation over all grid cells in a CRU 3.1 map layer conditional of vegetation class using a given vegetation classification map. These vegetation-specific climate means are used as variables in gradient boosting machine (GBM), or generalized boosted regression modeling. The resulting GBM models are used to develop climate-driven, vegetation-mediated flammability maps with a nonlinear fire response to climate for use in ALFRESCO in place of basic temperature and precipitation maps.</p>
+</div>
+<div id="r-code" class="section level2">
+<h2>R code</h2>
+<div id="setup" class="section level3">
+<h3>Setup</h3>
+<pre class="sourceCode r"><code class="sourceCode r">comargs &lt;-<span class="st"> </span>(<span class="kw">commandArgs</span>(<span class="ot">TRUE</span>))
+if (<span class="kw">length</span>(comargs)) for (z in <span class="dv">1</span>:<span class="kw">length</span>(comargs)) <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text =</span> comargs[[z]]))
+
+if (!<span class="kw">exists</span>(<span class="st">&quot;allcavm&quot;</span>)) allcavm &lt;-<span class="st"> </span><span class="ot">FALSE</span>
+if (!<span class="kw">is.logical</span>(allcavm)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;allcavm&#39; must be logical.&quot;</span>)
+
+<span class="kw">library</span>(raster)
+<span class="kw">library</span>(parallel)
+
+<span class="kw">setwd</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces&quot;</span>)
+
+r.veg &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;../data/alf2005.cavm.merged.030212.tif&quot;</span>)
+veg.vec &lt;-<span class="st"> </span><span class="kw">getValues</span>(r.veg)
+<span class="kw">sort</span>(<span class="kw">unique</span>(veg.vec))
+veg.vec[veg.vec ==<span class="st"> </span><span class="dv">3</span> |<span class="st"> </span>veg.vec ==<span class="st"> </span><span class="dv">4</span>] &lt;-<span class="st"> </span><span class="dv">2</span>  <span class="co"># for forest</span>
+if (allcavm) veg.vec[veg.vec ==<span class="st"> </span><span class="dv">6</span> |<span class="st"> </span>veg.vec ==<span class="st"> </span><span class="dv">7</span>] &lt;-<span class="st"> </span><span class="dv">5</span>  <span class="co"># &#39;cavm&#39; all three shrub, graminoid, wetland combined</span>
+
+veg.vals &lt;-<span class="st"> </span>if (allcavm) <span class="dv">5</span> else <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>)
+veg.names &lt;-<span class="st"> </span>if (allcavm) <span class="st">&quot;cavm&quot;</span> else <span class="kw">c</span>(<span class="st">&quot;tundra&quot;</span>, <span class="st">&quot;forest&quot;</span>, <span class="st">&quot;shrub&quot;</span>, <span class="st">&quot;graminoid&quot;</span>, 
+    <span class="st">&quot;wetland&quot;</span>)
+modnames &lt;-<span class="st"> &quot;cru_TS31&quot;</span>
+scenario &lt;-<span class="st"> &quot;historical&quot;</span>
+path &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, scenario, 
+    modnames, <span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>))
+<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;../data/meanTPbyVegClass&quot;</span>, scenario, modnames), 
+    <span class="dt">showWarnings =</span> F, <span class="dt">recursive =</span> T)
+<span class="kw">dir.create</span>(wsDir &lt;-<span class="st"> &quot;meanTPbyVegClass&quot;</span>, <span class="dt">showWarnings =</span> F)
+
+### pick the years and months for the analysis
+yr.start &lt;-<span class="st"> </span><span class="dv">1901</span>
+yr.end &lt;-<span class="st"> </span><span class="dv">2009</span></code></pre>
+</div>
+<div id="function" class="section level3">
+<h3>Function</h3>
+<pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(k, path, veg.vec, veg.vals, veg.names) {
+    paths &lt;-<span class="st"> </span><span class="kw">list.files</span>(path, <span class="dt">full =</span> T)
+    ind &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">as.numeric</span>(<span class="kw">substr</span>(paths, <span class="kw">nchar</span>(paths) -<span class="st"> </span><span class="dv">7</span>, <span class="kw">nchar</span>(paths) -<span class="st"> </span><span class="dv">4</span>)) ==<span class="st"> </span>
+<span class="st">        </span>k)
+    paths &lt;-<span class="st"> </span>paths[ind]
+    precip.paths &lt;-<span class="st"> </span>paths[<span class="dv">1</span>:<span class="dv">12</span>]
+    temp.paths &lt;-<span class="st"> </span>paths[<span class="dv">13</span>:<span class="dv">24</span>]
+    precip.tmp &lt;-<span class="st"> </span><span class="kw">getValues</span>(<span class="kw">stack</span>(precip.paths))
+    temp.tmp &lt;-<span class="st"> </span><span class="kw">getValues</span>(<span class="kw">stack</span>(temp.paths))
+    means.P.mos.veg &lt;-<span class="st"> </span>means.T.mos.veg &lt;-<span class="st"> </span><span class="kw">c</span>()
+    for (j in <span class="dv">1</span>:<span class="kw">length</span>(veg.vals)) {
+        means.P.mos.veg &lt;-<span class="st"> </span><span class="kw">cbind</span>(means.P.mos.veg, <span class="kw">round</span>(<span class="kw">colMeans</span>(precip.tmp[veg.vec ==<span class="st"> </span>
+<span class="st">            </span>veg.vals[j], ], <span class="dt">na.rm =</span> T)))
+        means.T.mos.veg &lt;-<span class="st"> </span><span class="kw">cbind</span>(means.T.mos.veg, <span class="kw">round</span>(<span class="kw">colMeans</span>(temp.tmp[veg.vec ==<span class="st"> </span>
+<span class="st">            </span>veg.vals[j], ], <span class="dt">na.rm =</span> T), <span class="dv">1</span>))
+    }
+    <span class="kw">row.names</span>(means.P.mos.veg) &lt;-<span class="st"> </span><span class="kw">row.names</span>(means.T.mos.veg) &lt;-<span class="st"> </span>month.abb
+    <span class="kw">colnames</span>(means.P.mos.veg) &lt;-<span class="st"> </span><span class="kw">colnames</span>(means.T.mos.veg) &lt;-<span class="st"> </span>veg.names
+    <span class="kw">print</span>(k)
+    <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">Pmeans =</span> means.P.mos.veg, <span class="dt">Tmeans =</span> means.T.mos.veg, <span class="dt">k =</span> k -<span class="st"> </span>
+<span class="st">        </span>yr.start +<span class="st"> </span><span class="dv">1</span>))
+}</code></pre>
+</div>
+<div id="run" class="section level3">
+<h3>Run</h3>
+<pre class="sourceCode r"><code class="sourceCode r">f.out &lt;-<span class="st"> </span><span class="kw">mclapply</span>(yr.start:yr.end, f, <span class="dt">path =</span> path, <span class="dt">veg.vec =</span> veg.vec, <span class="dt">veg.vals =</span> veg.vals, 
+    <span class="dt">veg.names =</span> veg.names, <span class="dt">mc.cores =</span> <span class="kw">min</span>(<span class="kw">length</span>(yr.start:yr.end), <span class="dv">32</span>))
+<span class="kw">names</span>(f.out) &lt;-<span class="st"> </span>yr.start:yr.end
+for (i in <span class="dv">1</span>:<span class="kw">length</span>(veg.vals)) {
+    <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), <span class="kw">c</span>())
+    <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), <span class="kw">c</span>())
+}
+for (j in <span class="dv">1</span>:<span class="kw">length</span>(f.out)) {
+    for (i in <span class="dv">1</span>:<span class="kw">length</span>(veg.vals)) {
+        <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), 
+            <span class="kw">rbind</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), 
+                <span class="kw">c</span>(<span class="dt">Year =</span> <span class="kw">as.numeric</span>(<span class="kw">names</span>(f.out)[j]), f.out[[j]]$Pmeans[, i])))
+        <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), 
+            <span class="kw">rbind</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), 
+                <span class="kw">c</span>(<span class="dt">Year =</span> <span class="kw">as.numeric</span>(<span class="kw">names</span>(f.out)[j]), f.out[[j]]$Tmeans[, i])))
+    }
+}</code></pre>
+</div>
+<div id="save-outputs" class="section level3">
+<h3>Save outputs</h3>
+<pre class="sourceCode r"><code class="sourceCode r">for (i in <span class="dv">1</span>:<span class="kw">length</span>(veg.names)) {
+    <span class="kw">write.table</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), 
+        <span class="kw">paste</span>(outDir, <span class="st">&quot;/pr_&quot;</span>, scenario, <span class="st">&quot;_&quot;</span>, modnames, <span class="st">&quot;_&quot;</span>, veg.names[i], <span class="st">&quot;.csv&quot;</span>, 
+            <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">row.names =</span> F)
+    <span class="kw">write.table</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), 
+        <span class="kw">paste</span>(outDir, <span class="st">&quot;/tas_&quot;</span>, scenario, <span class="st">&quot;_&quot;</span>, modnames, <span class="st">&quot;_&quot;</span>, <span class="kw">sort</span>(veg.names)[i], 
+            <span class="st">&quot;.csv&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">row.names =</span> F)
+}
+
+<span class="kw">rm</span>(comargs, i, j, f.out, yr.start, yr.end, veg.vals, veg.vec, path, f, f2, modnames, 
+    scenario, r.veg, veg.names, outDir, allcavm)
+if (<span class="kw">length</span>(<span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;.*.cavm.*.&quot;</span>))) <span class="kw">save.image</span>(<span class="kw">file.path</span>(wsDir, <span class="st">&quot;meanTPbyVegClass_CRU31_cavm.RData&quot;</span>)) else <span class="kw">save.image</span>(<span class="kw">file.path</span>(wsDir, 
+    <span class="st">&quot;meanTPbyVegClass_CRU31_individual.RData&quot;</span>))</code></pre>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+<script>
+  // manage active state of menu based on current page
+  $(document).ready(function () {
+  
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    
+    // manage active menu header
+    if (href.startsWith('authoring_'))
+      $('a[href="' + 'authoring' + '"]').parent().addClass('active');
+    else if (href.endsWith('_format.html'))
+      $('a[href="' + 'formats' + '"]').parent().addClass('active');
+    else if (href.startsWith('developer_'))
+      $('a[href="' + 'developer' + '"]').parent().addClass('active');
+	  
+  });
+</script>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+
+</body>
+</html>
