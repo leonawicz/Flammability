@@ -192,7 +192,7 @@ fireEventsFunEmpirical <- function(b, pts, buffer.list = list(NULL), fun.list = 
 }
 ```
 
-### Observational data-specific setup}
+### Observational data-specific setup
 
 
 ```r
