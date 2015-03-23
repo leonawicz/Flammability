@@ -30,22 +30,24 @@ proj.github <- file.path("https://github.com", user, proj.name)
 index.url <- "index.html"
 #file.copy(index.url, "index.html")
 
-proj.title <- "Downscaling"
-proj.menu <- c("Overview", "Climatologies", "Anomalies", "Downscaling", "All Projects")
+proj.title <- "Flammability"
+proj.menu <- c("Overview", "Data Prep", "GBM Flammability", "ALFRESCO", "Apps", "All Projects")
 
 proj.submenu <- list(
 	c("empty"),
-	c("Main script", "climatologies.R", "divider", "Functions", "climPrep.R", "climCalc.R", "divider", "CRU 2.0", "cru20prelimExtraction.R"),
-	c("Main script", "anomalies.R", "divider", "Functions", "anomPrep.R", "anomCalc.R", "anomCalcAsScript.R", "anomParSubFunc.R"),
-	c("2-km/771-m PRISM", "ds_prism.R", "divider", "10-minute CRU 2.0", "ds_world10min.R"),
+	c("clim_resample_2km_1km.R", "clim_1km_clip2ak.R", "meanTPbyVegClass_CRU31.R", "meanTPbyVegClass_CMIP5.R"),
+	c("GBM Modeling", "gbm.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "FlammabilityMapMultipliers.R"),
+	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
+	c("ALFRESCO launcher", "divider", "Results app"), # Insert code files from both apps
 	c("empty")
 )
 
 proj.files <- list(
-	c("index.html"),
-	c("header", "climatologies.html", "divider", "header", "climPrep.html", "climCalc.html", "divider", "header", "cru20prelimExtraction"),
-	c("header", "anomalies.html", "divider", "header", "anomPrep.html", "anomCalc.html", "anomCalcAsScript.html", "anomParSubFunc.html"),
-	c("header", "ds_prism.html", "divider", "header", "ds_world10min.html"),
+	c("empty"),
+	c("clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "meanTPbyVegClass_CRU31.html", "meanTPbyVegClass_CMIP5.html"),
+	c("header", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
+	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
+	c("header", "divider", "header"), # Insert html files for code from both apps
 	c("http://leonawicz.github.io")
 )
 
