@@ -43,7 +43,7 @@ proj.submenu <- list(
 )
 
 proj.files <- list(
-	c("empty"),
+	c("index.html"),
 	c("clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "meanTPbyVegClass_CRU31.html", "meanTPbyVegClass_CMIP5.html"),
 	c("header", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
 	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
