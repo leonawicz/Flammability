@@ -1,5 +1,13 @@
-# Flammability
-Matthew Leonawicz  
+---
+title: Flammability
+author: Matthew Leonawicz
+output:
+  html_document:
+    toc: false
+    theme: spacelab
+    highlight: zenburn
+    keep_md: true
+---
 
 
 ##
