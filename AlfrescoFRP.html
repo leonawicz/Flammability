@@ -366,7 +366,7 @@ pts &lt;-<span class="st"> </span><span class="kw">wgs2ak</span>(pts)</code></pr
 }</code></pre>
 </div>
 <div id="observational-data-specific-setup" class="section level3">
-<h3>Observational data-specific setup}</h3>
+<h3>Observational data-specific setup</h3>
 <pre class="sourceCode r"><code class="sourceCode r">if (emp.fire.cause ==<span class="st"> &quot;All&quot;</span>) fah &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;/big_scratch/mfleonawicz/FAH/FireAreaHistory_11182013.shp&quot;</span>)
 if (emp.fire.cause ==<span class="st"> &quot;Lightning&quot;</span>) fah &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;/big_scratch/mfleonawicz/FAH/Lightning_Fires_11182013.shp&quot;</span>)
 yrs &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">as.numeric</span>(<span class="kw">unique</span>(fah@data$FireYear)))
