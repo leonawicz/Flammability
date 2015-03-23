@@ -8,10 +8,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
 
-<meta name="author" content="Matthew Leonawicz" />
 
 
-<title>Flammability</title>
+<title></title>
 
 <script src="libs/jquery-1.11.0/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,6 +44,33 @@ margin-top: 45px;
 </style>
 <link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
 
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; background-color: #303030; color: #cccccc; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; }
+td.sourceCode { padding-left: 5px; }
+pre, code { color: #cccccc; background-color: #303030; }
+code > span.kw { color: #f0dfaf; }
+code > span.dt { color: #dfdfbf; }
+code > span.dv { color: #dcdccc; }
+code > span.bn { color: #dca3a3; }
+code > span.fl { color: #c0bed1; }
+code > span.ch { color: #dca3a3; }
+code > span.st { color: #cc9393; }
+code > span.co { color: #7f9f7f; }
+code > span.ot { color: #efef8f; }
+code > span.al { color: #ffcfaf; }
+code > span.fu { color: #efef8f; }
+code > span.er { color: #c3bf9f; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
 
 
 
@@ -154,10 +180,6 @@ img {
     </div>
   </div>
 
-<div id="header">
-<h1 class="title">Flammability</h1>
-<h4 class="author"><em>Matthew Leonawicz</em></h4>
-</div>
 
 
 <div id="section" class="section level2">
@@ -166,21 +188,34 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="introduction" class="section level2">
-<h2>Introduction</h2>
-<p>Here you will find documentation on the <code>Flammability</code> project suite, a collection of related projects centered around the use of enhanced flammability input maps in ALFRESCO in lieu of basic monthly climate maps. There are a number of <strong>R</strong> scripts devoted to several key purposes, including:</p>
-<ul>
-<li>Data preparation for statistical modeling and ALFRESCO simulation modeling</li>
-<li>Development of gradient-boosted regression models (GBMs) of vegetation flammability</li>
-<li>Application of spatially explicit climate inputs to fitted GBMs for historical and projected flammability maps</li>
-<li>Historical period ALFRESCO model calibration</li>
-<li>Noatak region-specific analyses</li>
-<li>Classic statewide domain-specific analyses</li>
-<li>Web applications used to launch ALFRESCO and to gather and display results</li>
-<li>Lightning probability map integration</li>
-<li>Fire Return Period (FRP) and Fire Return Interval (FRI) tables and graphs</li>
-</ul>
-<p>This documentation is currently under development.</p>
+<div id="cabvstimeplot.r" class="section level2">
+<h2>CABvsTimePlot.R</h2>
+<p><code>CABvsTimePlot.R</code> stores the function <code>CABvsTimePlot</code>, which plots curves of cumulative burn area over the burnable ALFRESCO domain by time. A curve is plotted for each simulation replicate. The plot includes an overlay curve representing the historically observed cumulative burn area by time.</p>
+<p>This plot is called in <code>AlfrescoCalibration.R</code> and currently is hardcoded to plot curves based on 1950 - 2011.</p>
+</div>
+<div id="r-code" class="section level2">
+<h2>R code</h2>
+<pre class="sourceCode r"><code class="sourceCode r">CABvsTimePlot &lt;-<span class="st"> </span>function(years, baseline.year) {
+    abByYear &lt;-<span class="st"> </span><span class="kw">tapply</span>(emp.fse.trun1km, emp.fse.trun1km.year, sum)
+    indices &lt;-<span class="st"> </span><span class="kw">match</span>(<span class="kw">names</span>(abByYear), years)
+    cab.emp.all &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(years))
+    cab.emp.all[indices] &lt;-<span class="st"> </span>abByYear
+    cab.emp.all &lt;-<span class="st"> </span><span class="kw">cumsum</span>(cab.emp.all)
+    cab.alf.all &lt;-<span class="st"> </span><span class="kw">apply</span>(alf.fs[years -<span class="st"> </span>baseline.year +<span class="st"> </span><span class="dv">1</span>, ], <span class="dv">2</span>, cumsum)
+    ylm &lt;-<span class="st"> </span><span class="kw">range</span>(<span class="kw">c</span>(cab.emp.all, <span class="kw">c</span>(cab.alf.all)))
+    <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="kw">paste</span>(<span class="st">&quot;CAB_&quot;</span>, years[<span class="dv">1</span>], <span class="st">&quot;to&quot;</span>, years[<span class="kw">length</span>(years)], 
+        <span class="st">&quot;.png&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), <span class="dt">res =</span> <span class="dv">120</span>, <span class="dt">width =</span> <span class="dv">1000</span>, <span class="dt">height =</span> <span class="dv">800</span>)
+    <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">2</span>) +<span class="st"> </span><span class="fl">0.1</span>, <span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))
+    <span class="kw">plot</span>(<span class="dv">0</span>, <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> <span class="kw">range</span>(years), <span class="dt">ylim =</span> ylm, <span class="dt">ylab =</span> <span class="kw">expression</span>(<span class="kw">paste</span>(<span class="kw">plain</span>(<span class="st">&quot;Cumalitive Area Burn   &quot;</span>), 
+        (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>), <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), <span class="dt">xlab =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;CAB &quot;</span>, years[<span class="dv">1</span>], 
+        <span class="st">&quot;-&quot;</span>, years[<span class="kw">length</span>(years)], <span class="st">&quot;: Statewide&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">cex.axis =</span> <span class="fl">1.1</span>, 
+        <span class="dt">cex.lab =</span> <span class="fl">1.2</span>)
+    for (j in <span class="dv">1</span>:numrep) <span class="kw">lines</span>(years, cab.alf.all[, j], <span class="dt">lwd =</span> <span class="dv">1</span>, <span class="dt">lty =</span> <span class="dv">2</span>, <span class="dt">col =</span> <span class="st">&quot;dark gray&quot;</span>)
+    <span class="kw">lines</span>(years, cab.emp.all, <span class="dt">lwd =</span> <span class="dv">4</span>, <span class="dt">col =</span> <span class="dv">1</span>)
+    <span class="kw">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;Historical&quot;</span>, <span class="st">&quot;ALFRESCO Rep&quot;</span>), <span class="dt">col =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="st">&quot;dark gray&quot;</span>), 
+        <span class="dt">lty =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">cex =</span> <span class="fl">1.2</span>, <span class="dt">lwd =</span> <span class="kw">c</span>(<span class="dv">4</span>, <span class="dv">1</span>))
+    <span class="kw">dev.off</span>()
+}</code></pre>
 </div>
 
 <!-- some extra javascript for older browsers -->
