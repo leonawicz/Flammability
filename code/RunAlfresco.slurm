@@ -26,6 +26,7 @@ echo ${10}
 echo ${11}
 echo ${12}
 echo ${13}
+echo ${14}
 
 if [ $7 -eq 1 ]
 then
@@ -33,4 +34,4 @@ then
 mpirun -np 32 /home/UA/apbennett/test/bin/fresco-mpi --fif $6
 fi
 
-sbatch -D $2 CompileData.slurm $1 $3 $4 $5 $6 $8 $9 ${10} ${11} ${12} ${13}
+sbatch -D $2 CompileData.slurm $1 $3 $4 $5 $6 $8 $9 ${10} ${11} ${12} ${13} ${14}
