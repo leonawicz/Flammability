@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/19/2015        ####
+#### Last updated:   03/23/2015        ####
 
 # @knitr alf_calib
 comArgs <- commandArgs(TRUE)
@@ -40,4 +40,20 @@ AByearPlot(alf.fs, yrs, domain="total.ab.ha", domain.name="total", baseline=base
 fireSizePlot(yrs)
 CABvsFSPlot(yrs)
 
-save.image(file.path(outDir,"postProcess.RData"))
+get_FSE_df <- function(yrs, obs, obs.yrs, alf){
+	dec <- yrs - yrs %% 10
+	dec.tmp <- as.numeric(names(which(tapply(dec, dec, length)==10)))
+	if(length(dec.tmp)) dec <- dec.tmp
+	d.obs <- data.frame(Source="Observed", Replicate="Observed", Year=obs.yrs, Decade=obs.yrs - obs.yrs %% 10, FSE=obs)
+	d.obs <- subset(d.obs, Year >= min(dec) & Year <= max(dec) + 9)
+	d.alf <- subset(data.frame(alf), Year >= min(dec) & Year <= max(dec) + 9, select=1:3)
+	names(d.alf)[2:3] <- c("Replicate", "FSE")
+	d.alf$Source <- "Modeled"
+	d.alf <- transform(d.alf, Decade=Year - Year %% 10, Replicate=paste("Rep", Replicate))
+	rbind(d.obs, d.alf)
+}
+
+d.fse <- get_FSE_df(years, fse.emp, fse.emp.year, alf.fse)
+
+save.image(file.path(outDir, "postProcess.RData"))
+save(d.fse, file=file.path(outDir, "fse_df.RData"))

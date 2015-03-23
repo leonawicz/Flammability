@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/19/2015        ####
+#### Last updated:   03/23/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -15,8 +15,8 @@ if(length(comArgs>0)){
         eval(parse(text=apply(arg.mat,1,paste,collapse="=")))
 }
 cat(comArgs)
-dir.create(outDir <- file.path(out,"FRP"), showWarnings=F)
-sink(file=file.path(outDir,"message.txt"))
+dir.create(outDir <- file.path(out, "FRP"), showWarnings=F)
+sink(file=file.path(outDir, "message.txt"))
 cat(
 	"This message comes from the shiny user directory.\n
 	See ALFRESCO calibration figures [attached].\n
@@ -27,8 +27,8 @@ library(raster)
 library(parallel)
 library(plyr)
 
-mainDir <- file.path(input,"Maps")
-dir.create(outDir <- file.path(out,"FRP"), showWarnings=F)
+mainDir <- file.path(input, "Maps")
+dir.create(outDir <- file.path(out, "FRP"), showWarnings=F)
 if(!exists("pts")) stop("No coordinates file provided for relative area burned time series extraction.")
 if(!exists("buffers")) stop("No buffer(s) provided for relative area burned time series extraction.")
 
@@ -293,13 +293,14 @@ friFun <- function(d){
 
 fri.dat <- friFun(rab.dat)
 
-# Save objects in a workspace file to be transported to app
+# Load/save objects in a workspace file to be transported to app
+load(file.path(out, "fse_df.RData"))
 prefix <- ifelse(group.name=="none", "RAB_FRP", paste0(run.name, "_RAB_FRP"))
 ws <- ifelse(group.name=="none",
 		paste0(outDir,"/",prefix,"_Emp_",yrs.all[1],"_",tail(yrs.all,1),"_Alf_",alf.yrs[1],"_",tail(alf.yrs,1),".RData"),
 		paste0(outDir,"/",prefix,".RData")
 	)
-save(buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, file=ws)
+save(d.fse, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, file=ws)
 Sys.sleep(0.1)
 
 # @knitr save
