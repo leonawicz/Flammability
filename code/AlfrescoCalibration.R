@@ -57,3 +57,10 @@ d.fse <- get_FSE_df(years, fse.emp, fse.emp.year, alf.fse)
 
 save.image(file.path(outDir, "postProcess.RData"))
 save(d.fse, file=file.path(outDir, "fse_df.RData"))
+
+sink(file=file.path(outDir, "message.txt"))
+cat(
+	"This message comes from the shiny user directory.\n
+	See ALFRESCO calibration figures [attached].\n"
+)
+sink()

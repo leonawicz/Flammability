@@ -64,9 +64,6 @@ library(rmarkdown)
 library(knitr)
 setwd(rmd.path)
 
-# R scripts
-#files.r <- list.files("../../code", pattern=".R$", full=T)
-
 # Rmd files
 files.Rmd <- list.files(pattern=".Rmd$", full=T)
 

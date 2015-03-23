@@ -16,12 +16,8 @@ if(length(comArgs>0)){
 }
 cat(comArgs)
 dir.create(outDir <- file.path(out, "FRP"), showWarnings=F)
-sink(file=file.path(outDir, "message.txt"))
-cat(
-	"This message comes from the shiny user directory.\n
-	See ALFRESCO calibration figures [attached].\n
-	Below you will find a link to an R Shiny Alfresco FRP results web application.\n"
-)
+sink(file=file.path(out, "message.txt"), append=TRUE)
+cat("Below you will find a link to an R Shiny Alfresco FRP results web application.\n")
 
 library(raster)
 library(parallel)
