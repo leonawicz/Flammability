@@ -196,51 +196,7 @@ fireEventsFunEmpirical <- function(b, pts, buffer.list = list(NULL), fun.list = 
 
 
 ```r
-if (emp.fire.cause == "All") fah <- shapefile("/big_scratch/mfleonawicz/FAH/FireAreaHistory_11182013.shp")
-if (emp.fire.cause == "Lightning") fah <- shapefile("/big_scratch/mfleonawicz/FAH/Lightning_Fires_11182013.shp")
-yrs <- sort(as.numeric(unique(fah@data$FireYear)))
-yrs.all <- seq(yrs[1], tail(yrs, 1))
-
-if (substr(tolower(alf.domain), 1, 6) == "noatak") {
-    r <- raster("/big_scratch/mfleonawicz/Alf_Files_20121129/alf2005.cavm.merged.030212_Noatak.tif")
-    shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2.shp")
-} else if (substr(tolower(alf.domain), 1, 6) == "statew") {
-    r <- raster("/big_scratch/mfleonawicz/Alf_Files_20121129/alf2005.cavm.merged.030212.tif")
-    shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/statewide_shape/Alaska_Albers_ESRI.shp")
-}
-
-result.name <- paste0(outDir, "/firescarbrick_annual_observed_", gsub("_", "", 
-    alf.domain), "_", tolower(emp.fire.cause), "_1940_2013.tif")
-result2.name <- paste0(outDir, "/firescarlayer_total_observed_", gsub("_", "", 
-    alf.domain), "_", tolower(emp.fire.cause), "_1940_2013.tif")
-
-fireScarsFun <- function(x, y, year, years.avail) {
-    if (year %in% years.avail) {
-        x <- x[x$FireYear == year, ]
-        x <- rasterize(x, y, field = 1)
-    } else {
-        x <- x[x$FireYear == years.avail[1], ]
-        x <- rasterize(x, y, field = 1)
-        x[!is.na(x)] <- NA
-    }
-    x
-}
-
-fireScarsFunVec <- Vectorize(fireScarsFun, "year")
-dummy <- capture.output(result <- fireScarsFunVec(x = fah, y = r, year = yrs.all, 
-    years.avail = yrs))
-result <- lapply(result, function(x, r.veg) {
-    x[is.na(x) & !is.na(r.veg) & r.veg > 0] <- 0
-    x
-}, r.veg = r)
-dummy <- capture.output(result2 <- do.call("sum", c(result, na.rm = T)))
-result <- brick(result)
-names(result) <- yrs.all
-names(result2) <- paste(yrs.all[1], tail(yrs.all, 1), sep = "_")
-dummy <- capture.output(writeRaster(result, result.name, datatype = "FLT4S", 
-    overwrite = T))
-dummy <- capture.output(writeRaster(result2, result2.name, datatype = "FLT4S", 
-    overwrite = T))
+source("/big_scratch/shiny/obs_fire_setup.R")
 r.burnable <- Which(r > 0)
 ```
 
