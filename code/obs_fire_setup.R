@@ -1,3 +1,4 @@
+# @knitr emp_fire_setup
 if(emp.fire.cause=="All") fah <- shapefile("/big_scratch/mfleonawicz/FAH/FireAreaHistory_11182013.shp")
 if(emp.fire.cause=="Lightning") fah <- shapefile("/big_scratch/mfleonawicz/FAH/Lightning_Fires_11182013.shp")
 fah <- subset(fah, FireYear >= 1950) # do nto use observed data prior to 1950
