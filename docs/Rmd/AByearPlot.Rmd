@@ -18,7 +18,6 @@ read_chunk("../../code/AByearPlot.R")
 
 `AByearPlot.R` stores the function `AByearPlot`, which generates a basic annual box plot time series of total burn area over the burnable ALFRESCO domain among simulation replicates.
 It includes an overlay of points representing historical observations.
-Currently, this code will 
 
 This plot is called in `AlfrescoCalibration.R` and currently is hardcoded to plot a 1950 - 2011 time series.
 
