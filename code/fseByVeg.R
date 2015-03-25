@@ -91,7 +91,8 @@ fse.alf.list <- mclapply(1:min(num.reps, 32), fseByRep, mainDir=mainDir, vid=vid
 fse.alf <- as.data.frame(rbindlist(fse.alf.list))
 d.fse.veg <- rbind(fse.emp, fse.alf)
 d.fse.veg$Vegetation <- v.names[d.fse.veg$Vegetation]
-save(d.fse.veg, file=file.path(out, "fseByVeg_df.RData"))
+dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tolower(alf.domain),1,6)=="statew") "Statewide"
+save(d.fse.veg, file=paste0(out, "/fseByVeg_df_", dom, ".RData"))
 
 sink(file=file.path(out, "message.txt"), append=TRUE)
 cat("An R workspace file containing fire event sizes partitioned by vegetation class is attached.\n")
