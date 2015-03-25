@@ -1,0 +1,52 @@
+---
+output:
+  html_document:
+    toc: false
+    theme: flatly
+    highlight: zenburn
+    keep_md: true
+---
+
+```{r knitr_setup, echo=FALSE}
+opts_chunk$set(cache=FALSE, eval=TRUE, tidy=TRUE, message=FALSE, warning=FALSE, fig.height=9, fig.width=13.5)
+read_chunk("../../code/fseMLE.R")
+```
+
+##
+##
+## fseMLE.R
+
+The `fseMLE.R` script performs exploratory data analysis followed by maximum likelihood estimation of fire size distributions based on historical observations and ALFRESCO simulation outputs.
+Currently under development using Noatak region data only.
+Preliminary EDA plots available.
+
+## R code and results
+
+### Setup
+
+```{r setup}
+```
+
+##
+##
+### Exploratory data analysis
+
+#### Fire count by vegetation class: Noatak
+
+```{r eda_fc_noa}
+```
+
+#### Fire count by vegetation class: Statewide
+
+```{r eda_fc_sw}
+```
+
+```{r eda_pngs, echo=FALSE}
+```
+
+##
+##
+### Maximum likelihood estimation
+
+#```{r mle}
+#```
