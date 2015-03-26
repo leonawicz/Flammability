@@ -202,79 +202,106 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="clim_1km_clip2ak.r" class="section level2">
-<h2>clim_1km_clip2ak.R</h2>
-<p>The <code>clim_1km_clip2ak.R</code> script clips resampled data created by <code>clim_resample_2km_1km.R</code> to the classic statewide ALFRESCO extent for eventual inclusion into ALFRESCO modeling. The clipping is basically a crop and mask.</p>
+<div id="fsemle.r-eda-part-3" class="section level2">
+<h2>fseMLE.R EDA part 3</h2>
+<div id="statewide-forest-fire-size-log-normality" class="section level3">
+<h3>Statewide forest fire size log-normality</h3>
+<p>Evaluate the degree of log-normality of forest fire size distributions using observed data and modeled outputs for the statewide region. The forest class is an aggregation of black spruce, white spruce, and deciduous tree species.</p>
+<div id="observed-and-sample-replicate-simulation-fire-sizes-by-decade" class="section level4">
+<h4>Observed and sample replicate simulation fire sizes by decade</h4>
+<p>The first replicate was selected.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Statewide forest observed and simulation replicate 1</span>
+d.sf &lt;-<span class="st"> </span><span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span> &amp;<span class="st"> </span>Vegetation ==<span class="st"> &quot;Forest&quot;</span> &amp;<span class="st"> </span>Replicate %in%<span class="st"> </span>
+<span class="st">    </span><span class="kw">c</span>(<span class="st">&quot;Observed&quot;</span>, <span class="st">&quot;Rep 0&quot;</span>), <span class="dt">select =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">7</span>))
+p03a &lt;-<span class="st"> </span><span class="kw">check_lnorm</span>(d.sf, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)
+<span class="kw">p03a</span>()</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 0.5504, p-value = 0.1525</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_all-1.png" /></p>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 2.2632, p-value = 8.894e-06</code></pre>
 </div>
-<div id="r-code" class="section level2">
-<h2>R code</h2>
-<div id="setup" class="section level3">
-<h3>Setup</h3>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(parallel)
-<span class="kw">library</span>(raster)
-
-comargs &lt;-<span class="st"> </span>(<span class="kw">commandArgs</span>(<span class="ot">TRUE</span>))
-if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span class="st">&quot;no&quot;</span>) else for (z in <span class="dv">1</span>:<span class="kw">length</span>(comargs)) <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text =</span> comargs[[z]]))
-
-if (!<span class="kw">exists</span>(<span class="st">&quot;cru&quot;</span>)) cru &lt;-<span class="st"> </span><span class="ot">FALSE</span>
-if (!<span class="kw">is.logical</span>(cru)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;cru&#39; must be logical.&quot;</span>)
-
-msk &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif&quot;</span>)
-e &lt;-<span class="st"> </span><span class="kw">extent</span>(msk)
-
-if (cru) {
-    mainDir &lt;-<span class="st"> &quot;/Data/Base_Data/ALFRESCO_formatted/ALFRESCO_Master_Dataset/ALFRESCO_Model_Input_Datasets/AK_CAN_Inputs/Climate&quot;</span>
-    varid &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>)
-    rcp &lt;-<span class="st"> &quot;historical&quot;</span>
-    model &lt;-<span class="st"> &quot;cru_TS31&quot;</span>
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, model, rcp, varid)
-} else {
-    mainDir &lt;-<span class="st"> &quot;/big_scratch/mfleonawicz/CMIP5_Climate_1km&quot;</span>
-    varid &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>), <span class="dv">15</span>)
-    rcp &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">paste0</span>(<span class="st">&quot;rcp&quot;</span>, <span class="kw">c</span>(<span class="dv">45</span>, <span class="dv">60</span>, <span class="dv">85</span>)), <span class="dt">each =</span> <span class="dv">2</span>), <span class="dv">5</span>)
-    model &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">list.files</span>(<span class="kw">file.path</span>(mainDir, <span class="st">&quot;rcp60&quot;</span>)), <span class="dt">each =</span> <span class="dv">6</span>)
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, rcp, model, varid)
-}
-
-outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, rcp, 
-    model, varid)
-for (i in <span class="dv">1</span>:<span class="kw">length</span>(outDir)) <span class="kw">dir.create</span>(outDir[i], <span class="dt">recursive =</span> T, <span class="dt">showWarnings =</span> F)</code></pre>
+<div id="observed-and-sample-replicate-simulation-fire-sizes-by-decade-1" class="section level4">
+<h4>Observed and sample replicate simulation fire sizes by decade</h4>
+<p>The first replicate was selected.</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">check_lnorm_dec</span>(<span class="st">&quot;p03&quot;</span>, d.sf, dec, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 0.6595, p-value = 0.08272</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-1.png" /></p>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 4.8251, p-value = 4.978e-12</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 0.489, p-value = 0.2174</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-2.png" /></p>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 2.9442, p-value = 1.891e-07</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 0.2872, p-value = 0.6144</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-3.png" /></p>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 2.1299, p-value = 1.894e-05</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 0.3724, p-value = 0.4137</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-4.png" /></p>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 1.6118, p-value = 0.0003597</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 0.4013, p-value = 0.354</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-5.png" /></p>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 2.2208, p-value = 1.131e-05</code></pre>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 0.9942, p-value = 0.01219</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-6.png" /></p>
+<pre><code>## 
+##  Anderson-Darling normality test
+## 
+## data:  sample(logx, min(length(logx), nmax.ad.test))
+## A = 1.7813, p-value = 0.0001372</code></pre>
+<pre><code>## NULL</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dev.off</span>()</code></pre>
+<pre><code>## null device 
+##           1</code></pre>
 </div>
-<div id="function" class="section level3">
-<h3>Function</h3>
-<pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(i, <span class="dt">files =</span> <span class="ot">NULL</span>, subDir, outDir, msk) {
-    if (<span class="kw">is.null</span>(files)) {
-        files &lt;-<span class="st"> </span><span class="kw">list.files</span>(subDir[i], <span class="dt">full =</span> T, <span class="dt">pattern =</span> <span class="st">&quot;.tif$&quot;</span>)
-        ind &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="kw">length</span>(files)
-        ind2 &lt;-<span class="st"> </span>i
-    } else {
-        ind &lt;-<span class="st"> </span>i
-        ind2 &lt;-<span class="st"> </span><span class="dv">1</span>
-    }
-    for (j in ind) {
-        r &lt;-<span class="st"> </span><span class="kw">raster</span>(files[j])
-        r &lt;-<span class="st"> </span><span class="kw">crop</span>(r, msk)
-        r &lt;-<span class="st"> </span><span class="kw">mask</span>(r, msk)
-        <span class="kw">extent</span>(r) &lt;-<span class="st"> </span>e
-        <span class="kw">writeRaster</span>(r, <span class="kw">file.path</span>(outDir[ind2], <span class="kw">basename</span>(files[j])), <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
-            <span class="dt">overwrite =</span> T)
-        <span class="kw">print</span>(<span class="kw">length</span>(files) -<span class="st"> </span>j)
-    }
-    <span class="kw">return</span>()
-}</code></pre>
-</div>
-<div id="run" class="section level3">
-<h3>Run</h3>
-<pre class="sourceCode r"><code class="sourceCode r">if (cru) {
-    for (k in <span class="dv">1</span>:<span class="kw">length</span>(subDir)) {
-        files &lt;-<span class="st"> </span><span class="kw">list.files</span>(subDir[k], <span class="dt">full =</span> T, <span class="dt">pattern =</span> <span class="st">&quot;.tif$&quot;</span>)
-        <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(files), f, <span class="dt">files =</span> files, <span class="dt">subDir =</span> <span class="ot">NULL</span>, <span class="dt">outDir =</span> outDir[k], 
-            <span class="dt">msk =</span> msk, <span class="dt">mc.cores =</span> <span class="dv">32</span>)
-    }
-} else {
-    <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(subDir), f, <span class="dt">subDir =</span> subDir, <span class="dt">outDir =</span> outDir, <span class="dt">msk =</span> msk, 
-        <span class="dt">cru =</span> cru, <span class="dt">mc.cores =</span> <span class="kw">length</span>(subDir))
-}</code></pre>
 </div>
 </div>
 

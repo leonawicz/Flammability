@@ -202,79 +202,23 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="clim_1km_clip2ak.r" class="section level2">
-<h2>clim_1km_clip2ak.R</h2>
-<p>The <code>clim_1km_clip2ak.R</code> script clips resampled data created by <code>clim_resample_2km_1km.R</code> to the classic statewide ALFRESCO extent for eventual inclusion into ALFRESCO modeling. The clipping is basically a crop and mask.</p>
-</div>
-<div id="r-code" class="section level2">
-<h2>R code</h2>
-<div id="setup" class="section level3">
-<h3>Setup</h3>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(parallel)
-<span class="kw">library</span>(raster)
+<div id="slurm-scripts" class="section level2">
+<h2>SLURM scripts</h2>
+<p>For complete context, below are all the SLURM scripts associated with the <code>Flammability</code> project suite.</p>
+<div id="clip.slurm" class="section level3">
+<h3>clip.slurm</h3>
+<pre class="sourceCode bash"><code class="sourceCode bash"><span class="co">#SBATCH --exclusive</span>
+<span class="co">#SBATCH --mail-type=END</span>
+<span class="co">#SBATCH --mail-user=mfleonawicz@alaska.edu</span>
+<span class="co">#SBATCH --ntasks=32</span>
+<span class="co">#SBATCH --nodes=1</span>
+<span class="co">####SBATCH --nodelist=atlas10</span>
+<span class="co">#SBATCH --job-name=clip2ak</span>
+<span class="co">#SBATCH --account=snap</span>
+<span class="co">#SBATCH -p main</span>
 
-comargs &lt;-<span class="st"> </span>(<span class="kw">commandArgs</span>(<span class="ot">TRUE</span>))
-if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span class="st">&quot;no&quot;</span>) else for (z in <span class="dv">1</span>:<span class="kw">length</span>(comargs)) <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text =</span> comargs[[z]]))
-
-if (!<span class="kw">exists</span>(<span class="st">&quot;cru&quot;</span>)) cru &lt;-<span class="st"> </span><span class="ot">FALSE</span>
-if (!<span class="kw">is.logical</span>(cru)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;cru&#39; must be logical.&quot;</span>)
-
-msk &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif&quot;</span>)
-e &lt;-<span class="st"> </span><span class="kw">extent</span>(msk)
-
-if (cru) {
-    mainDir &lt;-<span class="st"> &quot;/Data/Base_Data/ALFRESCO_formatted/ALFRESCO_Master_Dataset/ALFRESCO_Model_Input_Datasets/AK_CAN_Inputs/Climate&quot;</span>
-    varid &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>)
-    rcp &lt;-<span class="st"> &quot;historical&quot;</span>
-    model &lt;-<span class="st"> &quot;cru_TS31&quot;</span>
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, model, rcp, varid)
-} else {
-    mainDir &lt;-<span class="st"> &quot;/big_scratch/mfleonawicz/CMIP5_Climate_1km&quot;</span>
-    varid &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>), <span class="dv">15</span>)
-    rcp &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">paste0</span>(<span class="st">&quot;rcp&quot;</span>, <span class="kw">c</span>(<span class="dv">45</span>, <span class="dv">60</span>, <span class="dv">85</span>)), <span class="dt">each =</span> <span class="dv">2</span>), <span class="dv">5</span>)
-    model &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">list.files</span>(<span class="kw">file.path</span>(mainDir, <span class="st">&quot;rcp60&quot;</span>)), <span class="dt">each =</span> <span class="dv">6</span>)
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, rcp, model, varid)
-}
-
-outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, rcp, 
-    model, varid)
-for (i in <span class="dv">1</span>:<span class="kw">length</span>(outDir)) <span class="kw">dir.create</span>(outDir[i], <span class="dt">recursive =</span> T, <span class="dt">showWarnings =</span> F)</code></pre>
-</div>
-<div id="function" class="section level3">
-<h3>Function</h3>
-<pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(i, <span class="dt">files =</span> <span class="ot">NULL</span>, subDir, outDir, msk) {
-    if (<span class="kw">is.null</span>(files)) {
-        files &lt;-<span class="st"> </span><span class="kw">list.files</span>(subDir[i], <span class="dt">full =</span> T, <span class="dt">pattern =</span> <span class="st">&quot;.tif$&quot;</span>)
-        ind &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="kw">length</span>(files)
-        ind2 &lt;-<span class="st"> </span>i
-    } else {
-        ind &lt;-<span class="st"> </span>i
-        ind2 &lt;-<span class="st"> </span><span class="dv">1</span>
-    }
-    for (j in ind) {
-        r &lt;-<span class="st"> </span><span class="kw">raster</span>(files[j])
-        r &lt;-<span class="st"> </span><span class="kw">crop</span>(r, msk)
-        r &lt;-<span class="st"> </span><span class="kw">mask</span>(r, msk)
-        <span class="kw">extent</span>(r) &lt;-<span class="st"> </span>e
-        <span class="kw">writeRaster</span>(r, <span class="kw">file.path</span>(outDir[ind2], <span class="kw">basename</span>(files[j])), <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
-            <span class="dt">overwrite =</span> T)
-        <span class="kw">print</span>(<span class="kw">length</span>(files) -<span class="st"> </span>j)
-    }
-    <span class="kw">return</span>()
-}</code></pre>
-</div>
-<div id="run" class="section level3">
-<h3>Run</h3>
-<pre class="sourceCode r"><code class="sourceCode r">if (cru) {
-    for (k in <span class="dv">1</span>:<span class="kw">length</span>(subDir)) {
-        files &lt;-<span class="st"> </span><span class="kw">list.files</span>(subDir[k], <span class="dt">full =</span> T, <span class="dt">pattern =</span> <span class="st">&quot;.tif$&quot;</span>)
-        <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(files), f, <span class="dt">files =</span> files, <span class="dt">subDir =</span> <span class="ot">NULL</span>, <span class="dt">outDir =</span> outDir[k], 
-            <span class="dt">msk =</span> msk, <span class="dt">mc.cores =</span> <span class="dv">32</span>)
-    }
-} else {
-    <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(subDir), f, <span class="dt">subDir =</span> subDir, <span class="dt">outDir =</span> outDir, <span class="dt">msk =</span> msk, 
-        <span class="dt">cru =</span> cru, <span class="dt">mc.cores =</span> <span class="kw">length</span>(subDir))
-}</code></pre>
+<span class="co">#### $1 optional argument, cru=TRUE, defaults to FALSE if unspecified;</span>
+<span class="kw">Rscript</span> /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/clim_1km_clip2ak.R <span class="ot">$1</span></code></pre>
 </div>
 </div>
 

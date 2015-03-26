@@ -202,79 +202,85 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="clim_1km_clip2ak.r" class="section level2">
-<h2>clim_1km_clip2ak.R</h2>
-<p>The <code>clim_1km_clip2ak.R</code> script clips resampled data created by <code>clim_resample_2km_1km.R</code> to the classic statewide ALFRESCO extent for eventual inclusion into ALFRESCO modeling. The clipping is basically a crop and mask.</p>
+<div id="fsemle.r-eda-part-1" class="section level2">
+<h2>fseMLE.R EDA part 1</h2>
+<div id="fire-samples" class="section level3">
+<h3>Fire samples</h3>
+<p>The <code>fseMLE.R</code> script performs exploratory data analysis followed by maximum likelihood estimation of fire size distributions based on historical observations and ALFRESCO simulation outputs. Currently under development. Preliminary EDA plots available.</p>
 </div>
-<div id="r-code" class="section level2">
-<h2>R code</h2>
+</div>
+<div id="r-code-and-results" class="section level2">
+<h2>R code and results</h2>
 <div id="setup" class="section level3">
 <h3>Setup</h3>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(parallel)
-<span class="kw">library</span>(raster)
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setwd</span>(<span class="st">&quot;C:/github/Flammability/workspaces&quot;</span>)
+<span class="kw">load</span>(<span class="st">&quot;fseByVeg_df_Noatak.RData&quot;</span>)
+d.fse.veg$Domain &lt;-<span class="st"> &quot;Noatak&quot;</span>
+d &lt;-<span class="st"> </span>d.fse.veg
+<span class="kw">load</span>(<span class="st">&quot;fseByVeg_df_Statewide.RData&quot;</span>)
+d.fse.veg$Domain &lt;-<span class="st"> &quot;Statewide&quot;</span>
+d &lt;-<span class="st"> </span><span class="kw">rbind</span>(d, d.fse.veg)
+<span class="kw">rm</span>(d.fse.veg)
 
-comargs &lt;-<span class="st"> </span>(<span class="kw">commandArgs</span>(<span class="ot">TRUE</span>))
-if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span class="st">&quot;no&quot;</span>) else for (z in <span class="dv">1</span>:<span class="kw">length</span>(comargs)) <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text =</span> comargs[[z]]))
+d &lt;-<span class="st"> </span><span class="kw">transform</span>(d, <span class="dt">Decade =</span> Year -<span class="st"> </span>Year%%<span class="dv">10</span>)
+d$Decade &lt;-<span class="st"> </span><span class="kw">paste0</span>(d$Decade, <span class="st">&quot;s&quot;</span>)
+d &lt;-<span class="st"> </span><span class="kw">subset</span>(d, Year &lt;<span class="st"> </span><span class="dv">2010</span>)
+<span class="co"># veg.names &lt;- unique(d.fse.veg$Vegetation)</span>
+veg.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Alpine&quot;</span>, <span class="st">&quot;Forest&quot;</span>, <span class="st">&quot;Shrub&quot;</span>, <span class="st">&quot;Graminoid&quot;</span>, <span class="st">&quot;Wetland&quot;</span>)
+n.veg &lt;-<span class="st"> </span><span class="kw">length</span>(veg.names)
+reps &lt;-<span class="st"> </span><span class="kw">unique</span>(d$Replicate)
+n.reps &lt;-<span class="st"> </span><span class="kw">length</span>(reps)
+dec &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">unique</span>(d$Decade))
+n.dec &lt;-<span class="st"> </span><span class="kw">length</span>(dec)
+doms &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Noatak&quot;</span>, <span class="st">&quot;Statewide&quot;</span>)
 
-if (!<span class="kw">exists</span>(<span class="st">&quot;cru&quot;</span>)) cru &lt;-<span class="st"> </span><span class="ot">FALSE</span>
-if (!<span class="kw">is.logical</span>(cru)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;cru&#39; must be logical.&quot;</span>)
-
-msk &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif&quot;</span>)
-e &lt;-<span class="st"> </span><span class="kw">extent</span>(msk)
-
-if (cru) {
-    mainDir &lt;-<span class="st"> &quot;/Data/Base_Data/ALFRESCO_formatted/ALFRESCO_Master_Dataset/ALFRESCO_Model_Input_Datasets/AK_CAN_Inputs/Climate&quot;</span>
-    varid &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>)
-    rcp &lt;-<span class="st"> &quot;historical&quot;</span>
-    model &lt;-<span class="st"> &quot;cru_TS31&quot;</span>
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, model, rcp, varid)
-} else {
-    mainDir &lt;-<span class="st"> &quot;/big_scratch/mfleonawicz/CMIP5_Climate_1km&quot;</span>
-    varid &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>), <span class="dv">15</span>)
-    rcp &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">paste0</span>(<span class="st">&quot;rcp&quot;</span>, <span class="kw">c</span>(<span class="dv">45</span>, <span class="dv">60</span>, <span class="dv">85</span>)), <span class="dt">each =</span> <span class="dv">2</span>), <span class="dv">5</span>)
-    model &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">list.files</span>(<span class="kw">file.path</span>(mainDir, <span class="st">&quot;rcp60&quot;</span>)), <span class="dt">each =</span> <span class="dv">6</span>)
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, rcp, model, varid)
-}
-
-outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, rcp, 
-    model, varid)
-for (i in <span class="dv">1</span>:<span class="kw">length</span>(outDir)) <span class="kw">dir.create</span>(outDir[i], <span class="dt">recursive =</span> T, <span class="dt">showWarnings =</span> F)</code></pre>
+<span class="kw">library</span>(ggplot2)
+<span class="kw">dir.create</span>(plotDir &lt;-<span class="st"> &quot;C:/github/Flammability/plots/fseMLE&quot;</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
+cbpal &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#000000&quot;</span>, <span class="st">&quot;#E69F00&quot;</span>, <span class="st">&quot;#56B4E9&quot;</span>, <span class="st">&quot;#009E73&quot;</span>, <span class="st">&quot;#F0E442&quot;</span>, <span class="st">&quot;#0072B2&quot;</span>, 
+    <span class="st">&quot;#D55E00&quot;</span>, <span class="st">&quot;#CC79A7&quot;</span>)</code></pre>
 </div>
-<div id="function" class="section level3">
-<h3>Function</h3>
-<pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(i, <span class="dt">files =</span> <span class="ot">NULL</span>, subDir, outDir, msk) {
-    if (<span class="kw">is.null</span>(files)) {
-        files &lt;-<span class="st"> </span><span class="kw">list.files</span>(subDir[i], <span class="dt">full =</span> T, <span class="dt">pattern =</span> <span class="st">&quot;.tif$&quot;</span>)
-        ind &lt;-<span class="st"> </span><span class="dv">1</span>:<span class="kw">length</span>(files)
-        ind2 &lt;-<span class="st"> </span>i
-    } else {
-        ind &lt;-<span class="st"> </span>i
-        ind2 &lt;-<span class="st"> </span><span class="dv">1</span>
-    }
-    for (j in ind) {
-        r &lt;-<span class="st"> </span><span class="kw">raster</span>(files[j])
-        r &lt;-<span class="st"> </span><span class="kw">crop</span>(r, msk)
-        r &lt;-<span class="st"> </span><span class="kw">mask</span>(r, msk)
-        <span class="kw">extent</span>(r) &lt;-<span class="st"> </span>e
-        <span class="kw">writeRaster</span>(r, <span class="kw">file.path</span>(outDir[ind2], <span class="kw">basename</span>(files[j])), <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
-            <span class="dt">overwrite =</span> T)
-        <span class="kw">print</span>(<span class="kw">length</span>(files) -<span class="st"> </span>j)
-    }
-    <span class="kw">return</span>()
-}</code></pre>
 </div>
-<div id="run" class="section level3">
-<h3>Run</h3>
-<pre class="sourceCode r"><code class="sourceCode r">if (cru) {
-    for (k in <span class="dv">1</span>:<span class="kw">length</span>(subDir)) {
-        files &lt;-<span class="st"> </span><span class="kw">list.files</span>(subDir[k], <span class="dt">full =</span> T, <span class="dt">pattern =</span> <span class="st">&quot;.tif$&quot;</span>)
-        <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(files), f, <span class="dt">files =</span> files, <span class="dt">subDir =</span> <span class="ot">NULL</span>, <span class="dt">outDir =</span> outDir[k], 
-            <span class="dt">msk =</span> msk, <span class="dt">mc.cores =</span> <span class="dv">32</span>)
-    }
-} else {
-    <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(subDir), f, <span class="dt">subDir =</span> subDir, <span class="dt">outDir =</span> outDir, <span class="dt">msk =</span> msk, 
-        <span class="dt">cru =</span> cru, <span class="dt">mc.cores =</span> <span class="kw">length</span>(subDir))
-}</code></pre>
+<div id="section-2" class="section level2">
+<h2></h2>
+</div>
+<div id="section-3" class="section level2">
+<h2></h2>
+<div id="exploratory-data-analysis" class="section level3">
+<h3>Exploratory data analysis</h3>
+<div id="fire-count-by-vegetation-class-noatak" class="section level4">
+<h4>Fire count by vegetation class: Noatak</h4>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Observed and modeled fire counts by vegetation class</span>
+p01a &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Noatak&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
+p01a</code></pre>
+<p><img src="fse_eda1_files/figure-html/fc_noa_veg-1.png" /></p>
+</div>
+<div id="fire-count-by-vegetation-class-statewide" class="section level4">
+<h4>Fire count by vegetation class: Statewide</h4>
+<pre class="sourceCode r"><code class="sourceCode r">p01b &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
+p01b</code></pre>
+<p><img src="fse_eda1_files/figure-html/fc_sw_veg-1.png" /></p>
+</div>
+<div id="fire-count-by-decade-noatak-shrub" class="section level4">
+<h4>Fire count by decade: Noatak shrub</h4>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Observed and modeled fire counts by decade given vegetation class</span>
+p01c &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Noatak&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
+p01c</code></pre>
+<p><img src="fse_eda1_files/figure-html/fc_noa_shrub_dec-1.png" /></p>
+</div>
+<div id="fire-count-by-decade-statewide-forest" class="section level4">
+<h4>Fire count by decade: Statewide forest</h4>
+<pre class="sourceCode r"><code class="sourceCode r">p01d &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
+p01d</code></pre>
+<p><img src="fse_eda1_files/figure-html/fc_sw_forest_dec-1.png" /></p>
+</div>
 </div>
 </div>
 
