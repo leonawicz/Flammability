@@ -61,19 +61,19 @@ p01d
 
 # @knitr func_check_lnorm
 # Functions to assess log-normality of fire size for observed data and a sample simulation replicate
-check_lnorm <- function(d, nmax.ad.test=100, verbose=TRUE, closure=TRUE, ...){
+check_lnorm <- function(d, nmax.ad.test=100, verbose=FALSE, closure=TRUE, period="1950-2009", ...){
 	f <- function(){
 		require("nortest")
 		dl <- split(d$FSE, d$Replicate)
 		if(length(dl)==2) iters <- 1:2 else if(names(dl)=="Observed") iters <- 1 else iters <- 2
-		id <- c("observations", "simulations")[iters]
+		id <- paste(period, c("observations", "simulations"))[iters]
 		if(length(iters)==1) iters <- 1
 		layout(matrix(1:(3*length(iters)), length(iters), byrow=T))
 		for(i in iters){
 			x <- dl[[i]]
-			logx <- log(x + runif(length(x), -0.95, 0.95))
+			logx <- log(x + runif(length(x), -0.95, 0.95)) # Add uniform noise
 			hist(x, main=paste("Histrogram of", id[i]), ...)
-			hist(logx, main=paste0("Histrogram of log(", id[i], " + uniform noise)"), ...)
+			hist(logx, main=paste0("Histrogram of log(", id[i], ")"), ...)
 			qqnorm(logx, main=paste("Q-Q plot:", id[i]), ...)
 			qqline(logx, main=paste("Q-Q plot:", id[i]), ...)
 			if(verbose) { if(length(logx) > 7) print(ad.test(sample(logx, min(length(logx), nmax.ad.test)))) else print("Sample too small for Anderson-Darling normality test.") }
@@ -85,7 +85,7 @@ check_lnorm <- function(d, nmax.ad.test=100, verbose=TRUE, closure=TRUE, ...){
 check_lnorm_dec <- function(id, d, dec, i.offset=1, ...){
 	for(i in 1:length(dec)){
 		pid <- paste0(id, letters[i + i.offset])
-		assign(pid, check_lnorm(subset(d, Decade==dec[i]), ...), pos=1)
+		assign(pid, check_lnorm(subset(d, Decade==dec[i]), period=dec[i], ...), pos=1)
 		get(pid)()
 	}
 	return(NULL)
