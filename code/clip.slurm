@@ -1,4 +1,5 @@
 #!/bin/sh
+## @knitr clip.slurm
 #SBATCH --exclusive
 #SBATCH --mail-type=END
 #SBATCH --mail-user=mfleonawicz@alaska.edu
