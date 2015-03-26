@@ -1,0 +1,43 @@
+---
+output:
+  html_document:
+    toc: false
+    theme: flatly
+    highlight: zenburn
+    keep_md: true
+---
+
+```{r knitr_setup, echo=FALSE}
+opts_chunk$set(cache=FALSE, eval=TRUE, tidy=TRUE, message=FALSE, warning=FALSE, fig.height=9, fig.width=13.5)
+read_chunk("../../code/fseMLE.R")
+```
+
+##
+##
+## fseMLE.R EDA part 2
+### Noatak shrub fire size log-normality
+
+Evaluate the degree of log-normality of shrub fire size distributions using observed data and modeled outputs for the Noatak region.
+
+```{r setup, results="hide"}
+```
+
+#### Observed and sample replicate simulation fire sizes
+
+The first replicate was selected.
+
+```{r lnorm_noa_shrub_all}
+```
+
+#### Observed and sample replicate simulation fire sizes by decade
+
+The first replicate was selected.
+
+```{r lnorm_noa_shrub_decades}
+```
+
+```{r func_eda_pngs, echo=FALSE}
+```
+
+```{r eda_pngs_02, echo=FALSE, results="hide"}
+```

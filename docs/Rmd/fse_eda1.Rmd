@@ -14,7 +14,7 @@ read_chunk("../../code/fseMLE.R")
 
 ##
 ##
-## fseMLE.R
+## fseMLE.R EDA part 1
 
 The `fseMLE.R` script performs exploratory data analysis followed by maximum likelihood estimation of fire size distributions based on historical observations and ALFRESCO simulation outputs.
 Currently under development.
@@ -51,14 +51,8 @@ Preliminary EDA plots available.
 ```{r fc_sw_forest_dec}
 ```
 
-
-```{r eda_pngs, echo=FALSE}
+```{r func_eda_pngs, echo=FALSE}
 ```
 
-
-##
-##
-### Maximum likelihood estimation
-
-#```{r mle}
-#```
+```{r eda_pngs_01, echo=FALSE}
+```
