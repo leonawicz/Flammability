@@ -212,7 +212,7 @@ img {
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Functions to assess log-normality of fire size for observed data and a</span>
 <span class="co"># sample simulation replicate</span>
 check_lnorm &lt;-<span class="st"> </span>function(d, <span class="dt">nmax.ad.test =</span> <span class="dv">100</span>, <span class="dt">verbose =</span> <span class="ot">FALSE</span>, <span class="dt">closure =</span> <span class="ot">TRUE</span>, 
-    <span class="dt">period =</span> <span class="st">&quot;1950-2009&quot;</span>, ...) {
+    <span class="dt">period =</span> <span class="st">&quot;1950-2009&quot;</span>, <span class="dt">border =</span> <span class="ot">FALSE</span>, ...) {
     f &lt;-<span class="st"> </span>function() {
         <span class="kw">require</span>(<span class="st">&quot;nortest&quot;</span>)
         dl &lt;-<span class="st"> </span><span class="kw">split</span>(d$FSE, d$Replicate)
@@ -223,6 +223,8 @@ check_lnorm &lt;-<span class="st"> </span>function(d, <span class="dt">nmax.ad.t
         if (<span class="kw">length</span>(iters) ==<span class="st"> </span><span class="dv">1</span>) 
             iters &lt;-<span class="st"> </span><span class="dv">1</span>
         <span class="kw">layout</span>(<span class="kw">matrix</span>(<span class="dv">1</span>:(<span class="dv">3</span> *<span class="st"> </span><span class="kw">length</span>(iters)), <span class="kw">length</span>(iters), <span class="dt">byrow =</span> T))
+        if (border) 
+            <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">1</span>))
         for (i in iters) {
             x &lt;-<span class="st"> </span>dl[[i]]
             logx &lt;-<span class="st"> </span><span class="kw">log</span>(x +<span class="st"> </span><span class="kw">runif</span>(<span class="kw">length</span>(x), -<span class="fl">0.95</span>, <span class="fl">0.95</span>))  <span class="co"># Add uniform noise</span>
@@ -235,19 +237,24 @@ check_lnorm &lt;-<span class="st"> </span>function(d, <span class="dt">nmax.ad.t
                   <span class="kw">print</span>(<span class="kw">ad.test</span>(<span class="kw">sample</span>(logx, <span class="kw">min</span>(<span class="kw">length</span>(logx), nmax.ad.test)))) else <span class="kw">print</span>(<span class="st">&quot;Sample too small for Anderson-Darling normality test.&quot;</span>)
             }
         }
+        if (border) {
+            <span class="kw">par</span>(<span class="dt">xpd =</span> <span class="ot">NA</span>)
+            <span class="kw">rect</span>(<span class="kw">grconvertX</span>(<span class="dv">0</span>, <span class="dt">from =</span> <span class="st">&quot;ndc&quot;</span>), <span class="kw">grconvertY</span>(<span class="dv">0</span>, <span class="dt">from =</span> <span class="st">&quot;ndc&quot;</span>), <span class="kw">grconvertX</span>(<span class="dv">1</span>, 
+                <span class="dt">from =</span> <span class="st">&quot;ndc&quot;</span>), <span class="kw">grconvertY</span>(<span class="dv">1</span>, <span class="dt">from =</span> <span class="st">&quot;ndc&quot;</span>))
+            <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">4</span>, <span class="dv">1</span>) +<span class="st"> </span><span class="fl">0.1</span>, <span class="dt">xpd =</span> <span class="ot">FALSE</span>)
+        }
     }
     if (closure) 
         <span class="kw">return</span>(f) else <span class="kw">f</span>()
 }
 
-check_lnorm_dec &lt;-<span class="st"> </span>function(id, d, dec, <span class="dt">i.offset =</span> <span class="dv">1</span>, ...) {
+check_lnorm_dec &lt;-<span class="st"> </span>function(id, d, dec, <span class="dt">i.offset =</span> <span class="dv">1</span>, <span class="dt">border =</span> <span class="ot">FALSE</span>, ...) {
     for (i in <span class="dv">1</span>:<span class="kw">length</span>(dec)) {
         pid &lt;-<span class="st"> </span><span class="kw">paste0</span>(id, letters[i +<span class="st"> </span>i.offset])
         <span class="kw">assign</span>(pid, <span class="kw">check_lnorm</span>(<span class="kw">subset</span>(d, Decade ==<span class="st"> </span>dec[i]), <span class="dt">period =</span> dec[i], 
-            ...), <span class="dt">pos =</span> <span class="dv">1</span>)
+            <span class="dt">border =</span> border, ...), <span class="dt">pos =</span> <span class="dv">1</span>)
         <span class="kw">get</span>(pid)()
     }
-    <span class="kw">return</span>(<span class="ot">NULL</span>)
 }</code></pre>
 </div>
 <div id="observed-and-sample-replicate-simulation-fire-sizes" class="section level4">
@@ -255,18 +262,19 @@ check_lnorm_dec &lt;-<span class="st"> </span>function(id, d, dec, <span class="
 <p>The first replicate was selected.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Noatak shrub observed and simulation replicate 1</span>
 <span class="kw">set.seed</span>(<span class="dv">8923</span>)
+border &lt;-<span class="st"> </span><span class="ot">TRUE</span>  <span class="co"># Set TRUE for knitted documents</span>
 d.sf &lt;-<span class="st"> </span><span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Noatak&quot;</span> &amp;<span class="st"> </span>Vegetation ==<span class="st"> &quot;Shrub&quot;</span> &amp;<span class="st"> </span>Replicate %in%<span class="st"> </span>
 <span class="st">    </span><span class="kw">c</span>(<span class="st">&quot;Observed&quot;</span>, <span class="st">&quot;Rep 0&quot;</span>), <span class="dt">select =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">7</span>))
-p02a &lt;-<span class="st"> </span><span class="kw">check_lnorm</span>(d.sf, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)
+p02a &lt;-<span class="st"> </span><span class="kw">check_lnorm</span>(d.sf, <span class="dt">border =</span> border, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)
 <span class="kw">p02a</span>()</code></pre>
 <p><img src="fse_eda2_files/figure-html/lnorm_noa_shrub_all-1.png" /></p>
 </div>
 <div id="observed-and-sample-replicate-simulation-fire-sizes-by-decade" class="section level4">
 <h4>Observed and sample replicate simulation fire sizes by decade</h4>
 <p>The first replicate was selected.</p>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">check_lnorm_dec</span>(<span class="st">&quot;p02&quot;</span>, d.sf, dec, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">check_lnorm_dec</span>(<span class="st">&quot;p02&quot;</span>, d.sf, dec, <span class="dt">border =</span> border, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, 
+    <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)</code></pre>
 <p><img src="fse_eda2_files/figure-html/lnorm_noa_shrub_decades-1.png" /> <img src="fse_eda2_files/figure-html/lnorm_noa_shrub_decades-2.png" /> <img src="fse_eda2_files/figure-html/lnorm_noa_shrub_decades-3.png" /> <img src="fse_eda2_files/figure-html/lnorm_noa_shrub_decades-4.png" /> <img src="fse_eda2_files/figure-html/lnorm_noa_shrub_decades-5.png" /> <img src="fse_eda2_files/figure-html/lnorm_noa_shrub_decades-6.png" /></p>
-<pre><code>## NULL</code></pre>
 </div>
 </div>
 </div>
