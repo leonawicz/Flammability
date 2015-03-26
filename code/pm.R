@@ -31,13 +31,14 @@ index.url <- "index.html"
 #file.copy(index.url, "index.html")
 
 proj.title <- "Flammability"
-proj.menu <- c("Overview", "Data Prep", "GBM Flammability", "ALFRESCO", "Apps", "All Projects")
+proj.menu <- c("Overview", "Data Prep", "GBM Flammability", "ALFRESCO", "Statistics", "Apps", "All Projects")
 
 proj.submenu <- list(
 	c("empty"),
 	c("clim_resample_2km_1km.R", "clim_1km_clip2ak.R", "meanTPbyVegClass_CRU31.R", "meanTPbyVegClass_CMIP5.R"),
 	c("GBM Modeling", "gbm.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "FlammabilityMapMultipliers.R"),
 	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "fseByVeg.R", "divider", "Supporting scripts", "obs_fire_setup.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
+	c("Fire size EDA and MLE", "fseMLE.R"),
 	c("ALFRESCO launcher", "divider", "Results app"), # Insert code files from both apps
 	c("empty")
 )
@@ -47,6 +48,7 @@ proj.files <- list(
 	c("clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "meanTPbyVegClass_CRU31.html", "meanTPbyVegClass_CMIP5.html"),
 	c("header", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
 	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "fseByVeg.html", "divider", "header", "obs_fire_setup.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
+	c("header", "fseMLE.html"),
 	c("header", "divider", "header"), # Insert html files for code from both apps
 	c("http://leonawicz.github.io")
 )
