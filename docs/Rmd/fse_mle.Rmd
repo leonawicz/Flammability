@@ -8,7 +8,7 @@ output:
 ---
 
 ```{r knitr_setup, echo=FALSE}
-opts_chunk$set(cache=FALSE, eval=TRUE, tidy=TRUE, message=FALSE, warning=FALSE, fig.height=9, fig.width=13.5)
+opts_chunk$set(cache=FALSE, eval=TRUE, tidy=TRUE, message=FALSE, warning=FALSE, dpi=300, fig.height=7, fig.width=10.5)
 read_chunk("../../code/fseMLE.R")
 ```
 
@@ -18,7 +18,7 @@ read_chunk("../../code/fseMLE.R")
 
 Maximum likelihood estimation.
 
-```{r setup, results="hide"}
+```{r setup, echo=FALSE, results="hide"}
 ```
 
 
