@@ -60,48 +60,69 @@ p01d <- ggplot(data=subset(d, Domain=="Statewide"), aes(x=Replicate, fill=Source
 p01d
 
 # @knitr func_check_lnorm
-# Function to assess log-normality of fire size for observed data and a sample simulation replicate
-check_lnorm <- function(d, nmax.ad.test=100, verbose=TRUE, ...){
-	require("nortest")
-	dl <- split(d$FSE, d$Replicate)
-	if(length(dl)==2) iters <- 1:2 else if(names(dl)=="Observed") iters <- 1 else iters <- 2
-	id <- c("observations", "simulations")[iters]
-	if(length(iters)==1) iters <- 1
-	layout(matrix(1:(3*length(iters)), length(iters), byrow=T))
-	for(i in iters){
-		x <- dl[[i]]
-		logx <- log(x + runif(length(x), -0.95, 0.95))
-		hist(x, main=paste("Histrogram of", id[i]), ...)
-		hist(logx, main=paste0("Histrogram of log(", id[i], " + uniform noise)"), ...)
-		qqnorm(logx, main=paste("Q-Q plot:", id[i]), ...)
-		qqline(logx, main=paste("Q-Q plot:", id[i]), ...)
-		if(verbose) { if(length(logx) > 7) print(ad.test(sample(logx, min(length(logx), nmax.ad.test)))) else print("Sample too small for Anderson-Darling normality test.") }
+# Functions to assess log-normality of fire size for observed data and a sample simulation replicate
+check_lnorm <- function(d, nmax.ad.test=100, verbose=TRUE, closure=TRUE, ...){
+	f <- function(){
+		require("nortest")
+		dl <- split(d$FSE, d$Replicate)
+		if(length(dl)==2) iters <- 1:2 else if(names(dl)=="Observed") iters <- 1 else iters <- 2
+		id <- c("observations", "simulations")[iters]
+		if(length(iters)==1) iters <- 1
+		layout(matrix(1:(3*length(iters)), length(iters), byrow=T))
+		for(i in iters){
+			x <- dl[[i]]
+			logx <- log(x + runif(length(x), -0.95, 0.95))
+			hist(x, main=paste("Histrogram of", id[i]), ...)
+			hist(logx, main=paste0("Histrogram of log(", id[i], " + uniform noise)"), ...)
+			qqnorm(logx, main=paste("Q-Q plot:", id[i]), ...)
+			qqline(logx, main=paste("Q-Q plot:", id[i]), ...)
+			if(verbose) { if(length(logx) > 7) print(ad.test(sample(logx, min(length(logx), nmax.ad.test)))) else print("Sample too small for Anderson-Darling normality test.") }
+		}
 	}
+	if(closure) return(f) else f()
+}
+
+check_lnorm_dec <- function(id, d, dec, i.offset=1, ...){
+	for(i in 1:length(dec)){
+		pid <- paste0(id, letters[i + i.offset])
+		assign(pid, check_lnorm(subset(d, Decade==dec[i]), ...), pos=1)
+		get(pid)()
+	}
+	return(NULL)
 }
 
 # @knitr lnorm_noa_shrub_all
 # Noatak shrub observed and simulation replicate 1
+set.seed(8923)
 d.sf <- subset(d, Domain=="Noatak" & Vegetation=="Shrub" & Replicate %in% c("Observed", "Rep 0"), select=c(2,5,7))
 p02a <- check_lnorm(d.sf, col="gray40", cex.lab=1.3, cex.axis=1.3)
+p02a()
 # @knitr lnorm_noa_shrub_decades
-for(i in 1:n.dec) assign(paste0("p02", letters[i+1]), check_lnorm(subset(d.sf, Decade==dec[i]), col="gray40", cex.lab=1.3, cex.axis=1.3))
+check_lnorm_dec("p02", d.sf, dec, col="gray40", cex.lab=1.3, cex.axis=1.3)
 
 # @knitr lnorm_sw_forest_all
 # Statewide forest observed and simulation replicate 1
 d.sf <- subset(d, Domain=="Statewide" & Vegetation=="Forest" & Replicate %in% c("Observed", "Rep 0"), select=c(2,5,7))
 p03a <- check_lnorm(d.sf, col="gray40", cex.lab=1.3, cex.axis=1.3)
+p03a()
 # @knitr lnorm_sw_forest_decades
-for(i in 1:n.dec) assign(paste0("p03", letters[i+1]), check_lnorm(subset(d.sf, Decade==dec[i]), col="gray40", cex.lab=1.3, cex.axis=1.3))
-
-
-
+check_lnorm_dec("p03", d.sf, dec, col="gray40", cex.lab=1.3, cex.axis=1.3)
+dev.off()
 
 # @knitr func_eda_pngs
-savePNG <-  function(files, plots, ...) for(i in 1:length(files.out)){ png(files, ...); get(plots[i], envir=.GlobalEnv); dev.off() }
+# This code is not run with kntir. It is for standalone session PNG generation.
+savePNG <-  function(files, plots, ...){
+	for(i in 1:length(files)){
+		png(files[i], ...)
+		p <- get(plots[i])
+		if("ggplot" %in% class(p)) print(p) else if(class(p)=="function") p()
+		dev.off()
+	}
+}
 
 # @knitr eda_pngs_01
 plots <- ls(pattern=paste0("^p01"))
-files.out <- paste0(plotDir, "/", substr(plots, 1, 4), "_", rep(doms, 2), "_", c(rep("fcByVeg.png",2), "fcShrubByDec", "fcForestByDec.png"))
+files.out <- paste0(plotDir, "/", substr(plots, 1, 4), "_", rep(doms, 2), "_", c(rep("fcByVeg.png",2), "fcShrubByDec.png", "fcForestByDec.png"))
 savePNG(files.out, plots, res=300, height=2000, width=3000)
 
 # @knitr eda_pngs_02
@@ -118,9 +139,6 @@ savePNG(files.out, plots, res=300, height=2000, width=3000)
 n2loglik <- function(fun, params=list()) -2*sum(log(do.call(fun, params)))
 
 
-
-
-# @knitr fc_sw_forest_dec
 #p04a <- ggplot(data=d.sf, aes(x=FSE)) + geom_histogram() + facet_wrap(~ Decade, ncol=2, scale="free_y") #+
 	#scale_fill_manual(values=cbpal) +
 	#theme(axis.text.x=element_text(angle=45, hjust=1))
