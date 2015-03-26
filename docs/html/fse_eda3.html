@@ -215,88 +215,13 @@ d.sf &lt;-<span class="st"> </span><span class="kw">subset</span>(d, Domain ==<s
 <span class="st">    </span><span class="kw">c</span>(<span class="st">&quot;Observed&quot;</span>, <span class="st">&quot;Rep 0&quot;</span>), <span class="dt">select =</span> <span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">7</span>))
 p03a &lt;-<span class="st"> </span><span class="kw">check_lnorm</span>(d.sf, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)
 <span class="kw">p03a</span>()</code></pre>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 0.5504, p-value = 0.1525</code></pre>
 <p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_all-1.png" /></p>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 2.2632, p-value = 8.894e-06</code></pre>
 </div>
 <div id="observed-and-sample-replicate-simulation-fire-sizes-by-decade-1" class="section level4">
 <h4>Observed and sample replicate simulation fire sizes by decade</h4>
 <p>The first replicate was selected.</p>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">check_lnorm_dec</span>(<span class="st">&quot;p03&quot;</span>, d.sf, dec, <span class="dt">col =</span> <span class="st">&quot;gray40&quot;</span>, <span class="dt">cex.lab =</span> <span class="fl">1.3</span>, <span class="dt">cex.axis =</span> <span class="fl">1.3</span>)</code></pre>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 0.6595, p-value = 0.08272</code></pre>
-<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-1.png" /></p>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 4.8251, p-value = 4.978e-12</code></pre>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 0.489, p-value = 0.2174</code></pre>
-<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-2.png" /></p>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 2.9442, p-value = 1.891e-07</code></pre>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 0.2872, p-value = 0.6144</code></pre>
-<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-3.png" /></p>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 2.1299, p-value = 1.894e-05</code></pre>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 0.3724, p-value = 0.4137</code></pre>
-<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-4.png" /></p>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 1.6118, p-value = 0.0003597</code></pre>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 0.4013, p-value = 0.354</code></pre>
-<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-5.png" /></p>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 2.2208, p-value = 1.131e-05</code></pre>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 0.9942, p-value = 0.01219</code></pre>
-<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-6.png" /></p>
-<pre><code>## 
-##  Anderson-Darling normality test
-## 
-## data:  sample(logx, min(length(logx), nmax.ad.test))
-## A = 1.7813, p-value = 0.0001372</code></pre>
+<p><img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-1.png" /> <img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-2.png" /> <img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-3.png" /> <img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-4.png" /> <img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-5.png" /> <img src="fse_eda3_files/figure-html/lnorm_sw_forest_decades-6.png" /></p>
 <pre><code>## NULL</code></pre>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dev.off</span>()</code></pre>
 <pre><code>## null device 
