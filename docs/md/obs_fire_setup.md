@@ -34,7 +34,7 @@ suffix <- paste0("_observed_", gsub("_", "", alf.domain), "_", tolower(emp.fire.
 b.fid.name <- paste0(out, "/fireIDbrick_annual", suffix)
 result.name <- paste0(out, "/firescarbrick_annual", suffix)
 result2.name <- paste0(out, "/firescarlayer_total", suffix)
-if (all(file.exists(c(result.name, result2.name)))) {
+if (all(file.exists(c(b.fid.name, result.name, result2.name)))) {
     dummy <- capture.output(b.fid <- brick(b.fid.name))
     dummy <- capture.output(result <- brick(result.name))
     dummy <- capture.output(result2 <- raster(result2.name))
@@ -63,6 +63,11 @@ if (all(file.exists(c(result.name, result2.name)))) {
     }, r.veg = r)
     dummy <- capture.output(result2 <- do.call("sum", c(result, na.rm = T)))
     result <- brick(result)
+    if (substr(tolower(alf.domain), 1, 6) == "noatak") {
+        b.fid <- mask(b.fid, shp)
+        result <- mask(result, shp)
+        result2 <- mask(result2, shp)
+    }
     names(result) <- names(b.fid) <- yrs.all
     names(result2) <- paste(yrs.all[1], tail(yrs.all, 1), sep = "_")
     dummy <- capture.output(writeRaster(b.fid, b.fid.name, datatype = "FLT4S", 

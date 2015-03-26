@@ -33,16 +33,28 @@ Preliminary EDA plots available.
 
 #### Fire count by vegetation class: Noatak
 
-```{r eda_fc_noa}
+```{r fc_noa_veg}
 ```
 
 #### Fire count by vegetation class: Statewide
 
-```{r eda_fc_sw}
+```{r fc_sw_veg}
 ```
+
+#### Fire count by decade: Noatak shrub
+
+```{r fc_noa_shrub_dec}
+```
+
+#### Fire count by decade: Statewide forest
+
+```{r fc_sw_forest_dec}
+```
+
 
 ```{r eda_pngs, echo=FALSE}
 ```
+
 
 ##
 ##

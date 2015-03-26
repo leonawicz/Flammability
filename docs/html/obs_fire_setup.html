@@ -165,6 +165,13 @@ img {
             </ul>
 
           <li class="dropdown">
+            <a href="statistics" class="dropdown-toggle" data-toggle="dropdown">Statistics <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">Fire size EDA and MLE</li>
+              <li><a href="fseMLE.html">fseMLE.R</a></li>
+            </ul>
+
+          <li class="dropdown">
             <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">ALFRESCO launcher</li>
@@ -218,7 +225,7 @@ suffix &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class=
 b.fid.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(out, <span class="st">&quot;/fireIDbrick_annual&quot;</span>, suffix)
 result.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(out, <span class="st">&quot;/firescarbrick_annual&quot;</span>, suffix)
 result2.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(out, <span class="st">&quot;/firescarlayer_total&quot;</span>, suffix)
-if (<span class="kw">all</span>(<span class="kw">file.exists</span>(<span class="kw">c</span>(result.name, result2.name)))) {
+if (<span class="kw">all</span>(<span class="kw">file.exists</span>(<span class="kw">c</span>(b.fid.name, result.name, result2.name)))) {
     dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(b.fid &lt;-<span class="st"> </span><span class="kw">brick</span>(b.fid.name))
     dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(result &lt;-<span class="st"> </span><span class="kw">brick</span>(result.name))
     dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(result2 &lt;-<span class="st"> </span><span class="kw">raster</span>(result2.name))
@@ -247,6 +254,11 @@ if (<span class="kw">all</span>(<span class="kw">file.exists</span>(<span class=
     }, <span class="dt">r.veg =</span> r)
     dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(result2 &lt;-<span class="st"> </span><span class="kw">do.call</span>(<span class="st">&quot;sum&quot;</span>, <span class="kw">c</span>(result, <span class="dt">na.rm =</span> T)))
     result &lt;-<span class="st"> </span><span class="kw">brick</span>(result)
+    if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) {
+        b.fid &lt;-<span class="st"> </span><span class="kw">mask</span>(b.fid, shp)
+        result &lt;-<span class="st"> </span><span class="kw">mask</span>(result, shp)
+        result2 &lt;-<span class="st"> </span><span class="kw">mask</span>(result2, shp)
+    }
     <span class="kw">names</span>(result) &lt;-<span class="st"> </span><span class="kw">names</span>(b.fid) &lt;-<span class="st"> </span>yrs.all
     <span class="kw">names</span>(result2) &lt;-<span class="st"> </span><span class="kw">paste</span>(yrs.all[<span class="dv">1</span>], <span class="kw">tail</span>(yrs.all, <span class="dv">1</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
     dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(<span class="kw">writeRaster</span>(b.fid, b.fid.name, <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
