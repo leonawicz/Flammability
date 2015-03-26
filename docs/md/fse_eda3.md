@@ -22,7 +22,7 @@ The first replicate was selected.
 # Statewide forest observed and simulation replicate 1
 d.sf <- subset(d, Domain == "Statewide" & Vegetation == "Forest" & Replicate %in% 
     c("Observed", "Rep 0"), select = c(2, 5, 7))
-p03a <- check_lnorm(d.sf, col = "gray40", cex.lab = 1.3, cex.axis = 1.3)
+p03a <- check_lnorm(d.sf, border = border, col = "gray40", cex.lab = 1.3, cex.axis = 1.3)
 p03a()
 ```
 
@@ -34,20 +34,8 @@ The first replicate was selected.
 
 
 ```r
-check_lnorm_dec("p03", d.sf, dec, col = "gray40", cex.lab = 1.3, cex.axis = 1.3)
+check_lnorm_dec("p03", d.sf, dec, border = border, col = "gray40", cex.lab = 1.3, 
+    cex.axis = 1.3)
 ```
 
 ![](fse_eda3_files/figure-html/lnorm_sw_forest_decades-1.png) ![](fse_eda3_files/figure-html/lnorm_sw_forest_decades-2.png) ![](fse_eda3_files/figure-html/lnorm_sw_forest_decades-3.png) ![](fse_eda3_files/figure-html/lnorm_sw_forest_decades-4.png) ![](fse_eda3_files/figure-html/lnorm_sw_forest_decades-5.png) ![](fse_eda3_files/figure-html/lnorm_sw_forest_decades-6.png) 
-
-```
-## NULL
-```
-
-```r
-dev.off()
-```
-
-```
-## null device 
-##           1
-```
