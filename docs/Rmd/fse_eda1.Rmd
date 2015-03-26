@@ -15,6 +15,7 @@ read_chunk("../../code/fseMLE.R")
 ##
 ##
 ## fseMLE.R EDA part 1
+### Fire samples
 
 The `fseMLE.R` script performs exploratory data analysis followed by maximum likelihood estimation of fire size distributions based on historical observations and ALFRESCO simulation outputs.
 Currently under development.
