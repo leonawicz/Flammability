@@ -23,12 +23,6 @@ if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 195
 if(!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
 if(substr(tolower(alf.domain),1,6)=="statew") alf.domain <- "Statewide" else if(substr(tolower(alf.domain),1,6)=="noatak") alf.domain <- substr(alf.domain,1,6)
 
-#setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code")
-#load(paste0("../workspaces/alfresco/Alf_Calib_Setup_112912_", alf.domain, ".RData"))
-#lapply(c("CABvsTimePlot.R", "AByearPlot.R", "fireSizePlot.R", "CABvsFSPlot.R"), source)
-
-#load(paste0("/big_scratch/mfleonawicz/Alf_Calib_Setup_112912_", alf.domain, ".RData"))
-
 # @knitr func_fseByVeg
 fseByVeg <- function(i, v, f){
 	v[v!=i] <- NA
