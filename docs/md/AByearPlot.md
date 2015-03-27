@@ -14,8 +14,15 @@ This plot is called in `AlfrescoCalibration.R` and currently is hardcoded to plo
 
 
 ```r
-AByearPlot <- function(ALF.FS, years, domain, domain.name, baseline) {
-    ylm <- range(c(get(domain), c(ALF.FS[years - baseline + 1, ])))
+AByearPlot <- function(ALF.FS, d.obs.fse, years, domain, domain.name, baseline) {
+    abByYear.tmp <- tapply(d.obs.fse$FSE, d.obs.fse$Year, sum)
+    abByYear <- rep(0, length(years))
+    abByYear[match(names(abByYear.tmp), years)] <- abByYear.tmp
+    
+    domain <- "abByYear"  # temporary test
+    domain <- get(domain)
+    
+    ylm <- range(c(domain, c(ALF.FS[years - baseline + 1, ])))
     png(file.path(outDir, paste("ABYear_", domain.name, "_", years[1], "to", 
         years[length(years)], ".png", sep = "")), res = 75, width = 1600, height = 800)
     par(mar = c(5, 5, 4, 2) + 0.1, mfrow = c(1, 1))
@@ -25,9 +32,9 @@ AByearPlot <- function(ALF.FS, years, domain, domain.name, baseline) {
     boxplot(as.data.frame(t(ALF.FS[years - baseline + 1, ])), add = TRUE, at = years, 
         col = "gray", names = FALSE, axes = F)
     axis(1, years, labels = F)
-    points(years, get(domain), pch = 21, bg = "#CD6600", cex = 1.3)
-    segments(x0 = years, y0 = get(domain), y1 = apply(ALF.FS[years - baseline + 
-        1, ], 1, median), col = "#CD660085")
+    points(years, domain, pch = 21, bg = "#CD6600", cex = 1.3)
+    segments(x0 = years, y0 = domain, y1 = apply(ALF.FS[years - baseline + 1, 
+        ], 1, median), col = "#CD660085")
     d <- diff(par()$yaxp)[1]/70
     p <- par()$yaxp[2]
     legend(years[4] - 0.5, p, yjust = 0.5, "ALFRESCO", pch = NA, col = NA, bty = "n", 

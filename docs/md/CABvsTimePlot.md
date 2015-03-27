@@ -15,8 +15,8 @@ This plot is called in `AlfrescoCalibration.R` and currently is hardcoded to plo
 
 
 ```r
-CABvsTimePlot <- function(years, baseline.year) {
-    abByYear <- tapply(emp.fse.trun1km, emp.fse.trun1km.year, sum)
+CABvsTimePlot <- function(years, baseline.year, d.obs.fse) {
+    abByYear <- tapply(d.obs.fse$FSE, d.obs.fse$Year, sum)
     indices <- match(names(abByYear), years)
     cab.emp.all <- rep(0, length(years))
     cab.emp.all[indices] <- abByYear
@@ -28,8 +28,7 @@ CABvsTimePlot <- function(years, baseline.year) {
     par(mar = c(5, 5, 4, 2) + 0.1, mfrow = c(1, 1))
     plot(0, type = "n", xlim = range(years), ylim = ylm, ylab = expression(paste(plain("Cumalitive Area Burn   "), 
         ("km"^2), sep = "")), xlab = "Year", main = paste("CAB ", years[1], 
-        "-", years[length(years)], ": Statewide", sep = ""), cex.axis = 1.1, 
-        cex.lab = 1.2)
+        "-", years[length(years)], sep = ""), cex.axis = 1.1, cex.lab = 1.2)
     for (j in 1:numrep) lines(years, cab.alf.all[, j], lwd = 1, lty = 2, col = "dark gray")
     lines(years, cab.emp.all, lwd = 4, col = 1)
     legend("topleft", c("Historical", "ALFRESCO Rep"), col = c(1, "dark gray"), 

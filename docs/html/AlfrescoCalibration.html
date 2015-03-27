@@ -231,7 +231,7 @@ if (<span class="kw">length</span>(comArgs &gt;<span class="st"> </span><span cl
 if (<span class="kw">exists</span>(<span class="st">&quot;main&quot;</span>)) <span class="kw">dir.create</span>(mainDir &lt;-<span class="st"> </span>main, <span class="dt">showWarnings =</span> F) else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;main&#39; directory&quot;</span>)
 if (<span class="kw">exists</span>(<span class="st">&quot;input&quot;</span>)) <span class="kw">dir.create</span>(mainDir &lt;-<span class="st"> </span>input, <span class="dt">showWarnings =</span> F) else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;input&#39; directory&quot;</span>)
 if (<span class="kw">exists</span>(<span class="st">&quot;out&quot;</span>)) <span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span>out, <span class="dt">showWarnings =</span> F) else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;out&#39; directory&quot;</span>)
-if (<span class="kw">exists</span>(<span class="st">&quot;yr.start&quot;</span>) &amp;<span class="st"> </span><span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2011</span>
+if (<span class="kw">exists</span>(<span class="st">&quot;yr.start&quot;</span>) &amp;<span class="st"> </span><span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
 if (!<span class="kw">exists</span>(<span class="st">&quot;baseline.year&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;baseline.year not found&quot;</span>) else baseline.year &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(baseline.year)
 if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;statew&quot;</span>) alf.domain &lt;-<span class="st"> &quot;Statewide&quot;</span> else if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), 
     <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) alf.domain &lt;-<span class="st"> </span><span class="kw">substr</span>(alf.domain, <span class="dv">1</span>, <span class="dv">6</span>)
@@ -240,48 +240,9 @@ if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), 
 <span class="co"># load(paste0(&#39;../workspaces/alfresco/Alf_Calib_Setup_112912_&#39;, alf.domain,</span>
 <span class="co"># &#39;.RData&#39;)) lapply(c(&#39;CABvsTimePlot.R&#39;, &#39;AByearPlot.R&#39;, &#39;fireSizePlot.R&#39;,</span>
 <span class="co"># &#39;CABvsFSPlot.R&#39;), source)</span>
-<span class="kw">load</span>(<span class="kw">paste0</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Alf_Calib_Setup_112912_&quot;</span>, alf.domain, 
-    <span class="st">&quot;.RData&quot;</span>))
-<span class="kw">lapply</span>(<span class="kw">paste0</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Alf_Files_20121129/alfresco/&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;CABvsTimePlot.R&quot;</span>, 
-    <span class="st">&quot;histPrep.R&quot;</span>, <span class="st">&quot;AByearPlot.R&quot;</span>, <span class="st">&quot;fireSizePlot.R&quot;</span>, <span class="st">&quot;CABvsFSPlot.R&quot;</span>)), source)
 
-#### Collect ALFRESCO data
-alf.fse &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(<span class="kw">read.table</span>(<span class="kw">file.path</span>(mainDir, <span class="st">&quot;FireSizeEvents.txt&quot;</span>), <span class="dt">header =</span> T))
-numrep &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(alf.fse[, <span class="dv">2</span>]))
-alf.fs &lt;-<span class="st"> </span><span class="kw">as.matrix</span>(<span class="kw">read.table</span>(<span class="kw">file.path</span>(mainDir, <span class="st">&quot;FireSize.txt&quot;</span>), <span class="dt">skip =</span> <span class="dv">1</span>))[, 
-    <span class="dv">2</span>:(numrep +<span class="st"> </span><span class="dv">1</span>)]
-
-<span class="co"># these functions use hardcoded inputs from another script/workspace</span>
-<span class="kw">CABvsTimePlot</span>(yrs, <span class="dt">baseline.year =</span> baseline.year)
-<span class="kw">AByearPlot</span>(alf.fs, yrs, <span class="dt">domain =</span> <span class="st">&quot;total.ab.ha&quot;</span>, <span class="dt">domain.name =</span> <span class="st">&quot;total&quot;</span>, <span class="dt">baseline =</span> baseline.year)
-<span class="kw">fireSizePlot</span>(yrs)
-<span class="kw">CABvsFSPlot</span>(yrs)
-
-get_FSE_df &lt;-<span class="st"> </span>function(yrs, obs, obs.yrs, alf) {
-    dec &lt;-<span class="st"> </span>yrs -<span class="st"> </span>yrs%%<span class="dv">10</span>
-    dec.tmp &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">names</span>(<span class="kw">which</span>(<span class="kw">tapply</span>(dec, dec, length) ==<span class="st"> </span><span class="dv">10</span>)))
-    if (<span class="kw">length</span>(dec.tmp)) 
-        dec &lt;-<span class="st"> </span>dec.tmp
-    d.obs &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="dt">Source =</span> <span class="st">&quot;Observed&quot;</span>, <span class="dt">Replicate =</span> <span class="st">&quot;Observed&quot;</span>, <span class="dt">Year =</span> obs.yrs, 
-        <span class="dt">Decade =</span> obs.yrs -<span class="st"> </span>obs.yrs%%<span class="dv">10</span>, <span class="dt">FSE =</span> obs)
-    d.obs &lt;-<span class="st"> </span><span class="kw">subset</span>(d.obs, Year &gt;=<span class="st"> </span><span class="kw">min</span>(dec) &amp;<span class="st"> </span>Year &lt;=<span class="st"> </span><span class="kw">max</span>(dec) +<span class="st"> </span><span class="dv">9</span>)
-    d.alf &lt;-<span class="st"> </span><span class="kw">subset</span>(<span class="kw">data.frame</span>(alf), Year &gt;=<span class="st"> </span><span class="kw">min</span>(dec) &amp;<span class="st"> </span>Year &lt;=<span class="st"> </span><span class="kw">max</span>(dec) +<span class="st"> </span><span class="dv">9</span>, 
-        <span class="dt">select =</span> <span class="dv">1</span>:<span class="dv">3</span>)
-    <span class="kw">names</span>(d.alf)[<span class="dv">2</span>:<span class="dv">3</span>] &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Replicate&quot;</span>, <span class="st">&quot;FSE&quot;</span>)
-    d.alf$Source &lt;-<span class="st"> &quot;Modeled&quot;</span>
-    d.alf &lt;-<span class="st"> </span><span class="kw">transform</span>(d.alf, <span class="dt">Decade =</span> Year -<span class="st"> </span>Year%%<span class="dv">10</span>, <span class="dt">Replicate =</span> <span class="kw">paste</span>(<span class="st">&quot;Rep&quot;</span>, 
-        Replicate))
-    <span class="kw">rbind</span>(d.obs, d.alf)
-}
-
-d.fse &lt;-<span class="st"> </span><span class="kw">get_FSE_df</span>(years, fse.emp, fse.emp.year, alf.fse)
-
-<span class="kw">save.image</span>(<span class="kw">file.path</span>(outDir, <span class="st">&quot;postProcess.RData&quot;</span>))
-<span class="kw">save</span>(d.fse, <span class="dt">file =</span> <span class="kw">file.path</span>(outDir, <span class="st">&quot;fse_df.RData&quot;</span>))
-
-<span class="kw">sink</span>(<span class="dt">file =</span> <span class="kw">file.path</span>(outDir, <span class="st">&quot;message.txt&quot;</span>))
-<span class="kw">cat</span>(<span class="st">&quot;This message comes from the shiny user directory.</span><span class="ch">\n\n\t</span><span class="st">See ALFRESCO calibration figures [attached].</span><span class="ch">\n</span><span class="st">&quot;</span>)
-<span class="kw">sink</span>()</code></pre>
+<span class="co"># load(paste0(&#39;/big_scratch/mfleonawicz/Alf_Calib_Setup_112912_&#39;,</span>
+<span class="co"># alf.domain, &#39;.RData&#39;))</span></code></pre>
 </div>
 
 <!-- some extra javascript for older browsers -->

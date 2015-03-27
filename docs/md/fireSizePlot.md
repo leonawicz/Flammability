@@ -14,11 +14,11 @@ This plot is called in `AlfrescoCalibration.R` and currently is hardcoded to plo
 
 
 ```r
-fireSizePlot <- function(years) {
+fireSizePlot <- function(years, d.obs.fse) {
     max.alf.fse <- c()
     for (i in 1:numrep) max.alf.fse[i] <- max(alf.fse[, 3][alf.fse[, 2] == (i - 
         1) & alf.fse[, 1] > years[1] & alf.fse[, 1] <= years[length(years)]])
-    histPrep(max.alf.fse, max(emp.fse.trun1km))
+    histPrep(max.alf.fse, max(d.obs.fse$FSE))
     png(file.path(outDir, "HIST_MaxFSE.png"), res = 100, width = 1000, height = 800)
     par(mar = c(5, 4, 1, 1) + 0.1, family = "serif")
     plot(h1, xlim = range(s), ylim = c(0, 1.2 * ymx), xlab = "Max Fire Size", 

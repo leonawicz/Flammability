@@ -15,8 +15,8 @@ This plot is called in `AlfrescoCalibration.R` and currently is hardcoded to plo
 
 
 ```r
-CABvsFSPlot <- function(years) {
-    akfire.trun1km <- sort(round(emp.fse.trun1km, 0))
+CABvsFSPlot <- function(years, d.obs.fse) {
+    akfire.trun1km <- sort(round(d.obs.fse$FSE, 0))
     png(file.path(outDir, "CABvsFireSize.png"), res = 120, width = 1000, height = 800)
     par(mar = c(5, 5, 3, 2) + 0.1)
     sort.tmp <- list()
