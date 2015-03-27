@@ -209,8 +209,8 @@ img {
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
-<pre class="sourceCode r"><code class="sourceCode r">CABvsTimePlot &lt;-<span class="st"> </span>function(years, baseline.year) {
-    abByYear &lt;-<span class="st"> </span><span class="kw">tapply</span>(emp.fse.trun1km, emp.fse.trun1km.year, sum)
+<pre class="sourceCode r"><code class="sourceCode r">CABvsTimePlot &lt;-<span class="st"> </span>function(years, baseline.year, d.obs.fse) {
+    abByYear &lt;-<span class="st"> </span><span class="kw">tapply</span>(d.obs.fse$FSE, d.obs.fse$Year, sum)
     indices &lt;-<span class="st"> </span><span class="kw">match</span>(<span class="kw">names</span>(abByYear), years)
     cab.emp.all &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(years))
     cab.emp.all[indices] &lt;-<span class="st"> </span>abByYear
@@ -222,8 +222,7 @@ img {
     <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">2</span>) +<span class="st"> </span><span class="fl">0.1</span>, <span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))
     <span class="kw">plot</span>(<span class="dv">0</span>, <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> <span class="kw">range</span>(years), <span class="dt">ylim =</span> ylm, <span class="dt">ylab =</span> <span class="kw">expression</span>(<span class="kw">paste</span>(<span class="kw">plain</span>(<span class="st">&quot;Cumalitive Area Burn   &quot;</span>), 
         (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>), <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), <span class="dt">xlab =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;CAB &quot;</span>, years[<span class="dv">1</span>], 
-        <span class="st">&quot;-&quot;</span>, years[<span class="kw">length</span>(years)], <span class="st">&quot;: Statewide&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">cex.axis =</span> <span class="fl">1.1</span>, 
-        <span class="dt">cex.lab =</span> <span class="fl">1.2</span>)
+        <span class="st">&quot;-&quot;</span>, years[<span class="kw">length</span>(years)], <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">cex.axis =</span> <span class="fl">1.1</span>, <span class="dt">cex.lab =</span> <span class="fl">1.2</span>)
     for (j in <span class="dv">1</span>:numrep) <span class="kw">lines</span>(years, cab.alf.all[, j], <span class="dt">lwd =</span> <span class="dv">1</span>, <span class="dt">lty =</span> <span class="dv">2</span>, <span class="dt">col =</span> <span class="st">&quot;dark gray&quot;</span>)
     <span class="kw">lines</span>(years, cab.emp.all, <span class="dt">lwd =</span> <span class="dv">4</span>, <span class="dt">col =</span> <span class="dv">1</span>)
     <span class="kw">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;Historical&quot;</span>, <span class="st">&quot;ALFRESCO Rep&quot;</span>), <span class="dt">col =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="st">&quot;dark gray&quot;</span>), 

@@ -209,8 +209,8 @@ img {
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
-<pre class="sourceCode r"><code class="sourceCode r">CABvsFSPlot &lt;-<span class="st"> </span>function(years) {
-    akfire.trun1km &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(emp.fse.trun1km, <span class="dv">0</span>))
+<pre class="sourceCode r"><code class="sourceCode r">CABvsFSPlot &lt;-<span class="st"> </span>function(years, d.obs.fse) {
+    akfire.trun1km &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(d.obs.fse$FSE, <span class="dv">0</span>))
     <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="st">&quot;CABvsFireSize.png&quot;</span>), <span class="dt">res =</span> <span class="dv">120</span>, <span class="dt">width =</span> <span class="dv">1000</span>, <span class="dt">height =</span> <span class="dv">800</span>)
     <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">2</span>) +<span class="st"> </span><span class="fl">0.1</span>)
     sort.tmp &lt;-<span class="st"> </span><span class="kw">list</span>()
