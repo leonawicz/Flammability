@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/26/2015        ####
+#### Last updated:   03/27/2015        ####
 
 # @knitr setup
 setwd("C:/github/Flammability/workspaces")
@@ -142,18 +142,45 @@ plots <- ls(pattern=paste0("^p03"))
 files.out <- paste0(plotDir, "/", substr(plots, 1, 4), "_", doms[2], "_forest_fs", c("All", dec), "_lnormPlots.png")
 savePNG(files.out, plots, res=300, height=2000, width=3000)
 
-# @knitr mle
+# @knitr mle_sw_forest_all
 # test with statewide forest all years observed data
-d.sf <- subset(d, Domain=="Statewide" & Vegetation=="Forest" & Replicate %in% c("Observed"), select=c(2,5,7))
-x <- d.sf$FSE + runif(nrow(d.sf), -0.95, 0.95)
-lx <- log(x)
+set.seed(47)
+d$Replicate <- factor(d$Replicate, levels=unique(d$Replicate))
 
-n2loglik <- function(fun, x, params) -2*sum(log(do.call(fun, list(x=x, params))))
-pars <- optim(fn=n2loglik, fun=dlnorm, x=x, par=c(meanlog=1, sdlog=1))$par
+do_mle_fse <- function(d, plot=TRUE){
+	d$FSE <- d$FSE + runif(nrow(d), -0.95, 0.95)
+	d$logFSE <- log(d$FSE)
+	n2loglik <- function(fun, x, params) -2*sum(log(do.call(fun, list(x=x, params))))
+	pars <- lapply(split(d$FSE, d$Replicate), function(i) optim(fn=n2loglik, fun=dlnorm, x=i, par=c(meanlog=1, sdlog=1))$par)
+	g <- ggplot(data=d, aes(x=logFSE, fill=Source)) + geom_histogram(colour="white") + facet_wrap(~ Replicate, ncol=2) + scale_fill_manual(values=cbpal)
+	print(g)
+	pars
+}
 
-drlx <- diff(range(lx))
-xlm <- range(lx) + 0.3*drlx*c(-1,1)
-sq <- seq(xlm[1], xlm[2], length=200)
-hist(lx, freq=F, xlim=xlm, main="log(1950-2009 obs. sw. forest fire size)", col="gray40", cex.lab=1.3, cex.axis=1.3)
-lines(sq, dnorm(x=sq, pars[1], pars[2]), lwd=2)
-legend("topright", lwd=2, paste("MLE: meanlog =", round(pars[1], 2), "\nMLE: sdlog =", round(pars[2], 2)), bty="n")
+do_mle_fse(subset(d, Domain=="Statewide" & Vegetation=="Forest" & Replicate %in% c("Observed", paste("Rep", 0:2))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
