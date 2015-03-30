@@ -202,9 +202,9 @@ pars <- do_mle_fes(d.sub, dec=dec, by.decade=TRUE)
 (p05a <- plot_mle_fes(d.sub, pars[1]))
 # @knitr mle_sw_forest_dec
 for(i in 1:length(dec)) print(assign(paste0("p05", letters[i+1]), plot_mle_fes(subset(d.sub, Decade==dec[i]), pars[i+1])))
-dev.off()
 
 # @knitr mle_pngs_04
+dev.off()
 plots <- ls(pattern=paste0("^p04"))
 files.out <- paste0(plotDir, "/", substr(plots, 1, 4), "_Noatak_shrub_logfs", c("All", dec), "_MLEdist.png")
 savePNG(files.out, plots, res=300, height=2000, width=3000)

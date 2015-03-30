@@ -36,14 +36,3 @@ for (i in 1:length(dec)) print(assign(paste0("p05", letters[i + 1]), plot_mle_fe
 ```
 
 ![](fse_mle3_files/figure-html/mle_sw_forest_dec-1.png) ![](fse_mle3_files/figure-html/mle_sw_forest_dec-2.png) ![](fse_mle3_files/figure-html/mle_sw_forest_dec-3.png) ![](fse_mle3_files/figure-html/mle_sw_forest_dec-4.png) ![](fse_mle3_files/figure-html/mle_sw_forest_dec-5.png) ![](fse_mle3_files/figure-html/mle_sw_forest_dec-6.png) 
-
-```r
-dev.off()
-```
-
-![](fse_mle3_files/figure-html/mle_sw_forest_dec-7.png) 
-
-```
-## png 
-##   3
-```
