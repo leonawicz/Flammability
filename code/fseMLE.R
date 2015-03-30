@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/27/2015        ####
+#### Last updated:   03/30/2015        ####
 
 # @knitr setup
 setwd("C:/github/Flammability/workspaces")
@@ -27,44 +27,36 @@ n.reps <- length(reps)
 dec <- sort(unique(d$Decade))
 n.dec <- length(dec)
 doms <- c("Noatak", "Statewide")
+d <- transform(d, Replicate=factor(Replicate, levels=unique(Replicate)), Source=factor(Source, levels=c("Observed", "Modeled")))
 
 library(ggplot2)
 dir.create(plotDir <- "C:/github/Flammability/plots/fseMLE", showWarnings=FALSE)
-cbpal <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+cbpal <- c("gray40", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-
+# Plot setup
+g <- ggplot(data=d, aes(x=Replicate, fill=Source)) + theme_bw(base_size=14) + theme(legend.position="bottom", axis.text.x=element_text(angle=45, hjust=1)) + 
+	scale_fill_manual(values=cbpal) + scale_colour_manual(values=cbpal) + labs(x=NULL, y="Fire count")
+	
 # @knitr fc_noa_veg
 # Observed and modeled fire counts by vegetation class
-p01a <- ggplot(data=subset(d, Domain=="Noatak"), aes(x=Replicate, fill=Source)) + geom_bar() + facet_wrap(~ Vegetation, ncol=1, scales="free_y") +
-	scale_fill_manual(values=cbpal) +
-	theme(axis.text.x=element_text(angle=45, hjust=1))
-p01a
+(p01a <- g + geom_bar(data=subset(d, Domain=="Noatak")) + facet_wrap(~ Vegetation, ncol=1, scales="free_y") + labs(title="Number of observed and modeled Noatak fire events 1950 - 2009"))
 
 # @knitr fc_sw_veg
-p01b <- ggplot(data=subset(d, Domain=="Statewide"), aes(x=Replicate, fill=Source)) + geom_bar() + facet_wrap(~ Vegetation, ncol=1, scales="free_y") +
-	scale_fill_manual(values=cbpal) +
-	theme(axis.text.x=element_text(angle=45, hjust=1))
-p01b
+(p01b <- g + geom_bar(data=subset(d, Domain=="Statewide")) + facet_wrap(~ Vegetation, ncol=1, scales="free_y") + labs(title="Number of observed and modeled statewide fire events 1950 - 2009"))
 
 # @knitr fc_noa_shrub_dec
 # Observed and modeled fire counts by decade given vegetation class
-p01c <- ggplot(data=subset(d, Domain=="Noatak"), aes(x=Replicate, fill=Source)) + geom_bar() + facet_wrap(~ Decade, ncol=1) +
-	scale_fill_manual(values=cbpal) +
-	theme(axis.text.x=element_text(angle=45, hjust=1))
-p01c
+(p01c <- p01a + facet_wrap(~ Decade, ncol=1) + labs(title="Number of observed and modeled Noatak shrub fire events"))
 
 # @knitr fc_sw_forest_dec
-p01d <- ggplot(data=subset(d, Domain=="Statewide"), aes(x=Replicate, fill=Source)) + geom_bar() + facet_wrap(~ Decade, ncol=1) +
-	scale_fill_manual(values=cbpal) +
-	theme(axis.text.x=element_text(angle=45, hjust=1))
-p01d
+(p01d <- p01b + facet_wrap(~ Decade, ncol=1) + labs(title="Number of observed and modeled statewide forest fire events"))
 
 # @knitr func_check_lnorm
 # Functions to assess log-normality of fire size for observed data and a sample simulation replicate
 check_lnorm <- function(d, nmax.ad.test=100, verbose=FALSE, closure=TRUE, period="1950-2009", border=FALSE, ...){
 	f <- function(){
 		require("nortest")
-		dl <- split(d$FSE, d$Replicate)
+		dl <- split(d$FSE, as.character(d$Replicate))
 		if(length(dl)==2) iters <- 1:2 else if(names(dl)=="Observed") iters <- 1 else iters <- 2
 		id <- paste(period, c("observations", "simulations"))[iters]
 		if(length(iters)==1) iters <- 1
@@ -142,45 +134,82 @@ plots <- ls(pattern=paste0("^p03"))
 files.out <- paste0(plotDir, "/", substr(plots, 1, 4), "_", doms[2], "_forest_fs", c("All", dec), "_lnormPlots.png")
 savePNG(files.out, plots, res=300, height=2000, width=3000)
 
-# @knitr mle_sw_forest_all
-# test with statewide forest all years observed data
-set.seed(47)
-d$Replicate <- factor(d$Replicate, levels=unique(d$Replicate))
-
-do_mle_fse <- function(d, plot=TRUE){
-	d$FSE <- d$FSE + runif(nrow(d), -0.95, 0.95)
-	d$logFSE <- log(d$FSE)
+# @knitr mle_functions1
+do_mle_fes <- function(d, dec=NULL, by.decade=FALSE){
 	n2loglik <- function(fun, x, params) -2*sum(log(do.call(fun, list(x=x, params))))
-	pars <- lapply(split(d$FSE, d$Replicate), function(i) optim(fn=n2loglik, fun=dlnorm, x=i, par=c(meanlog=1, sdlog=1))$par)
-	g <- ggplot(data=d, aes(x=logFSE, fill=Source)) + geom_histogram(colour="white") + facet_wrap(~ Replicate, ncol=2) + scale_fill_manual(values=cbpal)
-	print(g)
+	l <- split(d$FES, d$Replicate)
+	pars <- list(lapply(l, function(i) optim(fn=n2loglik, fun=dlnorm, x=i, par=c(meanlog=1, sdlog=1))$par))
+	if(by.decade){
+		for(k in 1:length(dec)){
+			d.sub <- subset(d, Decade==dec[k])
+			l <- split(d.sub$FES, d.sub$Replicate)
+			pars[[k+1]] <- lapply(l, function(i) optim(fn=n2loglik, fun=dlnorm, x=i, par=c(meanlog=1, sdlog=1))$par)
+		}
+	}
 	pars
 }
 
-do_mle_fse(subset(d, Domain=="Statewide" & Vegetation=="Forest" & Replicate %in% c("Observed", paste("Rep", 0:2))))
+# @knitr mle_functions2
+plot_mle_fes <- function(d, pars.list, dec=NULL, period="1950 - 2009", facet.by="Source"){
+	if(facet.by!="Decade" & length(pars.list) > 1) pars.list <- pars.list[1]
+	if(facet.by=="Decade" & is.null(dec)) stop("Must provide dec if faceting by dacades.")
+	if(facet.by=="Decade" & length(pars.list)==length(dec)+1) pars.list <- pars.list[-1]
+	if(!is.null(dec)) period <- dec
+	
+	g <- ggplot(data=d, aes(x=logFES, fill=Source)) + theme_bw(base_size=14) + theme(legend.position="bottom", legend.box="horizontal") +
+		scale_fill_manual(values=cbpal) + scale_colour_manual(values=cbpal) +
+		labs(title=paste(period, "MLE of observed and modeled fire event size distributions"), x=expression("FES log("~km^2~")"))
+	g <- g + geom_histogram(aes(y=..density..)) + geom_histogram(aes(y=..density..), colour="white", show_guide=FALSE) + facet_wrap(as.formula(paste("~", facet.by)), ncol=2)
+	
+	src <- c("Observed", rep("Modeled", 32))
+	alpha <- c(1, rep(0.2, 32))
+	sq <- seq(min(d$logFES), max(d$logFES), length=1000)
+	d2.list <- list()
+	for(k in 1:length(pars.list)){
+		pars <- pars.list[[k]]
+		mle_text <- c(paste("MLE_obs: meanlog =", round(pars[[1]][1], 3), "sdlog =", round(pars[[1]][2], 3)), paste("MLE_alf: meanlog =", round(mean(sapply(pars[-1], "[[", 1)), 3), "sdlog =", round(mean(sapply(pars[-1], "[[", 2)), 3)))
+		mle_text <- rep(mle_text, times=c(1, 32))
+		d2.list[[k]] <- do.call(rbind, lapply(1:length(pars),
+			function(i, sq, pars, src, alpha, mle_text, dec=NULL){
+				d <- data.frame(Replicate=names(pars[i]), Source=src[i], x=sq, logFES_MLE=dnorm(sq, mean=pars[[i]][1], sd=pars[[i]][2]), alpha=alpha[i], mle_text=mle_text[i])
+				if(!is.null(dec)) d$Decade <- dec
+				d
+			}, sq=sq, pars=pars, src=src, alpha=alpha, mle_text=mle_text, dec=dec[k]))
+	}
+	d2 <- do.call(rbind, d2.list)
+	g <- g + geom_line(data=d2, aes(x=x, y=logFES_MLE, fill=NULL, group=Replicate, alpha=alpha), colour="black", size=1) + scale_alpha_continuous(name="MLE", breaks=1, labels="")
+	g <- g + geom_text(data=d2, x=Inf, y=Inf, aes(label=mle_text), hjust=1.05, vjust=2, size=4)
+	g
+}
 
+# @knitr mle_logdata
+set.seed(47)
+d$FES <- d$FSE + runif(nrow(d), -0.95, 0.95)
+d$logFES <- log(d$FES)
 
+# @knitr mle_noa_shrub_all
+# Noatak shrub all years, all replicates
+d.sub <- subset(d, Domain=="Noatak" & Vegetation=="Shrub")
+pars <- do_mle_fes(d.sub, dec=dec, by.decade=TRUE)
+(p04a <- plot_mle_fes(d.sub, pars[1]))
+# @knitr mle_noa_shrub_dec
+for(i in 1:length(dec)) print(assign(paste0("p04", letters[i+1]), plot_mle_fes(subset(d.sub, Decade==dec[i]), pars[i+1])))
 
+# @knitr mle_sw_forest_all
+# statewide forest all years, all replicates
+d.sub <- subset(d, Domain=="Statewide" & Vegetation=="Forest")
+pars <- do_mle_fes(d.sub, dec=dec, by.decade=TRUE)
+(p05a <- plot_mle_fes(d.sub, pars[1]))
+# @knitr mle_sw_forest_dec
+for(i in 1:length(dec)) print(assign(paste0("p05", letters[i+1]), plot_mle_fes(subset(d.sub, Decade==dec[i]), pars[i+1])))
+dev.off()
 
+# @knitr mle_pngs_04
+plots <- ls(pattern=paste0("^p04"))
+files.out <- paste0(plotDir, "/", substr(plots, 1, 4), "_Noatak_shrub_logfs", c("All", dec), "_MLEdist.png")
+savePNG(files.out, plots, res=300, height=2000, width=3000)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# @knitr mle_pngs_05
+plots <- ls(pattern=paste0("^p05"))
+files.out <- paste0(plotDir, "/", substr(plots, 1, 4), "_Statewide_forest_logfs", c("All", dec), "_MLEdist.png")
+savePNG(files.out, plots, res=300, height=2000, width=3000)
