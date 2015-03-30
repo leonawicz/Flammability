@@ -20,7 +20,7 @@ check_lnorm <- function(d, nmax.ad.test = 100, verbose = FALSE, closure = TRUE,
     period = "1950-2009", border = FALSE, ...) {
     f <- function() {
         require("nortest")
-        dl <- split(d$FSE, d$Replicate)
+        dl <- split(d$FSE, as.character(d$Replicate))
         if (length(dl) == 2) 
             iters <- 1:2 else if (names(dl) == "Observed") 
             iters <- 1 else iters <- 2

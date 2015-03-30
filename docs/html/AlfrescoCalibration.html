@@ -171,7 +171,10 @@ img {
               <li><a href="fse_eda1.html">EDA: fire samples</a></li>
               <li><a href="fse_eda2.html">EDA: Noatak shrub fire</a></li>
               <li><a href="fse_eda3.html">EDA: statewide forest fire</a></li>
-              <li><a href="fse_mle.html">Maximum likelihood estimation</a></li>
+              <li class="divider"></li>
+              <li><a href="fse_mle1.html">MLE: setup</a></li>
+              <li><a href="fse_mle2.html">MLE: Noatak shrub fire</a></li>
+              <li><a href="fse_mle3.html">MLE: statewide forest fire</a></li>
             </ul>
 
           <li class="dropdown">
@@ -234,15 +237,7 @@ if (<span class="kw">exists</span>(<span class="st">&quot;out&quot;</span>)) <sp
 if (<span class="kw">exists</span>(<span class="st">&quot;yr.start&quot;</span>) &amp;<span class="st"> </span><span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
 if (!<span class="kw">exists</span>(<span class="st">&quot;baseline.year&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;baseline.year not found&quot;</span>) else baseline.year &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(baseline.year)
 if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;statew&quot;</span>) alf.domain &lt;-<span class="st"> &quot;Statewide&quot;</span> else if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), 
-    <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) alf.domain &lt;-<span class="st"> </span><span class="kw">substr</span>(alf.domain, <span class="dv">1</span>, <span class="dv">6</span>)
-
-<span class="co"># setwd(&#39;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code&#39;)</span>
-<span class="co"># load(paste0(&#39;../workspaces/alfresco/Alf_Calib_Setup_112912_&#39;, alf.domain,</span>
-<span class="co"># &#39;.RData&#39;)) lapply(c(&#39;CABvsTimePlot.R&#39;, &#39;AByearPlot.R&#39;, &#39;fireSizePlot.R&#39;,</span>
-<span class="co"># &#39;CABvsFSPlot.R&#39;), source)</span>
-
-<span class="co"># load(paste0(&#39;/big_scratch/mfleonawicz/Alf_Calib_Setup_112912_&#39;,</span>
-<span class="co"># alf.domain, &#39;.RData&#39;))</span></code></pre>
+    <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) alf.domain &lt;-<span class="st"> </span><span class="kw">substr</span>(alf.domain, <span class="dv">1</span>, <span class="dv">6</span>)</code></pre>
 </div>
 
 <!-- some extra javascript for older browsers -->
