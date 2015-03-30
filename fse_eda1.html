@@ -171,7 +171,10 @@ img {
               <li><a href="fse_eda1.html">EDA: fire samples</a></li>
               <li><a href="fse_eda2.html">EDA: Noatak shrub fire</a></li>
               <li><a href="fse_eda3.html">EDA: statewide forest fire</a></li>
-              <li><a href="fse_mle.html">Maximum likelihood estimation</a></li>
+              <li class="divider"></li>
+              <li><a href="fse_mle1.html">MLE: setup</a></li>
+              <li><a href="fse_mle2.html">MLE: Noatak shrub fire</a></li>
+              <li><a href="fse_mle3.html">MLE: statewide forest fire</a></li>
             </ul>
 
           <li class="dropdown">
@@ -233,11 +236,19 @@ n.reps &lt;-<span class="st"> </span><span class="kw">length</span>(reps)
 dec &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">unique</span>(d$Decade))
 n.dec &lt;-<span class="st"> </span><span class="kw">length</span>(dec)
 doms &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Noatak&quot;</span>, <span class="st">&quot;Statewide&quot;</span>)
+d &lt;-<span class="st"> </span><span class="kw">transform</span>(d, <span class="dt">Replicate =</span> <span class="kw">factor</span>(Replicate, <span class="dt">levels =</span> <span class="kw">unique</span>(Replicate)), 
+    <span class="dt">Source =</span> <span class="kw">factor</span>(Source, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;Observed&quot;</span>, <span class="st">&quot;Modeled&quot;</span>)))
 
 <span class="kw">library</span>(ggplot2)
 <span class="kw">dir.create</span>(plotDir &lt;-<span class="st"> &quot;C:/github/Flammability/plots/fseMLE&quot;</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
-cbpal &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#000000&quot;</span>, <span class="st">&quot;#E69F00&quot;</span>, <span class="st">&quot;#56B4E9&quot;</span>, <span class="st">&quot;#009E73&quot;</span>, <span class="st">&quot;#F0E442&quot;</span>, <span class="st">&quot;#0072B2&quot;</span>, 
-    <span class="st">&quot;#D55E00&quot;</span>, <span class="st">&quot;#CC79A7&quot;</span>)</code></pre>
+cbpal &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gray40&quot;</span>, <span class="st">&quot;#E69F00&quot;</span>, <span class="st">&quot;#56B4E9&quot;</span>, <span class="st">&quot;#009E73&quot;</span>, <span class="st">&quot;#F0E442&quot;</span>, <span class="st">&quot;#0072B2&quot;</span>, 
+    <span class="st">&quot;#D55E00&quot;</span>, <span class="st">&quot;#CC79A7&quot;</span>)
+
+<span class="co"># Plot setup</span>
+g &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d, <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span><span class="kw">theme_bw</span>(<span class="dt">base_size =</span> <span class="dv">14</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>, <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, 
+        <span class="dt">hjust =</span> <span class="dv">1</span>)) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span><span class="kw">scale_colour_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="ot">NULL</span>, <span class="dt">y =</span> <span class="st">&quot;Fire count&quot;</span>)</code></pre>
 </div>
 </div>
 <div id="section-2" class="section level2">
@@ -250,35 +261,25 @@ cbpal &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&
 <div id="fire-count-by-vegetation-class-noatak" class="section level4">
 <h4>Fire count by vegetation class: Noatak</h4>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Observed and modeled fire counts by vegetation class</span>
-p01a &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Noatak&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
-p01a</code></pre>
+(p01a &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Noatak&quot;</span>)) +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, 
+    <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled Noatak fire events 1950 - 2009&quot;</span>))</code></pre>
 <p><img src="fse_eda1_files/figure-html/fc_noa_veg-1.png" /></p>
 </div>
 <div id="fire-count-by-vegetation-class-statewide" class="section level4">
 <h4>Fire count by vegetation class: Statewide</h4>
-<pre class="sourceCode r"><code class="sourceCode r">p01b &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
-p01b</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">(p01b &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span>)) +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, 
+    <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled statewide fire events 1950 - 2009&quot;</span>))</code></pre>
 <p><img src="fse_eda1_files/figure-html/fc_sw_veg-1.png" /></p>
 </div>
 <div id="fire-count-by-decade-noatak-shrub" class="section level4">
 <h4>Fire count by decade: Noatak shrub</h4>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Observed and modeled fire counts by decade given vegetation class</span>
-p01c &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Noatak&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
-p01c</code></pre>
+(p01c &lt;-<span class="st"> </span>p01a +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled Noatak shrub fire events&quot;</span>))</code></pre>
 <p><img src="fse_eda1_files/figure-html/fc_noa_shrub_dec-1.png" /></p>
 </div>
 <div id="fire-count-by-decade-statewide-forest" class="section level4">
 <h4>Fire count by decade: Statewide forest</h4>
-<pre class="sourceCode r"><code class="sourceCode r">p01d &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span>), <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">geom_bar</span>() +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">theme</span>(<span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, <span class="dt">hjust =</span> <span class="dv">1</span>))
-p01d</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">(p01d &lt;-<span class="st"> </span>p01b +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled statewide forest fire events&quot;</span>))</code></pre>
 <p><img src="fse_eda1_files/figure-html/fc_sw_forest_dec-1.png" /></p>
 </div>
 </div>

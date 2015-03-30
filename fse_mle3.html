@@ -205,41 +205,29 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="cabvsfsplot.r" class="section level2">
-<h2>CABvsFSPlot.R</h2>
-<p><code>CABvsFSPlot.R</code> stores the function <code>CABvsFSPlot</code>, which plots curves of cumulative burn area over the burnable ALFRESCO domain by fire size event conditional on a fixed period of time. A curve is plotted for each simulation replicate. The plot includes an overlay curve representing the historically observed cumulative burn area by historically observed fire event size.</p>
-<p>This plot is called in <code>AlfrescoCalibration.R</code> and currently is hardcoded to plot curves based on 1950 - 2011.</p>
+<div id="fsemle.r" class="section level2">
+<h2>fseMLE.R</h2>
+<div id="statewide-forest-fire-size-distributions-1950---2009" class="section level3">
+<h3>Statewide forest fire size distributions 1950 - 2009</h3>
+<div id="full-period" class="section level4">
+<h4>Full period</h4>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># statewide forest all years, all replicates</span>
+d.sub &lt;-<span class="st"> </span><span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span> &amp;<span class="st"> </span>Vegetation ==<span class="st"> &quot;Forest&quot;</span>)
+pars &lt;-<span class="st"> </span><span class="kw">do_mle_fes</span>(d.sub, <span class="dt">dec =</span> dec, <span class="dt">by.decade =</span> <span class="ot">TRUE</span>)
+(p05a &lt;-<span class="st"> </span><span class="kw">plot_mle_fes</span>(d.sub, pars[<span class="dv">1</span>]))</code></pre>
+<p><img src="fse_mle3_files/figure-html/mle_sw_forest_all-1.png" /></p>
 </div>
-<div id="r-code" class="section level2">
-<h2>R code</h2>
-<pre class="sourceCode r"><code class="sourceCode r">CABvsFSPlot &lt;-<span class="st"> </span>function(years, d.obs.fse) {
-    akfire.trun1km &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(d.obs.fse$FSE, <span class="dv">0</span>))
-    <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="st">&quot;CABvsFireSize.png&quot;</span>), <span class="dt">res =</span> <span class="dv">120</span>, <span class="dt">width =</span> <span class="dv">1000</span>, <span class="dt">height =</span> <span class="dv">800</span>)
-    <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">2</span>) +<span class="st"> </span><span class="fl">0.1</span>)
-    sort.tmp &lt;-<span class="st"> </span><span class="kw">list</span>()
-    for (i in <span class="dv">1</span>:numrep) {
-        ind &lt;-<span class="st"> </span>alf.fse[, <span class="dv">2</span>] ==<span class="st"> </span>(i -<span class="st"> </span><span class="dv">1</span>) &amp;<span class="st"> </span>alf.fse[, <span class="dv">1</span>] &gt;=<span class="st"> </span>years[<span class="dv">1</span>] &amp;<span class="st"> </span>alf.fse[, 
-            <span class="dv">1</span>] &lt;=<span class="st"> </span>years[<span class="kw">length</span>(years)]
-        sort.tmp[[i]] &lt;-<span class="st"> </span><span class="kw">sort</span>(alf.fse[, <span class="dv">3</span>][ind])
-    }
-    m &lt;-<span class="st"> </span><span class="kw">max</span>(akfire.trun1km)
-    m1 &lt;-<span class="st"> </span><span class="kw">sum</span>(akfire.trun1km)
-    m2 &lt;-<span class="st"> </span><span class="kw">max</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(sort.tmp, sum)))
-    xlm &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, m)
-    ylm &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">1.1</span> *<span class="st"> </span><span class="kw">max</span>(m1, m2))
-    <span class="kw">plot</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> xlm, <span class="dt">ylim =</span> ylm, <span class="dt">main =</span> <span class="st">&quot;Cumulative Burn vs. Fire Size&quot;</span>, 
-        <span class="dt">xlab =</span> <span class="kw">expression</span>(<span class="kw">paste</span>(<span class="kw">plain</span>(<span class="st">&quot;Fire Size   &quot;</span>), (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>), <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), 
-        <span class="dt">ylab =</span> <span class="kw">expression</span>(<span class="kw">paste</span>(<span class="kw">plain</span>(<span class="st">&quot;Cumulative Area Burn   &quot;</span>), (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>), 
-            <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), <span class="dt">cex.axis =</span> <span class="fl">1.2</span>, <span class="dt">cex.lab =</span> <span class="fl">1.2</span>)
-    for (i in <span class="dv">1</span>:<span class="kw">length</span>(sort.tmp)) <span class="kw">lines</span>(sort.tmp[[i]], <span class="kw">cumsum</span>(sort.tmp[[i]]), 
-        <span class="dt">lty =</span> <span class="dv">2</span>, <span class="dt">lwd =</span> <span class="dv">1</span>, <span class="dt">col =</span> <span class="st">&quot;dark gray&quot;</span>)
-    <span class="kw">lines</span>(<span class="kw">sort</span>(akfire.trun1km), <span class="kw">cumsum</span>(<span class="kw">sort</span>(akfire.trun1km)), <span class="dt">col =</span> <span class="st">&quot;#CD6600&quot;</span>, 
-        <span class="dt">lty =</span> <span class="dv">1</span>, <span class="dt">lwd =</span> <span class="dv">3</span>)
-    <span class="kw">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;Empirical (&quot;</span>, years[<span class="dv">1</span>], <span class="st">&quot;:&quot;</span>, years[<span class="kw">length</span>(years)], 
-        <span class="st">&quot;); Truncated at 1km&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="st">&quot;ALFRESCO&quot;</span>), <span class="dt">lty =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">lwd =</span> <span class="kw">c</span>(<span class="dv">3</span>, 
-        <span class="dv">1</span>), <span class="dt">cex =</span> <span class="fl">1.2</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;#CD6600&quot;</span>, <span class="st">&quot;dark gray&quot;</span>))
-    <span class="kw">dev.off</span>()
-}</code></pre>
+<div id="by-decade" class="section level4">
+<h4>By decade</h4>
+<pre class="sourceCode r"><code class="sourceCode r">for (i in <span class="dv">1</span>:<span class="kw">length</span>(dec)) <span class="kw">print</span>(<span class="kw">assign</span>(<span class="kw">paste0</span>(<span class="st">&quot;p05&quot;</span>, letters[i +<span class="st"> </span><span class="dv">1</span>]), <span class="kw">plot_mle_fes</span>(<span class="kw">subset</span>(d.sub, 
+    Decade ==<span class="st"> </span>dec[i]), pars[i +<span class="st"> </span><span class="dv">1</span>])))</code></pre>
+<p><img src="fse_mle3_files/figure-html/mle_sw_forest_dec-1.png" /> <img src="fse_mle3_files/figure-html/mle_sw_forest_dec-2.png" /> <img src="fse_mle3_files/figure-html/mle_sw_forest_dec-3.png" /> <img src="fse_mle3_files/figure-html/mle_sw_forest_dec-4.png" /> <img src="fse_mle3_files/figure-html/mle_sw_forest_dec-5.png" /> <img src="fse_mle3_files/figure-html/mle_sw_forest_dec-6.png" /></p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">dev.off</span>()</code></pre>
+<p><img src="fse_mle3_files/figure-html/mle_sw_forest_dec-7.png" /></p>
+<pre><code>## png 
+##   3</code></pre>
+</div>
+</div>
 </div>
 
 <!-- some extra javascript for older browsers -->
