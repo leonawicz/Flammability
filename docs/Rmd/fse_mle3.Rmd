@@ -16,13 +16,26 @@ read_chunk("../../code/fseMLE.R")
 ##
 ## fseMLE.R
 
-Maximum likelihood estimation.
-
 ```{r setup, echo=FALSE, results="hide"}
 ```
 
+```{r mle_functions1, echo=FALSE, results="hide"}
+```
 
-### Maximum likelihood estimation
+```{r mle_functions2, echo=FALSE, results="hide"}
+```
 
-```{r mle}
+```{r mle_logdata, echo=FALSE, results="hide"}
+```
+
+### Statewide forest fire size distributions 1950 - 2009
+
+#### Full period
+
+```{r mle_sw_forest_all}
+```
+
+#### By decade
+
+```{r mle_sw_forest_dec}
 ```
