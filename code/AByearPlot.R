@@ -1,6 +1,6 @@
 # @knitr AByearPlot
-AByearPlot <- function(ALF.FS, d.obs.fse, years, domain, domain.name, baseline){
-	abByYear.tmp <- tapply(d.obs.fse$FSE, d.obs.fse$Year, sum)
+AByearPlot <- function(ALF.FS, d.obs.fs, years, domain, domain.name, baseline){
+	abByYear.tmp <- tapply(d.obs.fs$FS, d.obs.fs$Year, sum)
 	abByYear <- rep(0, length(years))
 	abByYear[match(names(abByYear.tmp), years)] <- abByYear.tmp
 	
