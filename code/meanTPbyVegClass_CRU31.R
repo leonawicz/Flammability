@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/12/2015        ####
+#### Last updated:   04/14/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -32,9 +32,11 @@ path <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", scenario, 
 dir.create(outDir <- file.path("../data/meanTPbyVegClass", scenario, modnames), showWarnings=F, recursive=T)
 dir.create(wsDir <- "meanTPbyVegClass", showWarnings=F)
 
-### pick the years and months for the analysis
-yr.start<-1901
-yr.end<-2009
+yrs <- 1950:2009
+
+fid <- brick("../data/historicalFireObs/fireIDbrick_annual_observed_Statewide_lightning_1950_2013.tif")
+fid <- subset(b.fid, 1:(diff(range(yrs))+1))
+names(fid) <- yrs
 
 # @knitr func_means
 f <- function(k, path, veg.vec, veg.vals, veg.names){
@@ -50,7 +52,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names){
 		means.P.mos.veg <- cbind(means.P.mos.veg, round(colMeans(precip.tmp[veg.vec==veg.vals[j],],na.rm=T)))
 		means.T.mos.veg <- cbind(means.T.mos.veg, round(colMeans(temp.tmp[veg.vec==veg.vals[j],],na.rm=T), 1))
 	}	
-    row.names(means.P.mos.veg) <- row.names(means.T.mos.veg) <- month.abb
+    rownames(means.P.mos.veg) <- rownames(means.T.mos.veg) <- month.abb
     colnames(means.P.mos.veg) <- colnames(means.T.mos.veg) <- veg.names
 	print(k)
     return(list(Pmeans=means.P.mos.veg, Tmeans=means.T.mos.veg, k=k-yr.start+1))
@@ -91,7 +93,7 @@ f2 <- function(k, path, veg.vec, veg.vals, veg.names, boot=NULL, seed=2504){
 			means.P.mos.veg <- cbind(means.P.mos.veg, colMeans(pre,na.rm=T))
 			means.T.mos.veg <- cbind(means.T.mos.veg, colMeans(tas,na.rm=T))
 		}
-		row.names(means.P.mos.veg) <- row.names(means.T.mos.veg) <- mo.abb
+		rownames(means.P.mos.veg) <- rownames(means.T.mos.veg) <- month.abb
 		colnames(means.P.mos.veg) <- colnames(means.T.mos.veg) <- veg.names
 	}	
     if(is.null(boot)){
@@ -102,9 +104,60 @@ f2 <- function(k, path, veg.vec, veg.vals, veg.names, boot=NULL, seed=2504){
 	print(k)
 }
 
-# @knitr run
-f.out <- mclapply(yr.start:yr.end, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=min(length(yr.start:yr.end), 32))
-names(f.out) <- yr.start:yr.end
+# @knitr func_samples
+f3 <- function(k, path, veg.vec, veg.vals, veg.names, n=100, fid=NULL, fire.only=FALSE, seed=2504){
+	paths <- list.files(path,full=T)
+	ind <- which(as.numeric(substr(paths,nchar(paths)-7,nchar(paths)-4))==k)
+	paths <- paths[ind]
+	precip.paths <- paths[1:12]
+	temp.paths <- paths[13:24]
+    precip.tmp <- getValues(stack(precip.paths, quick=T))
+    temp.tmp <- getValues(stack(temp.paths, quick=T))
+	mp <- mt <- c()
+	nv <- length(veg.vals)
+	if(!is.null(fid)){
+		fid <- getValues(raster(fid, which(as.numeric(substr(names(fid), 2, 5))==k)))
+		fs_df <- function(i, x, vegID){
+			if(length(x[[i]])) FID <- as.numeric(names(x[[i]])) else FID <- NA
+			if(length(x[[i]])) FS <- as.numeric(x[[i]]) else FS <- NA
+			data.frame(VegID=vegID[i], FID=FID, FS=FS)
+		}
+		tb <- tapply(fid, veg.vec, table)
+		d.fs <- rbindlist(lapply(1:length(tb), fs_df, x=tb, vegID=as.numeric(names(tb))))
+		fs <- c()
+	} 
+	if(!is.null(seed)) set.seed(seed)
+	for(j in 1:nv){
+		if(!is.null(fid) && fire.only){
+			ind2 <- !is.na(veg.vec) & veg.vec==veg.vals[j] & !is.na(fid)
+		} else {
+			ind2 <- !is.na(veg.vec) & veg.vec==veg.vals[j]
+		}
+		pre <- precip.tmp[ind2,]
+		tas <- temp.tmp[ind2,]
+		samp <- sample(1:nrow(pre), n)
+		mp <- cbind(mp, as.numeric(pre[samp,]))
+		mt <- cbind(mt, as.numeric(tas[samp,]))
+		if(!is.null(fid)){
+			fid.tmp <- fid[ind2][samp]
+			fs <- cbind(fs, sapply(fid.tmp, function(x, d) if(is.na(x)) return(0) else return(d$FS[which(d$FID==x & d$VegID==veg.vals[j])]), d=d.fs))
+		}
+	}
+	mp <- data.frame(mp)
+	mt <- data.frame(mt)
+	names(mp) <- names(mt) <- veg.names
+	mp$Month <- mt$Month <- rep(month.abb, each=n)
+	mp$Var <- "Precipitation"
+	mt$Var <- "Temperature"
+	d <- rbind(mp, mt)
+	d <- cbind(Year=k, d)
+	d <- d[,c(1, nv+(2:3), 2:(nv+1))]
+	if(!is.null(fid)) { fs <- data.frame(fs); names(fs) <- veg.names; fs <- cbind(Year=k, fs); return(list(d=d, d.fs=fs)) } else return(d)
+}
+
+# @knitr run_means
+f.out <- mclapply(yrs, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=min(length(yrs), 32))
+names(f.out) <- yrs
 for(i in 1:length(veg.vals)){
   assign(paste("table.p", veg.names[i], scenario, modnames, sep="."), c())
   assign(paste("table.t", veg.names[i], scenario, modnames, sep="."), c())
@@ -122,8 +175,8 @@ for(j in 1:length(f.out)){
 #boot <- 10 #boot <- NULL
 #n <- 100
 #set.seed(47)
-#f.out <- mcf(f2,yr.start:yr.end)
-#names(f.out) <- yr.start:yr.end
+#f.out <- mcf(f2,yrs)
+#names(f.out) <- yrs
 #for(i in 1:length(veg.vals)){
 #	for(b in 1:length(f.out[[1]]$Pmeans)){
 #	  assign(paste("table.p.",veg.names[i],".",b,sep=""), c())
@@ -139,11 +192,31 @@ for(j in 1:length(f.out)){
 #  }
 #}
 
+# @knitr run_samples
+library(data.table)
+library(reshape2)
+system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=1000, seed=NULL, mc.cores=min(length(yrs), 32)) )
+d <- rbindlist(f.out)
+d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
+if(allcavm) d.cavm <- d
+
+# @knitr run_samples_fs
+library(data.table)
+library(reshape2)
+system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=100, fid=fid, seed=NULL, mc.cores=min(length(yrs), 32)) )
+d <- rbindlist(lapply(f.out, "[[", 1))
+d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
+if(allcavm) d.cavm <- d
+d.fs <- rbindlist(lapply(f.out, "[[", 2))
+
 # @knitr save
 for(i in 1:length(veg.names)){
   write.table(get(paste("table.p", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/pr_", scenario, "_", modnames, "_", veg.names[i], ".csv", sep=""), row.names=F)
   write.table(get(paste("table.t", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/tas_", scenario, "_", modnames, "_", sort(veg.names)[i], ".csv", sep=""), row.names=F)
 }
 
-rm(comargs, i, j, f.out, yr.start, yr.end, veg.vals, veg.vec, path, f, f2, modnames, scenario, r.veg, veg.names, outDir, allcavm)
-if(length(ls(pattern=".*.cavm.*."))) save.image(file.path(wsDir, "meanTPbyVegClass_CRU31_cavm.RData")) else save.image(file.path(wsDir, "meanTPbyVegClass_CRU31_individual.RData"))
+rm(comargs, i, j, f.out, yrs, veg.vals, veg.vec, path, f, f2, modnames, scenario, r.veg, veg.names, outDir, allcavm)
+if(allcavm) save.image(file.path(wsDir, "meanTPbyVegClass_CRU31_cavm.RData")) else save.image(file.path(wsDir, "meanTPbyVegClass_CRU31_individual.RData"))
+
+# @knitr save_samples
+if(allcavm) save(d.cavm, file=file.path(wsDir, "tpByVegSamples1000_CRU31_cavm.RData")) else save(d, file=file.path(wsDir, "tpByVegSamples1000_CRU31_individual.RData"))
