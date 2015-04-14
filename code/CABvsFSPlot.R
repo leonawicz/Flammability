@@ -5,8 +5,8 @@ CABvsFSPlot <- function(years, d.obs.fs){
 	par(mar=c(5,5,3,2)+0.1)
 	sort.tmp <- list()
 	for (i in 1:numrep){
-		ind <- alf.fs[,2]==(i-1) & alf.fs[,1]>=years[1] & alf.fs[,1]<=years[length(years)]
-		sort.tmp[[i]] <- sort(alf.fs[,3][ind])
+		ind <- alf.fse[,2]==(i-1) & alf.fse[,1]>=years[1] & alf.fse[,1]<=years[length(years)]
+		sort.tmp[[i]] <- sort(alf.fse[,3][ind])
 	}
 	m <- max(akfire.trun1km); m1 <- sum(akfire.trun1km); m2 <- max(unlist(lapply(sort.tmp,sum)))
 	xlm <- c(0,m); ylm <- c(0,1.1*max(m1,m2))
