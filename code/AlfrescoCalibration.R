@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/27/2015        ####
+#### Last updated:   03/31/2015        ####
 
 # @knitr alf_calib
 comArgs <- commandArgs(TRUE)
@@ -23,26 +23,20 @@ if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 195
 if(!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
 if(substr(tolower(alf.domain),1,6)=="statew") alf.domain <- "Statewide" else if(substr(tolower(alf.domain),1,6)=="noatak") alf.domain <- substr(alf.domain,1,6)
 
-# @knitr func_fseByVeg
-fseByVeg <- function(i, v, f){
+# @knitr func_fsByVeg
+fsByVeg <- function(i, v, f){
 	v[v!=i] <- NA
 	x <- f[!is.na(v) & !is.na(f)]
-	if(length(x)) return(data.frame(Vegetation=i, FSE=sort(as.numeric(tapply(x, x, length))))) else return(NULL)
+	if(length(x)) return(data.frame(Vegetation=i, FS=sort(as.numeric(tapply(x, x, length))))) else return(NULL)
 }
 
-# @knitr func_fseByRepEmp
-fseByRepEmp <- function(b, vid, v.veg, yrs){
-	n <- nlayers(b)
-	dlist <- vector("list", n)
-	for(k in 1:n){
-		v.fid <- getValues(subset(b, k))
-		if(!all(is.na(v.fid))){
-			dl <- lapply(vid, fseByVeg, v=v.veg, f=v.fid)
-			dlist[[k]] <- as.data.frame(rbindlist(dl))
-			dlist[[k]]$Year <- yrs[k]
-		}
-	}
-	d <- as.data.frame(rbindlist(dlist))
+# @knitr func_fsByRepEmp
+fsByRepEmp <- function(i, b, vid, v.veg, yrs){
+	v.fid <- getValues(subset(b, i))
+	if(all(is.na(v.fid))) return(NULL)
+	dl <- lapply(vid, fsByVeg, v=v.veg, f=v.fid)
+	d <- as.data.frame(rbindlist(dl))
+	d$Year <- yrs[i]
 	d$Replicate <- d$Source <- "Observed"
 	d <- d[,c(4,5,1,3,2)]
 	d
@@ -50,6 +44,7 @@ fseByRepEmp <- function(b, vid, v.veg, yrs){
 
 # @knitr empirical_data_setup
 library(raster)
+rasterOptions(tmpdir="/big_scratch/shiny", chunksize=10e10, maxmemory=10e11)
 source("/big_scratch/shiny/obs_fire_setup.R")
 v.veg <- getValues(r)
 v.veg[v.veg==3 | v.veg==4] <- 2 # 3 and 4 tree classes combine into class 2 to become 'forest', tundra types 1, 5, 6, and 7 remain as before
@@ -59,21 +54,24 @@ v.names <- c("Alpine", "Forest", "", "", "Shrub", "Graminoid", "Wetland")
 # @knitr run
 # Process empirical data
 library(data.table)
-d.fse.veg <- fseByRepEmp(b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.all)
-d.fse.veg$Vegetation <- v.names[d.fse.veg$Vegetation]
+library(parallel)
+n.cores <- 32 # hardcoded
+d.fs.veg <- mclapply(1:nlayers(b.fid), fsByRepEmp, b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.all, mc.cores=n.cores)
+d.fs.veg <- as.data.frame(rbindlist(d.fs.veg))
+d.fs.veg$Vegetation <- v.names[d.fs.veg$Vegetation]
 
 lapply(paste0("/big_scratch/mfleonawicz/Alf_Files_20121129/alfresco/", c("CABvsTimePlot.R", "histPrep.R", "AByearPlot.R", "fireSizePlot.R", "CABvsFSPlot.R")), source)
 
 #### Collect ALFRESCO data
-alf.fse<-as.matrix(read.table(file.path(mainDir, "FireSizeEvents.txt"), header=T))
+alf.fse <- as.matrix(read.table(file.path(mainDir, "FireSizeEvents.txt"), header=T))
 numrep <- length(unique(alf.fse[,2]))
 alf.fs <- as.matrix(read.table(file.path(mainDir,"FireSize.txt"),skip=1))[,2:(numrep + 1)]
 
 # these functions use hardcoded inputs from another script/workspace
-CABvsTimePlot(yrs, baseline.year=baseline.year, d.obs.fse=d.fse.veg) 
-AByearPlot(alf.fs, d.obs.fse=d.fse.veg, yrs, domain="total.ab.ha", domain.name="total", baseline=baseline.year)
-fireSizePlot(yrs, d.obs.fse=d.fse.veg)
-CABvsFSPlot(yrs, d.obs.fse=d.fse.veg)
+CABvsTimePlot(yrs, baseline.year=baseline.year, d.obs.fs=d.fs.veg) 
+AByearPlot(alf.fs, d.obs.fs=d.fs.veg, yrs, domain="total.ab.ha", domain.name="total", baseline=baseline.year)
+fireSizePlot(yrs, d.obs.fs=d.fs.veg)
+CABvsFSPlot(yrs, d.obs.fs=d.fs.veg)
 
 save.image(file.path(outDir, "postProcess.RData"))
 
