@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/23/2015        ####
+#### Last updated:   04/03/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -23,6 +23,7 @@ library(raster)
 library(parallel)
 library(plyr)
 
+rasterOptions(tmpdir="/big_scratch/shiny", chunksize=10e10, maxmemory=10e11)
 mainDir <- file.path(input, "Maps")
 dir.create(outDir <- file.path(out, "FRP"), showWarnings=F)
 if(!exists("pts")) stop("No coordinates file provided for relative area burned time series extraction.")
@@ -155,6 +156,7 @@ fireEventsFunEmpirical <- function(b, pts, buffer.list=list(NULL), fun.list=list
 }
 
 # @knitr empirical_data_setup
+if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
 source("/big_scratch/shiny/obs_fire_setup.R")
 r.burnable <- Which(r>0)
 
@@ -254,13 +256,13 @@ friFun <- function(d){
 fri.dat <- friFun(rab.dat)
 
 # Load/save objects in a workspace file to be transported to app
-load(file.path(out, "fse_df.RData"))
+load(paste0(out, "/fsByVeg_df_", dom, ".RData")) # assumed to have run fsByVeg.R
 prefix <- ifelse(group.name=="none", "RAB_FRP", paste0(run.name, "_RAB_FRP"))
 ws <- ifelse(group.name=="none",
 		paste0(outDir,"/",prefix,"_Emp_",yrs.all[1],"_",tail(yrs.all,1),"_Alf_",alf.yrs[1],"_",tail(alf.yrs,1),".RData"),
 		paste0(outDir,"/",prefix,".RData")
 	)
-save(d.fse, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, file=ws)
+save(d.fs, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, file=ws)
 Sys.sleep(0.1)
 
 # @knitr save
