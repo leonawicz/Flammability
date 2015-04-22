@@ -5,6 +5,7 @@
 #SBATCH --ntasks=1
 #SBATCH --nodes=1
 ####SBATCH --nodelist=atlas01
+#SBATCH --job-name=gbmFlamPrep
 #SBATCH --account=snap
 #SBATCH -p main
 

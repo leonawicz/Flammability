@@ -11,5 +11,6 @@
 
 #### $1 period, passed as period=\'historical\', period=\'rcp60\', etc., required;
 #### $2 model, passed as model=\'CRU31\', model=\'GFDL-CM3\', etc., required;
-#### $3 recommended optional unified single-GBM CAVM region as allcavm=TRUE, defaults to FALSE if not specified;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/gbm_flam_maps.R $1 $2 $3
+#### $3 optional unified single-GBM CAVM region as allcavm=TRUE, defaults to FALSE;
+#### $4 samples=TRUE, optional, defaults to FALSE;
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/gbm_flam_maps.R $1 $2 $3 $4
