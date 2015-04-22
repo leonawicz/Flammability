@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/19/2015        ####
+#### Last updated:   04/22/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -15,54 +15,64 @@ if(!exists("model")) stop("Argument 'model' not passed at command line.")
 if(!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
 if(!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
 if(!exists("allcavm")) allcavm <- FALSE
+if(!exists("samples")) samples <- FALSE
 if(!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
+if(!is.logical(samples)) stop("Argument 'samples' must be logical.")
 
 library(gbm); library(rgdal); library(raster); library(rasterVis); library(parallel)
 rasterOptions(chunksize=10e10,maxmemory=10e11)
 ncores <- 32
 
+verDir <- if(samples) "samples_based" else "means_based"
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
-
-if(period=="historical"){
-	yrs <- 1901:2009
-	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "cru_TS31")
-} else {
-	yrs <- 2006:2100
-	tpDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide", period, model)
-}
-
 load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
-load("gbm_seasonal_all_models.RData")
+
+# Load gbm models
+if(samples){
+	load("gbm_seasonal_all_models_1Ksamples.RData")
+	tree.numbers <- c(1500, 1500, 1500, 1500, 5000, 10000) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
+} else {
+	load("gbm_seasonal_all_models.RData")
+	tree.numbers <- c(3355, 32, 2200, 152, 2478, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
+}
+gbm.names <- c("gbm.forest", "gbm.alp.tundra", "gbm.shrub", "gbm.gram", "gbm.wetland")
 
 if(allcavm){
 	out <- "3models_tif"
 	plot.out <- "3models_png"
 	gbm.gram <- gbm.shrub <- gbm.wetland <- gbm.all.cavm
-	tree.numbers <- c(3355, 32, 1554, 1554, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland
+	tree.numbers <- tree.numbers[c(1,2,6,6,6)] # order: forest, alpine tundra, shrub, graminoid, wetland
 } else {
 	out <- "5models_tif"
 	plot.out <- "5models_png"
 }
-dir.create(outDir <- file.path("../data/gbmFlammability", period, model, out), recursive=T, showWarnings=F)
-dir.create(plotDir <- file.path("../plots/gbmFlammability", period, model, plot.out), recursive=T, showWarnings=F)
+dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model, out), recursive=T, showWarnings=F)
+dir.create(plotDir <- file.path("../plots/gbmFlammability", verDir, period, model, plot.out), recursive=T, showWarnings=F)
 
 # @knitr func_prep
-f <- function(p, bins=1){
+f <- function(p, bins=1, samples=FALSE){
 	d.names <- rownames(summary(get(gbm.names[p])))
 	tmp <- c()
 	if(any(grep("Summer", d.names))){
-		obj.names.list <- list(ls(pattern="^m.*.T$", envir=.GlobalEnv), ls(pattern="^m.*.P$", envir=.GlobalEnv))
+		obj.names.list <- list(ls(pattern="^m\\..*.P$", envir=.GlobalEnv), ls(pattern="^m\\..*.T$", envir=.GlobalEnv))
 		for(i in 1:nrow(summary(get(gbm.names[p])))){
 			obj.names <- obj.names.list[[i]]
 			n <- length(obj.names)
 			tmp2 <- 0
 			for(j in 1:n) tmp2 <- tmp2 + get(obj.names[j])
-			if(length(grep("T$", obj.names.list[[i]]))) tmp2 <- tmp2/n
-			tmp <- cbind(tmp, as.numeric(tmp2[get(ind.names[p]),]))
+			is.temp <- length(grep("T$", obj.names)) > 0
+			if(is.temp) tmp2 <- tmp2/n
+			tmp2 <- as.numeric(tmp2[get(ind.names[p]),])
+			if(samples) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
+			tmp <- cbind(tmp, tmp2)
 			rm(tmp2); gc()
 		}
 	} else {
-		for(i in 1:nrow(summary(get(gbm.names[p])))) tmp <- cbind(tmp, as.numeric(get(paste0("m.",d.names[i]))[get(ind.names[p]),]))
+		for(i in 1:nrow(summary(get(gbm.names[p])))){
+			tmp2 <- as.numeric(get(paste0("m.",d.names[i]))[get(ind.names[p]),])
+			if(samples) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
+			tmp <- cbind(tmp, tmp2)
+		}
 	}
 	colnames(tmp) <- d.names
 	rownames(tmp) <- NULL
@@ -81,9 +91,8 @@ f <- function(p, bins=1){
 getGBMpreds <- function(a,b, nam1, nam2) predict.gbm(get(nam1[b]), get(nam2[a]), n.trees=tree.numbers[b])
 
 # @knitr func_write
-partifs <- function(i, outDir){
-	r <- r.veg
-	r <- setValues(r,flam[,i])
+partifs <- function(i, r, flam, outDir){
+	r <- setValues(r, flam[,i])
 	names(r) <- paste0("gbm.flamm_",yrs[1]+i-1)
 	writeRaster(r, paste0(outDir, "/gbm.flamm_",yrs[1]+i-1,".tif"), datatype="FLT4S", overwrite=T)
 	print(i)
@@ -92,20 +101,20 @@ partifs <- function(i, outDir){
 # @knitr run
 preds <- list()
 for(zzz in 1:5){
-	model.index <- f(zzz, bins=ncores) # Prep data
+	model.index <- f(zzz, bins=ncores, samples=samples) # Prep data
 	tmp.preds <- mclapply(1:ncores, getGBMpreds, b=model.index, nam1=gbm.names, nam2=tmp.names, mc.cores=ncores) # GBM predictions
 	preds[[model.index]] <- matrix(unlist(tmp.preds), ncol=length(yrs))
 	print(zzz)
 }
 
 # Organize results
-flam <- matrix(NA,nrow=length(veg.tmp),ncol=length(yrs))
+flam <- matrix(NA,nrow=length(veg),ncol=length(yrs))
 for(i in 1:5) flam[which(get(ind.names[i])),] <- preds[[i]]
 flam.range <- range(flam,na.rm=T)
 flam <- (flam-flam.range[1])/(flam.range[2]-flam.range[1])
 
 # Write geotiffs
-mclapply(1:length(yrs), partifs, outDir=outDir, mc.cores=32)
+mclapply(1:length(yrs), partifs, r=r.veg, flam=flam, outDir=outDir, mc.cores=32)
 
 # @knitr plot
 # Setup
