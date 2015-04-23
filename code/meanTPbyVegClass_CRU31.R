@@ -21,6 +21,13 @@ setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")
 veg.vec <- getValues(r.veg)
 sort(unique(veg.vec))
+rm.eco <- T
+ecoreg <- raster(as.matrix(read.table("../data/ecoreg_mark_mask_zero.txt", skip=6, header=F)))
+drop.ind <- Which(ecoreg==4,cells=T)
+if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
+if(any(is.na(veg.vec))) veg.vec[is.na(veg.vec)] <- 0
+veg.vec <- as.numeric(veg.vec!=0)*eco.ind*veg.vec
+
 veg.vec[veg.vec==3|veg.vec==4] <- 2 # for forest
 if(allcavm) veg.vec[veg.vec==6|veg.vec==7] <- 5 # "cavm" all three shrub, graminoid, wetland combined
 
@@ -35,7 +42,7 @@ dir.create(wsDir <- "meanTPbyVegClass", showWarnings=F)
 yrs <- 1950:2009
 
 fid <- brick("../data/historicalFireObs/fireIDbrick_annual_observed_Statewide_lightning_1950_2013.tif")
-fid <- subset(b.fid, 1:(diff(range(yrs))+1))
+fid <- subset(fid, 1:(diff(range(yrs))+1))
 names(fid) <- yrs
 
 # @knitr func_means
@@ -55,7 +62,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names){
     rownames(means.P.mos.veg) <- rownames(means.T.mos.veg) <- month.abb
     colnames(means.P.mos.veg) <- colnames(means.T.mos.veg) <- veg.names
 	print(k)
-    return(list(Pmeans=means.P.mos.veg, Tmeans=means.T.mos.veg, k=k-yr.start+1))
+    return(list(Pmeans=means.P.mos.veg, Tmeans=means.T.mos.veg, k=k-yrs[1]+1))
 }
 
 # @knitr func_means_boot
@@ -195,7 +202,7 @@ for(j in 1:length(f.out)){
 # @knitr run_samples
 library(data.table)
 library(reshape2)
-system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=1000, seed=NULL, mc.cores=min(length(yrs), 32)) )
+system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=100, seed=NULL, mc.cores=min(length(yrs), 32)) )
 d <- rbindlist(f.out)
 d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
 if(allcavm) d.cavm <- d
@@ -215,8 +222,7 @@ for(i in 1:length(veg.names)){
   write.table(get(paste("table.t", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/tas_", scenario, "_", modnames, "_", sort(veg.names)[i], ".csv", sep=""), row.names=F)
 }
 
-rm(comargs, i, j, f.out, yrs, veg.vals, veg.vec, path, f, f2, modnames, scenario, r.veg, veg.names, outDir, allcavm)
-if(allcavm) save.image(file.path(wsDir, "meanTPbyVegClass_CRU31_cavm.RData")) else save.image(file.path(wsDir, "meanTPbyVegClass_CRU31_individual.RData"))
+if(allcavm) save(list=ls(pattern="^table\\."), file=file.path(wsDir, "meanTPbyVegClass_CRU31_cavm.RData")) else save(list=ls(pattern="^table\\."), file=file.path(wsDir, "meanTPbyVegClass_CRU31_individual.RData"))
 
 # @knitr save_samples
-if(allcavm) save(d.cavm, file=file.path(wsDir, "tpByVegSamples1000_CRU31_cavm.RData")) else save(d, file=file.path(wsDir, "tpByVegSamples1000_CRU31_individual.RData"))
+if(allcavm) save(d.cavm, file=file.path(wsDir, "tpByVegSamples100_CRU31_cavm.RData")) else save(d, file=file.path(wsDir, "tpByVegSamples100_CRU31_individual.RData"))
