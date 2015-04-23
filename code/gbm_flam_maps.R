@@ -19,7 +19,7 @@ if(!exists("samples")) samples <- FALSE
 if(!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
 if(!is.logical(samples)) stop("Argument 'samples' must be logical.")
 
-library(gbm); library(rgdal); library(raster); library(rasterVis); library(parallel)
+library(gbm); library(rgdal); library(raster); library(rasterVis); library(parallel); library(data.table)
 rasterOptions(chunksize=10e10,maxmemory=10e11)
 ncores <- 32
 
@@ -50,11 +50,11 @@ dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model,
 dir.create(plotDir <- file.path("../plots/gbmFlammability", verDir, period, model, plot.out), recursive=T, showWarnings=F)
 
 # @knitr func_prep
-f <- function(p, bins=1, samples=FALSE){
-	d.names <- rownames(summary(get(gbm.names[p])))
+f <- function(p, yrs=NULL, bins=1, samples=FALSE){
+	d.names <- sort(rownames(summary(get(gbm.names[p])))) # force alphabetical
 	tmp <- c()
 	if(any(grep("Summer", d.names))){
-		obj.names.list <- list(ls(pattern="^m\\..*.P$", envir=.GlobalEnv), ls(pattern="^m\\..*.T$", envir=.GlobalEnv))
+		obj.names.list <- list(ls(pattern="^m\\..*.P$", envir=.GlobalEnv), ls(pattern="^m\\..*.T$", envir=.GlobalEnv)) # alphabetical
 		for(i in 1:nrow(summary(get(gbm.names[p])))){
 			obj.names <- obj.names.list[[i]]
 			n <- length(obj.names)
@@ -62,14 +62,18 @@ f <- function(p, bins=1, samples=FALSE){
 			for(j in 1:n) tmp2 <- tmp2 + get(obj.names[j])
 			is.temp <- length(grep("T$", obj.names)) > 0
 			if(is.temp) tmp2 <- tmp2/n
-			tmp2 <- as.numeric(tmp2[get(ind.names[p]),])
+			tmp2 <- tmp2[get(ind.names[p]),]
+			dims <- dim(tmp2)
+			tmp2 <- as.numeric(tmp2)
 			if(samples) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
 			tmp <- cbind(tmp, tmp2)
 			rm(tmp2); gc()
 		}
 	} else {
 		for(i in 1:nrow(summary(get(gbm.names[p])))){
-			tmp2 <- as.numeric(get(paste0("m.",d.names[i]))[get(ind.names[p]),])
+			tmp2 <- get(paste0("m.",d.names[i]))[get(ind.names[p]),]
+			dims <- dim(tmp2)
+			tmp2 <- as.numeric(tmp2)
 			if(samples) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
 			tmp <- cbind(tmp, tmp2)
 		}
@@ -77,6 +81,8 @@ f <- function(p, bins=1, samples=FALSE){
 	colnames(tmp) <- d.names
 	rownames(tmp) <- NULL
 	tmp <- data.frame(tmp)
+	if(length(yrs)==dims[2]) ids <- yrs else ids <- 1:dims[2]
+	tmp$ID <- rep(ids, each=dims[1])
 	assign("tmp.names", paste0("tmp_", c(paste0(0,c(1:9)), 10:bins)[1:bins]), envir=.GlobalEnv) # global assignment side effects
 	brks <- round(seq(1, nrow(tmp), length.out=bins+1))
 	for(i in 1:bins){
@@ -88,7 +94,12 @@ f <- function(p, bins=1, samples=FALSE){
 }
 
 # @knitr func_predict
-getGBMpreds <- function(a,b, nam1, nam2) predict.gbm(get(nam1[b]), get(nam2[a]), n.trees=tree.numbers[b])
+getGBMpreds <- function(a,b, nam1, nam2){
+	x0 <- get(nam1[b])
+	x1 <- get(nam2[a])
+	y <- predict.gbm(x0, x1, n.trees=tree.numbers[b])
+	data.frame(Predicted=y, ID=x1$ID)
+}
 
 # @knitr func_write
 partifs <- function(i, r, flam, outDir){
@@ -103,15 +114,16 @@ preds <- list()
 for(zzz in 1:5){
 	model.index <- f(zzz, bins=ncores, samples=samples) # Prep data
 	tmp.preds <- mclapply(1:ncores, getGBMpreds, b=model.index, nam1=gbm.names, nam2=tmp.names, mc.cores=ncores) # GBM predictions
-	preds[[model.index]] <- matrix(unlist(tmp.preds), ncol=length(yrs))
+	tmp.preds <- rbindlist(tmp.preds)
+	preds[[model.index]] <- matrix(tmp.preds$Predicted, ncol=length(yrs))
 	print(zzz)
 }
 
 # Organize results
-flam <- matrix(NA,nrow=length(veg),ncol=length(yrs))
+flam <- matrix(NA, nrow=length(veg), ncol=length(yrs))
 for(i in 1:5) flam[which(get(ind.names[i])),] <- preds[[i]]
-flam.range <- range(flam,na.rm=T)
-flam <- (flam-flam.range[1])/(flam.range[2]-flam.range[1])
+flam.range <- range(flam, na.rm=T)
+flam <- (flam - flam.range[1])/(flam.range[2] - flam.range[1])
 
 # Write geotiffs
 mclapply(1:length(yrs), partifs, r=r.veg, flam=flam, outDir=outDir, mc.cores=32)
