@@ -1,10 +1,10 @@
-##############################################################################################################
-#### This R script multiplies annual gbm flammability maps by scalar coefficient which vary through time. ####
-##############################################################################################################
+######################################################################################################################################
+#### This R script generates new annual gbm flammability mapsas a function of the originals and other data such as lightning maps ####
+######################################################################################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/19/2015        ####
+#### Last updated:   04/27/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -14,11 +14,14 @@ if(!exists("period")) stop("Argument 'period' not passed at command line.")
 if(!exists("model")) stop("Argument 'model' not passed at command line.")
 if(!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
 if(!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
-if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.") # Currently must be "3models_tif" or "5models_tif"
+if(!exists("samples")) samples <- TRUE
+if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.")
+if(!exists("lightning")) lightning <- TRUE
 if(!exists("cp2scratch")) cp2scratch <- TRUE
 if(!exists("cp_originals")) cp_originals <- TRUE
 
-setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", period, model, mapset))
+verDir <- if(samples) "samples_based" else "means_based"
+setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
 dir.create(outDir <- paste0("../", mapset, "_scaled"), showWarnings=FALSE)
 if(cp2scratch){
 	dir.create(outDir2a <- file.path("/big_scratch/mfleonawicz/Alf_Files_20121129/gbmFlamMaps", period, model, mapset), recursive=TRUE, showWarnings=FALSE)
@@ -28,7 +31,8 @@ if(!cp_originals) outDir2a <- NULL
 
 library(raster)
 library(parallel)
-load("../../../../../workspaces/gbmFlammability/ALF_ignit_premult.RData") # scalars data frame for observed years
+load("../../../../../../workspaces/gbmFlammability/ALF_ignit_premult.RData") # scalars data frame for observed years
+
 files <- list.files(pattern="\\.tif$")
 yrs <- as.numeric(gsub("gbm.flamm_", "", gsub("\\.tif", "", files)))
 files <- files[order(yrs)]
@@ -36,19 +40,35 @@ yrs <- yrs[order(yrs)]
 
 # Sample random coeffcients for unobserved years
 set.seed(47)
-a <- sample(c(0.05, 0.5, 0.95), length(yrs), prob=c(21/62, 20/62, 21/62), replace=T)
-
-if(all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- ignit.scalar[,2]
+if(lightning){
+	classes <- sapply(ignit.scalar$ignit.lightning, function(x) switch(as.character(x), '0.05'=1,'0.5'=2,'0.95'=3))
+	load("/workspace/UA/mfleonawicz/leonawicz/projects/Lightning/data/summerLightningMaps_2003_2012/summerLightningMaps.RData")
+	light.yrs <- sapply(classes, function(x, d) sample(d$Year[d$Class==x], 1), d=d.coef)
+	ind <- which(ignit.scalar$V1 %in% d.coef$Year)
+	light.yrs[ind] <- ignit.scalar$V1[ind]
+	a <- sample(d.coef$Year, length(yrs), replace=T)
+	if(all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- light.yrs
+} else {
+	a <- sample(c(0.05, 0.5, 0.95), length(yrs), prob=c(21/62, 20/62, 21/62), replace=T)
+	if(all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- ignit.scalar[,2]
+}
 
 # @knitr func
-f <- function(i, a, outDir, files, cp.origin=NULL, cp.new=NULL){
+f <- function(i, a, b=NULL, type="coef", outDir, files, f_of_xy=NULL, cp.origin=NULL, cp.new=NULL){
 	r <- raster(files[i])
 	if(!is.null(cp.origin)) writeRaster(r, file.path(cp.origin, files[i]), datatype="FLT4S", overwrite=T)
-	r <- a[i]*r
+	if(type=="coef"){
+		r <- a[i]*r
+	} else if(type=="year"){
+		if(is.null(b)) stop("b cannot be NULL if type='year'. Change to type='coef' or provide a raster brick b.")
+		b.yrs <- as.numeric(substr(names(b), 2, 5))
+		ind <- which(b.yrs==a[i])
+		r <- if(is.null(f_of_xy)) subset(b, ind)*r else f_of_xy(x=subset(b, ind), y=r)
+	}
 	writeRaster(r, file.path(outDir, files[i]), datatype="FLT4S", overwrite=T)
 	if(!is.null(cp.new)) writeRaster(r, file.path(cp.new, files[i]), datatype="FLT4S", overwrite=T)
 	print(i)
 }
 
 # @knit run
-mclapply(1:length(files), f, a=a, outDir=outDir, files=files, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
+mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, f_of_xy=function(x,y) (x+y)/2, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
