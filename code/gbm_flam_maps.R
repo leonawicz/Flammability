@@ -30,7 +30,7 @@ load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
 # Load gbm models
 if(samples){
 	load("gbm_seasonal_all_models_1Ksamples.RData")
-	tree.numbers <- c(1500, 1500, 1500, 1500, 5000, 10000) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
+	tree.numbers <- c(5000, 5000, 5000, 5000, 5000, 5000) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
 } else {
 	load("gbm_seasonal_all_models.RData")
 	tree.numbers <- c(3355, 32, 2200, 152, 2478, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
