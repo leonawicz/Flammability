@@ -40,7 +40,7 @@ gbm.names <- c("gbm.forest", "gbm.alp.tundra", "gbm.shrub", "gbm.gram", "gbm.wet
 if(allcavm){
 	out <- "3models_tif"
 	plot.out <- "3models_png"
-	gbm.gram <- gbm.shrub <- gbm.wetland <- gbm.all.cavm
+	gbm.gram <- gbm.shrub <- gbm.wetland <- gbm.cavm
 	tree.numbers <- tree.numbers[c(1,2,6,6,6)] # order: forest, alpine tundra, shrub, graminoid, wetland
 } else {
 	out <- "5models_tif"
