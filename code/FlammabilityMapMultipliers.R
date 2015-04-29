@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/27/2015        ####
+#### Last updated:   04/29/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -63,7 +63,7 @@ f <- function(i, a, b=NULL, type="coef", outDir, files, f_of_xy=NULL, cp.origin=
 		if(is.null(b)) stop("b cannot be NULL if type='year'. Change to type='coef' or provide a raster brick b.")
 		b.yrs <- as.numeric(substr(names(b), 2, 5))
 		ind <- which(b.yrs==a[i])
-		if(is.null(f_of_xy)) { r2 <- subset(b, ind); r2[r2 < 0.1] <- 0.1; r <- r2*r } else f_of_xy(x=subset(b, ind), y=r)
+		if(is.null(f_of_xy)) { r2 <- subset(b, ind); r2[r2 < 0.25] <- 0.25; r <- r2*r } else f_of_xy(x=subset(b, ind), y=r)
 	}
 	r <- round(r, 8)
 	writeRaster(r, file.path(outDir, files[i]), datatype="FLT4S", overwrite=T)
