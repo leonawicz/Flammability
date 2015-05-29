@@ -104,6 +104,6 @@ f <- function(i, a, b = NULL, type = "coef", outDir, files, flam.min = NULL,
 
 # @knit run
 mclapply(1:length(files), f, a = a, b = kde.maps, type = "year", outDir = outDir, 
-    files = files, flam.min = 0.25, cp.origin = outDir2a, cp.new = outDir2b, 
+    files = files, flam.min = 0.1, cp.origin = outDir2a, cp.new = outDir2b, 
     mc.cores = 32)
 ```
