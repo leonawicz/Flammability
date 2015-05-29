@@ -8,13 +8,13 @@
 The `fsByVeg.R` script carries out post-processing of ALFRESCO simulation outputs.
 It is assumed that `AlfrescoCalibration.R` has already executed. This and any other post-processing **R** script are always run secondary to the primary script.
 
-The script extracts fire event sizes (FSE) from ALFRESCO output fire scar geotiffs for each simulation replicate,
-conditional on vegetation class, and combines the modeled FSE values with similarly extracted historical observations of vegetation-specific FSE.
+The script extracts fire sizes (FS) from ALFRESCO output fire scar geotiffs for each simulation replicate,
+conditional on vegetation class, and combines the modeled FS values with similarly extracted historical observations of vegetation-specific FS.
 The hardcoded vegetation classification includes separate tundra types (alpine, shrub, graminoid, and wetland)
 and an aggregate forest type (black spruce, white spruce, and deciduous trees).
 Hardcoded years are currently 1950 - 2009.
 
-An **R** workspace file containing a data frame of veg-specific FSE is attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process.
+An **R** workspace file containing a data frame of veg-specific FS is attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process.
 This script is called by the SLURM script, `CompileData.slurm` after the initial post-processing script, `AlfrescoCalibration.R` has run.
 
 ## R code

@@ -27,7 +27,7 @@ There are a number of **R** scripts devoted to several key purposes, including:
 *    Web applications used to launch ALFRESCO and to gather and display results
 *    Lightning probability map integration
 *    Fire Return Period (FRP) and Fire Return Interval (FRI) tables and graphs
-*    Vegetation-specific fire size event (FSE) tables
+*    Vegetation-specific fire size (FS) tables
 *    Comparison of simulations with historically observed data
 
 This documentation is currently under development.

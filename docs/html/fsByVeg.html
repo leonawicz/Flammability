@@ -147,6 +147,7 @@ img {
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
@@ -159,7 +160,7 @@ img {
               <li class="dropdown-header">Main scripts</li>
               <li><a href="AlfrescoCalibration.html">AlfrescoCalibration.R</a></li>
               <li><a href="AlfrescoFRP.html">AlfrescoFRP.R</a></li>
-              <li><a href="fseByVeg.html">fseByVeg.R</a></li>
+              <li><a href="fsByVeg.html">fsByVeg.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Supporting scripts</li>
               <li><a href="obs_fire_setup.html">obs_fire_setup.R</a></li>
@@ -176,13 +177,13 @@ img {
             <a href="statistics" class="dropdown-toggle" data-toggle="dropdown">Statistics <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">Fire size distributions</li>
-              <li><a href="fse_eda1.html">EDA: fire samples</a></li>
-              <li><a href="fse_eda2.html">EDA: Noatak shrub fire</a></li>
-              <li><a href="fse_eda3.html">EDA: statewide forest fire</a></li>
+              <li><a href="fs_eda1.html">EDA: fire samples</a></li>
+              <li><a href="fs_eda2.html">EDA: Noatak shrub fire</a></li>
+              <li><a href="fs_eda3.html">EDA: statewide forest fire</a></li>
               <li class="divider"></li>
-              <li><a href="fse_mle1.html">MLE: setup</a></li>
-              <li><a href="fse_mle2.html">MLE: Noatak shrub fire</a></li>
-              <li><a href="fse_mle3.html">MLE: statewide forest fire</a></li>
+              <li><a href="fs_mle1.html">MLE: setup</a></li>
+              <li><a href="fs_mle2.html">MLE: Noatak shrub fire</a></li>
+              <li><a href="fs_mle3.html">MLE: statewide forest fire</a></li>
             </ul>
 
           <li class="dropdown">
@@ -229,8 +230,8 @@ img {
 <div id="fsbyveg.r" class="section level2">
 <h2>fsByVeg.R</h2>
 <p>The <code>fsByVeg.R</code> script carries out post-processing of ALFRESCO simulation outputs. It is assumed that <code>AlfrescoCalibration.R</code> has already executed. This and any other post-processing <strong>R</strong> script are always run secondary to the primary script.</p>
-<p>The script extracts fire event sizes (FSE) from ALFRESCO output fire scar geotiffs for each simulation replicate, conditional on vegetation class, and combines the modeled FSE values with similarly extracted historical observations of vegetation-specific FSE. The hardcoded vegetation classification includes separate tundra types (alpine, shrub, graminoid, and wetland) and an aggregate forest type (black spruce, white spruce, and deciduous trees). Hardcoded years are currently 1950 - 2009.</p>
-<p>An <strong>R</strong> workspace file containing a data frame of veg-specific FSE is attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process. This script is called by the SLURM script, <code>CompileData.slurm</code> after the initial post-processing script, <code>AlfrescoCalibration.R</code> has run.</p>
+<p>The script extracts fire sizes (FS) from ALFRESCO output fire scar geotiffs for each simulation replicate, conditional on vegetation class, and combines the modeled FS values with similarly extracted historical observations of vegetation-specific FS. The hardcoded vegetation classification includes separate tundra types (alpine, shrub, graminoid, and wetland) and an aggregate forest type (black spruce, white spruce, and deciduous trees). Hardcoded years are currently 1950 - 2009.</p>
+<p>An <strong>R</strong> workspace file containing a data frame of veg-specific FS is attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process. This script is called by the SLURM script, <code>CompileData.slurm</code> after the initial post-processing script, <code>AlfrescoCalibration.R</code> has run.</p>
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
