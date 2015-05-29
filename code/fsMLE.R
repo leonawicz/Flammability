@@ -33,6 +33,7 @@ library(dplyr)
 library(ggplot2)
 dir.create(plotDir <- "C:/github/Flammability/plots/fseMLE", showWarnings=FALSE)
 cbpal <- c("gray40", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+border <- TRUE # Set TRUE for knitted documents
 
 # Plot setup
 g <- ggplot(data=d, aes(x=Replicate, fill=Source)) + theme_bw(base_size=14) + theme(legend.position="bottom", axis.text.x=element_text(angle=45, hjust=1)) + 
@@ -92,7 +93,6 @@ check_lnorm_dec <- function(id, d, dec, i.offset=1, border=FALSE, ...){
 # @knitr lnorm_noa_shrub_all
 # Noatak shrub observed and simulation replicate 1
 set.seed(8923)
-border <- TRUE # Set TRUE for knitted documents
 d.sf <- subset(d, Domain=="Noatak" & Vegetation=="Shrub" & Replicate %in% c("Observed", "Rep 0"), select=c(2,5,7))
 p02a <- check_lnorm(d.sf, border=border, col="gray40", cex.lab=1.3, cex.axis=1.3)
 p02a()
