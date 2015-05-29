@@ -1,10 +1,10 @@
-######################################################################################################################################
-#### This R script generates new annual gbm flammability mapsas a function of the originals and other data such as lightning maps ####
-######################################################################################################################################
+#######################################################################################################################################
+#### This R script generates new annual gbm flammability maps as a function of the originals and other data such as lightning maps ####
+#######################################################################################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/29/2015        ####
+#### Last updated:   05/28/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -54,16 +54,17 @@ if(lightning){
 }
 
 # @knitr func
-f <- function(i, a, b=NULL, type="coef", outDir, files, f_of_xy=NULL, cp.origin=NULL, cp.new=NULL){
+f <- function(i, a, b=NULL, type="coef", outDir, files, flam.min=NULL, f_of_xy=NULL, cp.origin=NULL, cp.new=NULL){
 	r <- raster(files[i])
 	if(!is.null(cp.origin)) writeRaster(r, file.path(cp.origin, files[i]), datatype="FLT4S", overwrite=T)
+	if(!is.null(flam.min)) r[r < flam.min] <- flam.min
 	if(type=="coef"){
 		r <- a[i]*r
 	} else if(type=="year"){
 		if(is.null(b)) stop("b cannot be NULL if type='year'. Change to type='coef' or provide a raster brick b.")
 		b.yrs <- as.numeric(substr(names(b), 2, 5))
 		ind <- which(b.yrs==a[i])
-		if(is.null(f_of_xy)) { r2 <- subset(b, ind); r2[r2 < 0.25] <- 0.25; r <- r2*r } else f_of_xy(x=subset(b, ind), y=r)
+		if(is.null(f_of_xy)) { r2 <- subset(b, ind); r2[r2 < 0.5] <- 0.5; r <- r2*r } else f_of_xy(x=subset(b, ind), y=r)
 	}
 	r <- round(r, 8)
 	writeRaster(r, file.path(outDir, files[i]), datatype="FLT4S", overwrite=T)
@@ -72,4 +73,4 @@ f <- function(i, a, b=NULL, type="coef", outDir, files, f_of_xy=NULL, cp.origin=
 }
 
 # @knit run
-mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
+mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, flam.min=0.25, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
