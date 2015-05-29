@@ -40,7 +40,7 @@ proj.menu <- c("Overview", "Data Prep", "GBM Flammability", "ALFRESCO", "Statist
 proj.submenu <- list(
 	c("empty"),
 	c("clim_resample_2km_1km.R", "clim_1km_clip2ak.R", "meanTPbyVegClass_CRU31.R", "meanTPbyVegClass_CMIP5.R"),
-	c("GBM Modeling", "gbm.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "FlammabilityMapMultipliers.R"),
+	c("GBM Modeling", "gbm.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "gbm_flam_comparisons.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "FlammabilityMapMultipliers.R"),
 	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "fseByVeg.R", "divider", "Supporting scripts", "obs_fire_setup.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
 	c("Fire size distributions", "EDA: fire samples", "EDA: Noatak shrub fire", "EDA: statewide forest fire", "divider", "MLE: setup", "MLE: Noatak shrub fire", "MLE: statewide forest fire"),
 	c("ALFRESCO launcher", "global.R", "ui.R", "server.R", "sidebar.R", "reactives.R", "about.R", "divider",
@@ -51,9 +51,9 @@ proj.submenu <- list(
 proj.files <- list(
 	c("index.html"),
 	c("clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "meanTPbyVegClass_CRU31.html", "meanTPbyVegClass_CMIP5.html"),
-	c("header", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
+	c("header", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "gbm_flam_comparisons.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
 	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "fseByVeg.html", "divider", "header", "obs_fire_setup.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
-	c("header", "fse_eda1.html", "fse_eda2.html", "fse_eda3.html", "divider", "fse_mle1.html", "fse_mle2.html", "fse_mle3.html"),
+	c("header", "fs_eda1.html", "fs_eda2.html", "fs_eda3.html", "divider", "fs_mle1.html", "fs_mle2.html", "fs_mle3.html"),
 	c("header", "appcode_alf_global.html", "appcode_alf_ui.html", "appcode_alf_server.html", "appcode_alf_sidebar.html", "appcode_alf_reactives.html", "appcode_alf_about.html", "divider",
 		"header", "appcode_frp_ui.html", "appcode_frp_server.html", "appcode_frp_sidebar.html", "appcode_frp_app.html", "appcode_frp_reactives.html", "appcode_frp_plotFunctions.html", "appcode_frp_about.html"),
 	c("http://leonawicz.github.io")
