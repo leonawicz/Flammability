@@ -41,6 +41,14 @@ color: black;
 #disqus_thread {
 margin-top: 45px;
 }
+p {
+  text-align: justify;
+}
+img.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
 <link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
 
@@ -181,8 +189,21 @@ img {
             <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">ALFRESCO launcher</li>
+              <li><a href="appcode_alf_global.html">global.R</a></li>
+              <li><a href="appcode_alf_ui.html">ui.R</a></li>
+              <li><a href="appcode_alf_server.html">server.R</a></li>
+              <li><a href="appcode_alf_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_alf_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_alf_about.html">about.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Results app</li>
+              <li><a href="appcode_frp_ui.html">ui.R</a></li>
+              <li><a href="appcode_frp_server.html">server.R</a></li>
+              <li><a href="appcode_frp_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_frp_app.html">app.R</a></li>
+              <li><a href="appcode_frp_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_frp_plotFunctions.html">plotFunctions.R</a></li>
+              <li><a href="appcode_frp_about.html">about.R</a></li>
             </ul>
 
           <li><a href="http://leonawicz.github.io">All Projects</a></li>
@@ -238,6 +259,7 @@ if (<span class="kw">length</span>(comArgs &gt;<span class="st"> </span><span cl
 <span class="kw">library</span>(parallel)
 <span class="kw">library</span>(plyr)
 
+<span class="kw">rasterOptions</span>(<span class="dt">tmpdir =</span> <span class="st">&quot;/big_scratch/shiny&quot;</span>, <span class="dt">chunksize =</span> <span class="fl">1e+11</span>, <span class="dt">maxmemory =</span> <span class="fl">1e+12</span>)
 mainDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(input, <span class="st">&quot;Maps&quot;</span>)
 <span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(out, <span class="st">&quot;FRP&quot;</span>), <span class="dt">showWarnings =</span> F)
 if (!<span class="kw">exists</span>(<span class="st">&quot;pts&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;No coordinates file provided for relative area burned time series extraction.&quot;</span>)
@@ -384,7 +406,8 @@ pts &lt;-<span class="st"> </span><span class="kw">wgs2ak</span>(pts)</code></pr
 </div>
 <div id="observational-data-specific-setup" class="section level3">
 <h3>Observational data-specific setup</h3>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">source</span>(<span class="st">&quot;/big_scratch/shiny/obs_fire_setup.R&quot;</span>)
+<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw">exists</span>(<span class="st">&quot;yr.start&quot;</span>) &amp;<span class="st"> </span><span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
+<span class="kw">source</span>(<span class="st">&quot;/big_scratch/shiny/obs_fire_setup.R&quot;</span>)
 r.burnable &lt;-<span class="st"> </span><span class="kw">Which</span>(r &gt;<span class="st"> </span><span class="dv">0</span>)</code></pre>
 </div>
 <div id="processing" class="section level3">
@@ -504,13 +527,13 @@ friFun &lt;-<span class="st"> </span>function(d) {
 fri.dat &lt;-<span class="st"> </span><span class="kw">friFun</span>(rab.dat)
 
 <span class="co"># Load/save objects in a workspace file to be transported to app</span>
-<span class="kw">load</span>(<span class="kw">file.path</span>(out, <span class="st">&quot;fse_df.RData&quot;</span>))
+<span class="kw">load</span>(<span class="kw">paste0</span>(out, <span class="st">&quot;/fsByVeg_df_&quot;</span>, dom, <span class="st">&quot;.RData&quot;</span>))  <span class="co"># assumed to have run fsByVeg.R</span>
 prefix &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="st">&quot;RAB_FRP&quot;</span>, <span class="kw">paste0</span>(run.name, <span class="st">&quot;_RAB_FRP&quot;</span>))
 ws &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;_Emp_&quot;</span>, yrs.all[<span class="dv">1</span>], 
     <span class="st">&quot;_&quot;</span>, <span class="kw">tail</span>(yrs.all, <span class="dv">1</span>), <span class="st">&quot;_Alf_&quot;</span>, alf.yrs[<span class="dv">1</span>], <span class="st">&quot;_&quot;</span>, <span class="kw">tail</span>(alf.yrs, <span class="dv">1</span>), <span class="st">&quot;.RData&quot;</span>), 
     <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;.RData&quot;</span>))
-<span class="kw">save</span>(d.fse, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, 
-    fri.dat, <span class="dt">file =</span> ws)
+<span class="kw">save</span>(d.fs, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, 
+    <span class="dt">file =</span> ws)
 <span class="kw">Sys.sleep</span>(<span class="fl">0.1</span>)</code></pre>
 </div>
 <div id="save-outputs" class="section level3">

@@ -41,6 +41,14 @@ color: black;
 #disqus_thread {
 margin-top: 45px;
 }
+p {
+  text-align: justify;
+}
+img.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
 <link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
 
@@ -181,8 +189,21 @@ img {
             <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">ALFRESCO launcher</li>
+              <li><a href="appcode_alf_global.html">global.R</a></li>
+              <li><a href="appcode_alf_ui.html">ui.R</a></li>
+              <li><a href="appcode_alf_server.html">server.R</a></li>
+              <li><a href="appcode_alf_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_alf_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_alf_about.html">about.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Results app</li>
+              <li><a href="appcode_frp_ui.html">ui.R</a></li>
+              <li><a href="appcode_frp_server.html">server.R</a></li>
+              <li><a href="appcode_frp_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_frp_app.html">app.R</a></li>
+              <li><a href="appcode_frp_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_frp_plotFunctions.html">plotFunctions.R</a></li>
+              <li><a href="appcode_frp_about.html">about.R</a></li>
             </ul>
 
           <li><a href="http://leonawicz.github.io">All Projects</a></li>
@@ -212,22 +233,22 @@ img {
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
-<pre class="sourceCode r"><code class="sourceCode r">fireSizePlot &lt;-<span class="st"> </span>function(years, d.obs.fse) {
+<pre class="sourceCode r"><code class="sourceCode r">fireSizePlot &lt;-<span class="st"> </span>function(years, d.obs.fs) {
     max.alf.fse &lt;-<span class="st"> </span><span class="kw">c</span>()
     for (i in <span class="dv">1</span>:numrep) max.alf.fse[i] &lt;-<span class="st"> </span><span class="kw">max</span>(alf.fse[, <span class="dv">3</span>][alf.fse[, <span class="dv">2</span>] ==<span class="st"> </span>(i -<span class="st"> </span>
 <span class="st">        </span><span class="dv">1</span>) &amp;<span class="st"> </span>alf.fse[, <span class="dv">1</span>] &gt;<span class="st"> </span>years[<span class="dv">1</span>] &amp;<span class="st"> </span>alf.fse[, <span class="dv">1</span>] &lt;=<span class="st"> </span>years[<span class="kw">length</span>(years)]])
-    <span class="kw">histPrep</span>(max.alf.fse, <span class="kw">max</span>(d.obs.fse$FSE))
-    <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="st">&quot;HIST_MaxFSE.png&quot;</span>), <span class="dt">res =</span> <span class="dv">100</span>, <span class="dt">width =</span> <span class="dv">1000</span>, <span class="dt">height =</span> <span class="dv">800</span>)
+    <span class="kw">histPrep</span>(max.alf.fse, <span class="kw">max</span>(d.obs.fs$FS))
+    <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="st">&quot;HIST_MaxFS.png&quot;</span>), <span class="dt">res =</span> <span class="dv">100</span>, <span class="dt">width =</span> <span class="dv">1000</span>, <span class="dt">height =</span> <span class="dv">800</span>)
     <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">1</span>) +<span class="st"> </span><span class="fl">0.1</span>, <span class="dt">family =</span> <span class="st">&quot;serif&quot;</span>)
     <span class="kw">plot</span>(h1, <span class="dt">xlim =</span> <span class="kw">range</span>(s), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">1.2</span> *<span class="st"> </span>ymx), <span class="dt">xlab =</span> <span class="st">&quot;Max Fire Size&quot;</span>, 
         <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;Maximum Fire Size (&quot;</span>, years[<span class="dv">1</span>], <span class="st">&quot;:&quot;</span>, years[<span class="kw">length</span>(years)], 
             <span class="st">&quot;)&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
     <span class="kw">segments</span>(<span class="dt">x0 =</span> x0s, <span class="dt">y0 =</span> <span class="dv">0</span>, <span class="dt">y1 =</span> ymx, <span class="dt">lwd =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>, <span class="dv">2</span>), <span class="dt">lty =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, 
         <span class="dv">2</span>, <span class="dv">2</span>), <span class="dt">col =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="st">&quot;#CD6600&quot;</span>, <span class="dv">1</span>, <span class="dv">1</span>))
-    <span class="kw">legend</span>(<span class="st">&quot;top&quot;</span>, <span class="dt">yjust =</span> <span class="fl">0.5</span>, <span class="dt">horiz =</span> T, <span class="kw">c</span>(<span class="st">&quot;Empirical Maximum FSE&quot;</span>, <span class="st">&quot;ALFRESCO Mean Max FSE&quot;</span>, 
+    <span class="kw">legend</span>(<span class="st">&quot;top&quot;</span>, <span class="dt">yjust =</span> <span class="fl">0.5</span>, <span class="dt">horiz =</span> T, <span class="kw">c</span>(<span class="st">&quot;Empirical Maximum FS&quot;</span>, <span class="st">&quot;ALFRESCO Mean Max FS&quot;</span>, 
         <span class="st">&quot;95% Confidence Bounds&quot;</span>), <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">lwd =</span> <span class="kw">c</span>(<span class="dv">3</span>, <span class="dv">3</span>, <span class="dv">2</span>), <span class="dt">lty =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, 
         <span class="dv">2</span>), <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;#CD6600&quot;</span>, <span class="dv">1</span>, <span class="dv">1</span>))
-    <span class="kw">legend</span>(<span class="kw">mean</span>(s), <span class="fl">1.2</span> *<span class="st"> </span>ymx, <span class="dt">xjust =</span> <span class="fl">0.5</span>, <span class="st">&quot;ALFRESCO Max FSE&quot;</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">fill =</span> <span class="st">&quot;gray&quot;</span>)
+    <span class="kw">legend</span>(<span class="kw">mean</span>(s), <span class="fl">1.2</span> *<span class="st"> </span>ymx, <span class="dt">xjust =</span> <span class="fl">0.5</span>, <span class="st">&quot;ALFRESCO Max FS&quot;</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">fill =</span> <span class="st">&quot;gray&quot;</span>)
     <span class="kw">dev.off</span>()
 }</code></pre>
 </div>
