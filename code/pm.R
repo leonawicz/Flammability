@@ -52,7 +52,7 @@ proj.files <- list(
 	c("index.html"),
 	c("clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "meanTPbyVegClass_CRU31.html", "meanTPbyVegClass_CMIP5.html"),
 	c("header", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "gbm_flam_comparisons.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
-	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "fseByVeg.html", "divider", "header", "obs_fire_setup.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
+	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "fsByVeg.html", "divider", "header", "obs_fire_setup.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
 	c("header", "fs_eda1.html", "fs_eda2.html", "fs_eda3.html", "divider", "fs_mle1.html", "fs_mle2.html", "fs_mle3.html"),
 	c("header", "appcode_alf_global.html", "appcode_alf_ui.html", "appcode_alf_server.html", "appcode_alf_sidebar.html", "appcode_alf_reactives.html", "appcode_alf_about.html", "divider",
 		"header", "appcode_frp_ui.html", "appcode_frp_server.html", "appcode_frp_sidebar.html", "appcode_frp_app.html", "appcode_frp_reactives.html", "appcode_frp_plotFunctions.html", "appcode_frp_about.html"),
