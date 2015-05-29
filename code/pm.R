@@ -41,7 +41,7 @@ proj.submenu <- list(
 	c("empty"),
 	c("clim_resample_2km_1km.R", "clim_1km_clip2ak.R", "meanTPbyVegClass_CRU31.R", "meanTPbyVegClass_CMIP5.R"),
 	c("GBM Modeling", "gbm.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "gbm_flam_comparisons.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "FlammabilityMapMultipliers.R"),
-	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "fseByVeg.R", "divider", "Supporting scripts", "obs_fire_setup.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
+	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "fsByVeg.R", "divider", "Supporting scripts", "obs_fire_setup.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
 	c("Fire size distributions", "EDA: fire samples", "EDA: Noatak shrub fire", "EDA: statewide forest fire", "divider", "MLE: setup", "MLE: Noatak shrub fire", "MLE: statewide forest fire"),
 	c("ALFRESCO launcher", "global.R", "ui.R", "server.R", "sidebar.R", "reactives.R", "about.R", "divider",
 		"Results app", "ui.R", "server.R", "sidebar.R", "app.R", "reactives.R", "plotFunctions.R", "about.R"),
