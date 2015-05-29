@@ -41,6 +41,14 @@ color: black;
 #disqus_thread {
 margin-top: 45px;
 }
+p {
+  text-align: justify;
+}
+img.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
 <link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
 
@@ -181,8 +189,21 @@ img {
             <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">ALFRESCO launcher</li>
+              <li><a href="appcode_alf_global.html">global.R</a></li>
+              <li><a href="appcode_alf_ui.html">ui.R</a></li>
+              <li><a href="appcode_alf_server.html">server.R</a></li>
+              <li><a href="appcode_alf_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_alf_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_alf_about.html">about.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Results app</li>
+              <li><a href="appcode_frp_ui.html">ui.R</a></li>
+              <li><a href="appcode_frp_server.html">server.R</a></li>
+              <li><a href="appcode_frp_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_frp_app.html">app.R</a></li>
+              <li><a href="appcode_frp_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_frp_plotFunctions.html">plotFunctions.R</a></li>
+              <li><a href="appcode_frp_about.html">about.R</a></li>
             </ul>
 
           <li><a href="http://leonawicz.github.io">All Projects</a></li>
@@ -219,24 +240,46 @@ if (!<span class="kw">exists</span>(<span class="st">&quot;model&quot;</span>)) 
 if (!(period %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, <span class="st">&quot;rcp45&quot;</span>, <span class="st">&quot;rcp60&quot;</span>, <span class="st">&quot;rcp85&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid period specified.&quot;</span>)
 if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU31&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
     <span class="st">&quot;MRI-CGCM3&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid data set specified.&quot;</span>)
+if (!<span class="kw">exists</span>(<span class="st">&quot;samples&quot;</span>)) samples &lt;-<span class="st"> </span><span class="ot">TRUE</span>
 if (!<span class="kw">exists</span>(<span class="st">&quot;mapset&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;mapset&#39; not passed at command line.&quot;</span>)  <span class="co"># Currently must be &#39;3models_tif&#39; or &#39;5models_tif&#39;</span>
+if (!<span class="kw">exists</span>(<span class="st">&quot;out&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;out&#39; not passed at command line.&quot;</span>)
+if (!<span class="kw">exists</span>(<span class="st">&quot;n&quot;</span>)) n &lt;-<span class="st"> </span><span class="dv">40</span>
+if (!<span class="kw">exists</span>(<span class="st">&quot;yearloop&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;yearloop&#39; not passed at command line.&quot;</span>)
 
-<span class="kw">setwd</span>(<span class="kw">file.path</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability&quot;</span>, 
-    period, model, mapset))
+<span class="kw">library</span>(parallel)
+verDir &lt;-<span class="st"> </span>if (samples) <span class="st">&quot;samples_based&quot;</span> else <span class="st">&quot;means_based&quot;</span>
+mainDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability&quot;</span>, 
+    verDir, period, model, mapset)
+<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability&quot;</span>, 
+    verDir, period, model, out), <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
+<span class="kw">setwd</span>(outDir)
+
 files &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">pattern =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">.tif$&quot;</span>, <span class="dt">full =</span> <span class="ot">TRUE</span>)
+if (<span class="kw">length</span>(files)) {
+    files.years &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">substr</span>(<span class="kw">sapply</span>(<span class="kw">strsplit</span>(files, <span class="st">&quot;flamm_&quot;</span>), <span class="st">&quot;[&quot;</span>, 
+        <span class="dv">2</span>), <span class="dv">1</span>, <span class="dv">4</span>))
+    ind &lt;-<span class="st"> </span><span class="kw">which</span>(files.years %in%<span class="st"> </span>yearloop)
+    files &lt;-<span class="st"> </span>files[ind]
+} else {
+    originals &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="kw">file.path</span>(<span class="st">&quot;..&quot;</span>, mapset), <span class="dt">pattern =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">.tif$&quot;</span>, <span class="dt">full =</span> <span class="ot">TRUE</span>)
+    files.years &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">substr</span>(<span class="kw">sapply</span>(<span class="kw">strsplit</span>(originals, <span class="st">&quot;flamm_&quot;</span>), <span class="st">&quot;[&quot;</span>, 
+        <span class="dv">2</span>), <span class="dv">1</span>, <span class="dv">4</span>))
+    ind &lt;-<span class="st"> </span><span class="kw">which</span>(files.years %in%<span class="st"> </span>yearloop)
+    <span class="kw">file.copy</span>(originals[ind], <span class="kw">basename</span>(originals[ind]))
+    files &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">pattern =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">.tif$&quot;</span>, <span class="dt">full =</span> <span class="ot">TRUE</span>)
+}
 
-f1 &lt;-<span class="st"> </span>function(x, n, period) {
+f1 &lt;-<span class="st"> </span>function(k, x, n, period) {
+    x &lt;-<span class="st"> </span>x[k]
     yr &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">substr</span>(x, <span class="kw">nchar</span>(x) -<span class="st"> </span><span class="dv">7</span>, <span class="kw">nchar</span>(x) -<span class="st"> </span><span class="dv">4</span>))
     yr &lt;-<span class="st"> </span>yr -<span class="st"> </span><span class="kw">length</span>(period) *<span class="st"> </span>(<span class="dv">1</span>:n)
     x.out &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="kw">substr</span>(x, <span class="dv">1</span>, <span class="kw">nchar</span>(x) -<span class="st"> </span><span class="dv">8</span>), yr, <span class="st">&quot;.tif&quot;</span>)
-    for (i in <span class="dv">1</span>:n) if (yr[i] &gt;=<span class="st"> </span>-<span class="dv">1</span>) 
+    for (i in <span class="dv">1</span>:n) if (yr[i] &gt;=<span class="st"> </span><span class="dv">1</span>) 
         <span class="kw">file.copy</span>(x, x.out[i])  <span class="co"># allow for one negative year for testing</span>
     <span class="kw">return</span>()
 }
 
-f1v &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(f1, <span class="st">&quot;x&quot;</span>)
-
-<span class="kw">f1v</span>(<span class="dt">x =</span> files, <span class="dt">n =</span> <span class="dv">18</span>, <span class="dt">period =</span> <span class="dv">1901</span>:<span class="dv">2009</span>)</code></pre>
+<span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(files), f1, <span class="dt">x =</span> files, <span class="dt">n =</span> n, <span class="dt">period =</span> yearloop, <span class="dt">mc.cores =</span> <span class="dv">32</span>)</code></pre>
 </div>
 
 <!-- some extra javascript for older browsers -->

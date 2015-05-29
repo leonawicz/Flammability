@@ -15,8 +15,8 @@ This plot is called in `AlfrescoCalibration.R` and currently is hardcoded to plo
 
 
 ```r
-CABvsTimePlot <- function(years, baseline.year, d.obs.fse) {
-    abByYear <- tapply(d.obs.fse$FSE, d.obs.fse$Year, sum)
+CABvsTimePlot <- function(years, baseline.year, d.obs.fs) {
+    abByYear <- tapply(d.obs.fs$FS, d.obs.fs$Year, sum)
     indices <- match(names(abByYear), years)
     cab.emp.all <- rep(0, length(years))
     cab.emp.all[indices] <- abByYear

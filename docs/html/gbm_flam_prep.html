@@ -41,6 +41,14 @@ color: black;
 #disqus_thread {
 margin-top: 45px;
 }
+p {
+  text-align: justify;
+}
+img.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
 <link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
 
@@ -181,8 +189,21 @@ img {
             <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">ALFRESCO launcher</li>
+              <li><a href="appcode_alf_global.html">global.R</a></li>
+              <li><a href="appcode_alf_ui.html">ui.R</a></li>
+              <li><a href="appcode_alf_server.html">server.R</a></li>
+              <li><a href="appcode_alf_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_alf_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_alf_about.html">about.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Results app</li>
+              <li><a href="appcode_frp_ui.html">ui.R</a></li>
+              <li><a href="appcode_frp_server.html">server.R</a></li>
+              <li><a href="appcode_frp_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_frp_app.html">app.R</a></li>
+              <li><a href="appcode_frp_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_frp_plotFunctions.html">plotFunctions.R</a></li>
+              <li><a href="appcode_frp_about.html">about.R</a></li>
             </ul>
 
           <li><a href="http://leonawicz.github.io">All Projects</a></li>
@@ -227,11 +248,7 @@ if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="
 <span class="kw">rasterOptions</span>(<span class="dt">chunksize =</span> <span class="fl">1e+10</span>, <span class="dt">maxmemory =</span> <span class="fl">1e+11</span>)
 
 <span class="kw">setwd</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces&quot;</span>)
-<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> &quot;gbmFlammability&quot;</span>, <span class="dt">showWarnings =</span> F)
-
-<span class="co"># Load gbm models</span>
-<span class="kw">load</span>(<span class="st">&quot;gbm_seasonal_all_models.RData&quot;</span>)
-tree.numbers &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3355</span>, <span class="dv">32</span>, <span class="dv">2200</span>, <span class="dv">152</span>, <span class="dv">2478</span>)  <span class="co"># order: forest, alpine tundra, shrub, graminoid, wetland</span></code></pre>
+<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;gbmFlammability&quot;</span>), <span class="dt">showWarnings =</span> F)</code></pre>
 </div>
 <div id="ecoregions-and-vegetation" class="section level3">
 <h3>Ecoregions and vegetation</h3>
@@ -246,63 +263,27 @@ if (rm.eco) eco.ind &lt;-<span class="st"> </span><span class="kw">values</span>
 r.veg &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;../data/alf2005.cavm.merged.030212.tif&quot;</span>)
 veg &lt;-<span class="st"> </span><span class="kw">getValues</span>(r.veg)
 if (<span class="kw">any</span>(<span class="kw">is.na</span>(veg))) veg[<span class="kw">is.na</span>(veg)] &lt;-<span class="st"> </span><span class="dv">0</span>
-veg.tmp &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(veg)
-<span class="kw">rm</span>(veg)
-veg.val &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(veg.tmp !=<span class="st"> </span><span class="dv">0</span>) *<span class="st"> </span>eco.ind *<span class="st"> </span>veg.tmp
+veg.val &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(veg !=<span class="st"> </span><span class="dv">0</span>) *<span class="st"> </span>eco.ind *<span class="st"> </span>veg
 f.ind &lt;-<span class="st"> </span>veg.val ==<span class="st"> </span><span class="dv">2</span> |<span class="st"> </span>veg.val ==<span class="st"> </span><span class="dv">3</span> |<span class="st"> </span>veg.val ==<span class="st"> </span><span class="dv">4</span>
 a.ind &lt;-<span class="st"> </span>veg.val ==<span class="st"> </span><span class="dv">1</span>
 s.ind &lt;-<span class="st"> </span>veg.val ==<span class="st"> </span><span class="dv">5</span>
 g.ind &lt;-<span class="st"> </span>veg.val ==<span class="st"> </span><span class="dv">6</span>
 w.ind &lt;-<span class="st"> </span>veg.val ==<span class="st"> </span><span class="dv">7</span>
-land.gray &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(veg.tmp !=<span class="st"> </span><span class="dv">0</span>) *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>eco.ind)
-
-gbm.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gbm.forest&quot;</span>, <span class="st">&quot;gbm.alp.tundra&quot;</span>, <span class="st">&quot;gbm.shrub&quot;</span>, <span class="st">&quot;gbm.gram&quot;</span>, <span class="st">&quot;gbm.wetland&quot;</span>)
-ind.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;f.ind&quot;</span>, <span class="st">&quot;a.ind&quot;</span>, <span class="st">&quot;s.ind&quot;</span>, <span class="st">&quot;g.ind&quot;</span>, <span class="st">&quot;w.ind&quot;</span>)
-
-<span class="co"># @knit obs_fire If adding fire scars to graphical maps</span>
-write.emp.tifs &lt;-<span class="st"> </span><span class="ot">FALSE</span>
-if (write.emp.tifs) {
-    fah &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;/Data/Base_Data/GIS/GIS_Data/Vector/Fire/FireAreaHistory_11182013.shp&quot;</span>)
-    emp.fire.years &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">as.numeric</span>(<span class="kw">unique</span>(fah@data$FireYear)))  <span class="co"># 1940:2013 max range</span>
-    emp.fire.years.all &lt;-<span class="st"> </span><span class="kw">seq</span>(emp.fire.years[<span class="dv">1</span>], <span class="kw">tail</span>(emp.fire.years, <span class="dv">1</span>))
-    fireScarsFun &lt;-<span class="st"> </span>function(x, y, year, years.avail) {
-        if (year %in%<span class="st"> </span>years.avail) {
-            x &lt;-<span class="st"> </span>x[x$FireYear ==<span class="st"> </span>year, ]
-            x &lt;-<span class="st"> </span><span class="kw">rasterize</span>(x, y, <span class="dt">field =</span> <span class="dv">1</span>)
-        } else {
-            x &lt;-<span class="st"> </span>x[x$FireYear ==<span class="st"> </span>years.avail[<span class="dv">1</span>], ]
-            x &lt;-<span class="st"> </span><span class="kw">rasterize</span>(x, y, <span class="dt">field =</span> <span class="dv">1</span>)
-            x[!<span class="kw">is.na</span>(x)] &lt;-<span class="st"> </span><span class="ot">NA</span>
-        }
-        x
-    }
-    
-    fireScarsFunVec &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(fireScarsFun, <span class="st">&quot;year&quot;</span>)
-    emp.fire.brick &lt;-<span class="st"> </span><span class="kw">fireScarsFunVec</span>(<span class="dt">x =</span> fah, <span class="dt">y =</span> r.veg, <span class="dt">year =</span> emp.fire.years.all, 
-        <span class="dt">years.avail =</span> emp.fire.years)
-    emp.fire.sum &lt;-<span class="st"> </span><span class="kw">do.call</span>(<span class="st">&quot;sum&quot;</span>, <span class="kw">c</span>(emp.fire.brick, <span class="dt">na.rm =</span> T))
-    emp.fire.brick &lt;-<span class="st"> </span><span class="kw">brick</span>(emp.fire.brick)
-    <span class="kw">names</span>(emp.fire.brick) &lt;-<span class="st"> </span>emp.fire.years.all
-    <span class="kw">names</span>(emp.fire.sum) &lt;-<span class="st"> </span><span class="kw">paste</span>(emp.fire.years.all[<span class="dv">1</span>], <span class="kw">tail</span>(emp.fire.years.all, 
-        <span class="dv">1</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
-    <span class="kw">writeRaster</span>(emp.fire.brick, <span class="st">&quot;../data/firescarbrick_annual_observed_statewide_1940_2013.tif&quot;</span>, 
-        <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, <span class="dt">overwrite =</span> T)
-    <span class="kw">writeRaster</span>(emp.fire.sum, <span class="st">&quot;../data/firescarlayer_total_observed_statewide_1940_2013.tif&quot;</span>, 
-        <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, <span class="dt">overwrite =</span> T)
-} else {
-    emp.fire.brick &lt;-<span class="st"> </span><span class="kw">brick</span>(<span class="st">&quot;../data/firescarbrick_annual_observed_statewide_1940_2013.tif&quot;</span>)
-    emp.fire.sum &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;../data/firescarlayer_total_observed_statewide_1940_2013.tif&quot;</span>)
-}</code></pre>
+land.gray &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(veg !=<span class="st"> </span><span class="dv">0</span>) *<span class="st"> </span>(<span class="dv">1</span> -<span class="st"> </span>eco.ind)
+<span class="kw">rm</span>(drop.ind, eco.ind)
+ind.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;f.ind&quot;</span>, <span class="st">&quot;a.ind&quot;</span>, <span class="st">&quot;s.ind&quot;</span>, <span class="st">&quot;g.ind&quot;</span>, <span class="st">&quot;w.ind&quot;</span>)  <span class="co"># order: forest, alpine tundra, shrub, graminoid, wetland</span></code></pre>
 </div>
 <div id="prepare-and-save" class="section level3">
 <h3>Prepare and save</h3>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Prepare and save workspace</span>
 if (period ==<span class="st"> &quot;historical&quot;</span>) {
+    yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2009</span>
     tpDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, period, 
         <span class="st">&quot;cru_TS31&quot;</span>)
 } else {
-    tpDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, period, 
-        model)
+    yrs &lt;-<span class="st"> </span><span class="dv">2010</span>:<span class="dv">2099</span>
+    tpDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide&quot;</span>, 
+        period, model)
 }
 mo.ind &lt;-<span class="st"> </span><span class="dv">6</span>:<span class="dv">8</span>
 varid &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>)
@@ -311,7 +292,10 @@ files.precip &lt;-<span class="st"> </span>files.temp &lt;-<span class="st"> </s
 for (i in mo.ind) {
     files.precip[[i]] &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="kw">file.path</span>(tpDir, varid[<span class="dv">1</span>]), <span class="dt">full =</span> T, <span class="dt">pattern =</span> pat.mo[i])
     files.temp[[i]] &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="kw">file.path</span>(tpDir, varid[<span class="dv">2</span>]), <span class="dt">full =</span> T, <span class="dt">pattern =</span> pat.mo[i])
-    <span class="kw">print</span>(i)
+    ind &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">substr</span>(files.temp[[i]], <span class="kw">nchar</span>(files.temp[[i]]) -<span class="st"> </span><span class="dv">7</span>, <span class="kw">nchar</span>(files.temp[[i]]) -<span class="st"> </span>
+<span class="st">        </span><span class="dv">4</span>) %in%<span class="st"> </span>yrs)
+    files.precip[[i]] &lt;-<span class="st"> </span>files.precip[[i]][ind]
+    files.temp[[i]] &lt;-<span class="st"> </span>files.temp[[i]][ind]
 }
 
 for (i in mo.ind) {
@@ -320,7 +304,9 @@ for (i in mo.ind) {
     <span class="kw">print</span>(i)
 }
 
-<span class="kw">save.image</span>(<span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, model, <span class="st">&quot;_&quot;</span>, period, <span class="st">&quot;_Jun-AugTP.RData&quot;</span>))</code></pre>
+keep.obj &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^m</span><span class="ch">\\</span><span class="st">.|</span><span class="ch">\\</span><span class="st">.ind$&quot;</span>), <span class="st">&quot;r.veg&quot;</span>, <span class="st">&quot;veg&quot;</span>, <span class="st">&quot;ind.names&quot;</span>, <span class="st">&quot;land.gray&quot;</span>, 
+    <span class="st">&quot;yrs&quot;</span>)
+<span class="kw">save</span>(<span class="dt">list =</span> keep.obj, <span class="dt">file =</span> <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, model, <span class="st">&quot;_&quot;</span>, period, <span class="st">&quot;_Jun-AugTP.RData&quot;</span>))</code></pre>
 </div>
 </div>
 

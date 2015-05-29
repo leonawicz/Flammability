@@ -41,6 +41,14 @@ color: black;
 #disqus_thread {
 margin-top: 45px;
 }
+p {
+  text-align: justify;
+}
+img.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
 </style>
 <link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
 
@@ -181,8 +189,21 @@ img {
             <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">ALFRESCO launcher</li>
+              <li><a href="appcode_alf_global.html">global.R</a></li>
+              <li><a href="appcode_alf_ui.html">ui.R</a></li>
+              <li><a href="appcode_alf_server.html">server.R</a></li>
+              <li><a href="appcode_alf_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_alf_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_alf_about.html">about.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Results app</li>
+              <li><a href="appcode_frp_ui.html">ui.R</a></li>
+              <li><a href="appcode_frp_server.html">server.R</a></li>
+              <li><a href="appcode_frp_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_frp_app.html">app.R</a></li>
+              <li><a href="appcode_frp_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_frp_plotFunctions.html">plotFunctions.R</a></li>
+              <li><a href="appcode_frp_about.html">about.R</a></li>
             </ul>
 
           <li><a href="http://leonawicz.github.io">All Projects</a></li>
@@ -215,8 +236,9 @@ img {
 <pre class="sourceCode r"><code class="sourceCode r">if (emp.fire.cause ==<span class="st"> &quot;All&quot;</span>) fah &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;/big_scratch/mfleonawicz/FAH/FireAreaHistory_11182013.shp&quot;</span>)
 if (emp.fire.cause ==<span class="st"> &quot;Lightning&quot;</span>) fah &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;/big_scratch/mfleonawicz/FAH/Lightning_Fires_11182013.shp&quot;</span>)
 fah &lt;-<span class="st"> </span><span class="kw">subset</span>(fah, FireYear &gt;=<span class="st"> </span><span class="dv">1950</span>)  <span class="co"># do nto use observed data prior to 1950</span>
-yrs &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">as.numeric</span>(<span class="kw">unique</span>(fah@data$FireYear)))
+yrs.fah &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">as.numeric</span>(<span class="kw">unique</span>(fah@data$FireYear)))
 yrs.all &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="kw">min</span>(yrs), <span class="kw">max</span>(yrs))
+if (<span class="kw">exists</span>(<span class="st">&quot;yrs&quot;</span>)) yrs.all &lt;-<span class="st"> </span><span class="kw">intersect</span>(yrs, yrs.all)
 
 if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) {
     r &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Alf_Files_20121129/alf2005.cavm.merged.030212_Noatak.tif&quot;</span>)
@@ -227,39 +249,81 @@ if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), 
 }
 
 suffix &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;_observed_&quot;</span>, <span class="kw">gsub</span>(<span class="st">&quot;_&quot;</span>, <span class="st">&quot;&quot;</span>, alf.domain), <span class="st">&quot;_&quot;</span>, <span class="kw">tolower</span>(emp.fire.cause), 
-    <span class="st">&quot;_&quot;</span>, <span class="kw">min</span>(yrs), <span class="st">&quot;_&quot;</span>, <span class="kw">max</span>(yrs), <span class="st">&quot;.tif&quot;</span>)
-b.fid.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(out, <span class="st">&quot;/fireIDbrick_annual&quot;</span>, suffix)
-result.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(out, <span class="st">&quot;/firescarbrick_annual&quot;</span>, suffix)
-result2.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(out, <span class="st">&quot;/firescarlayer_total&quot;</span>, suffix)
-if (<span class="kw">all</span>(<span class="kw">file.exists</span>(<span class="kw">c</span>(b.fid.name, result.name, result2.name)))) {
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(b.fid &lt;-<span class="st"> </span><span class="kw">brick</span>(b.fid.name))
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(result &lt;-<span class="st"> </span><span class="kw">brick</span>(result.name))
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(result2 &lt;-<span class="st"> </span><span class="kw">raster</span>(result2.name))
-} else {
-    fireScarsFun &lt;-<span class="st"> </span>function(x, y, year, years.avail, <span class="dt">field =</span> <span class="dv">1</span>) {
-        if (year %in%<span class="st"> </span>years.avail) {
-            x &lt;-<span class="st"> </span>x[x$FireYear ==<span class="st"> </span>year, ]
-            x &lt;-<span class="st"> </span><span class="kw">rasterize</span>(x, y, <span class="dt">field =</span> field)
-        } else {
-            x &lt;-<span class="st"> </span>x[x$FireYear ==<span class="st"> </span>years.avail[<span class="dv">1</span>], ]
-            x &lt;-<span class="st"> </span><span class="kw">rasterize</span>(x, y, <span class="dt">field =</span> <span class="dv">1</span>)
-            x[!<span class="kw">is.na</span>(x)] &lt;-<span class="st"> </span><span class="ot">NA</span>
-        }
-        x
+    <span class="st">&quot;_&quot;</span>, <span class="kw">min</span>(yrs.all), <span class="st">&quot;_&quot;</span>, <span class="kw">max</span>(yrs.all), <span class="st">&quot;.tif&quot;</span>)
+b.fid.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;/big_scratch/shiny/fireIDbrick_annual&quot;</span>, suffix)
+result.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;/big_scratch/shiny/firescarbrick_annual&quot;</span>, suffix)
+result2.name &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;/big_scratch/shiny/firescarlayer_total&quot;</span>, suffix)
+if (<span class="kw">file.exists</span>(b.fid.name)) {
+    b.fid &lt;-<span class="st"> </span><span class="kw">brick</span>(b.fid.name)
+    <span class="kw">print</span>(<span class="st">&quot;b.fid read into memory&quot;</span>)
+}
+if (<span class="kw">file.exists</span>(result.name)) {
+    result &lt;-<span class="st"> </span><span class="kw">brick</span>(result.name)
+    <span class="kw">print</span>(<span class="st">&quot;result read into memory&quot;</span>)
+}
+if (<span class="kw">file.exists</span>(result2.name)) {
+    result2 &lt;-<span class="st"> </span><span class="kw">raster</span>(result2.name)
+    <span class="kw">print</span>(<span class="st">&quot;result2 read into memory&quot;</span>)
+}
+
+fireScarsFun &lt;-<span class="st"> </span>function(year, x, y, years.avail, <span class="dt">field =</span> <span class="dv">1</span>) {
+    if (year %in%<span class="st"> </span>years.avail) {
+        x &lt;-<span class="st"> </span>x[x$FireYear ==<span class="st"> </span>year, ]
+        x &lt;-<span class="st"> </span><span class="kw">rasterize</span>(x, y, <span class="dt">field =</span> field)
+    } else {
+        x &lt;-<span class="st"> </span>x[x$FireYear ==<span class="st"> </span>years.avail[<span class="dv">1</span>], ]
+        x &lt;-<span class="st"> </span><span class="kw">rasterize</span>(x, y, <span class="dt">field =</span> <span class="dv">1</span>)
+        x[!<span class="kw">is.na</span>(x)] &lt;-<span class="st"> </span><span class="ot">NA</span>
     }
-    
-    fireScarsFunVec &lt;-<span class="st"> </span><span class="kw">Vectorize</span>(fireScarsFun, <span class="st">&quot;year&quot;</span>)
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(b.fid &lt;-<span class="st"> </span><span class="kw">fireScarsFunVec</span>(<span class="dt">x =</span> fah, <span class="dt">y =</span> r, <span class="dt">year =</span> yrs.all, 
-        <span class="dt">years.avail =</span> yrs, <span class="dt">field =</span> <span class="st">&quot;FIREID&quot;</span>))
+    x
+}
+
+<span class="kw">library</span>(parallel)
+n.cores &lt;-<span class="st"> </span><span class="dv">32</span>  <span class="co"># hardcoded</span>
+<span class="co"># fireScarsFunVec &lt;- Vectorize(fireScarsFun,&#39;year&#39;)</span>
+if (!<span class="kw">exists</span>(<span class="st">&quot;b.fid&quot;</span>)) {
+    b.fid &lt;-<span class="st"> </span><span class="kw">mclapply</span>(yrs.all, fireScarsFun, <span class="dt">x =</span> fah, <span class="dt">y =</span> r, <span class="dt">years.avail =</span> yrs.fah, 
+        <span class="dt">field =</span> <span class="st">&quot;FIREID&quot;</span>, <span class="dt">mc.cores =</span> n.cores)
+    <span class="kw">print</span>(<span class="kw">summary</span>(b.fid[[<span class="dv">1</span>]][]))
     b.fid &lt;-<span class="st"> </span><span class="kw">brick</span>(b.fid)
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(result &lt;-<span class="st"> </span><span class="kw">fireScarsFunVec</span>(<span class="dt">x =</span> fah, <span class="dt">y =</span> r, <span class="dt">year =</span> yrs.all, 
-        <span class="dt">years.avail =</span> yrs))
+    <span class="kw">print</span>(<span class="st">&quot;b.fid brick created&quot;</span>)
+    <span class="kw">print</span>(<span class="kw">summary</span>(<span class="kw">subset</span>(b.fid, <span class="dv">1</span>)[]))
+    if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) {
+        b.fid &lt;-<span class="st"> </span><span class="kw">mask</span>(b.fid, shp)
+        <span class="kw">print</span>(<span class="st">&quot;b.fid brick masked&quot;</span>)
+    }
+    if (!<span class="kw">file.exists</span>(b.fid.name)) {
+        <span class="co"># writeRaster(b.fid, b.fid.name, datatype=&#39;FLT4S&#39;, overwrite=T)</span>
+        b &lt;-<span class="st"> </span><span class="kw">brick</span>(b.fid, <span class="dt">values =</span> <span class="ot">FALSE</span>)
+        b &lt;-<span class="st"> </span><span class="kw">writeStart</span>(b, <span class="dt">filename =</span> b.fid.name, <span class="dt">format =</span> <span class="st">&quot;GTiff&quot;</span>, <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
+            <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)
+        tr &lt;-<span class="st"> </span><span class="kw">blockSize</span>(b)
+        for (i in <span class="dv">1</span>:tr$n) {
+            v &lt;-<span class="st"> </span><span class="kw">getValuesBlock</span>(b.fid, <span class="dt">row =</span> tr$row[i], <span class="dt">nrows =</span> tr$nrows[i])
+            b &lt;-<span class="st"> </span><span class="kw">writeValues</span>(b, v, tr$row[i])
+        }
+        b &lt;-<span class="st"> </span><span class="kw">writeStop</span>(b)
+    }
+    <span class="kw">print</span>(<span class="st">&quot;b.fid file written&quot;</span>)
+    <span class="kw">print</span>(<span class="kw">summary</span>(<span class="kw">subset</span>(b.fid, <span class="dv">1</span>)[]))
+}
+if (!<span class="kw">exists</span>(<span class="st">&quot;result&quot;</span>)) {
+    result &lt;-<span class="st"> </span><span class="kw">mclapply</span>(yrs.all, fireScarsFun, <span class="dt">x =</span> fah, <span class="dt">y =</span> r, <span class="dt">years.avail =</span> yrs.fah, 
+        <span class="dt">mc.cores =</span> n.cores)
+    <span class="kw">print</span>(<span class="st">&quot;result list created&quot;</span>)
+    <span class="kw">print</span>(<span class="kw">class</span>(result))
+    <span class="kw">print</span>(<span class="kw">length</span>(result))
+    <span class="kw">print</span>(<span class="kw">class</span>(result[[<span class="dv">1</span>]]))
     result &lt;-<span class="st"> </span><span class="kw">lapply</span>(result, function(x, r.veg) {
         x[<span class="kw">is.na</span>(x) &amp;<span class="st"> </span>!<span class="kw">is.na</span>(r.veg) &amp;<span class="st"> </span>r.veg &gt;<span class="st"> </span><span class="dv">0</span>] &lt;-<span class="st"> </span><span class="dv">0</span>
         x
     }, <span class="dt">r.veg =</span> r)
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(result2 &lt;-<span class="st"> </span><span class="kw">do.call</span>(<span class="st">&quot;sum&quot;</span>, <span class="kw">c</span>(result, <span class="dt">na.rm =</span> T)))
+    <span class="kw">print</span>(<span class="st">&quot;result list processed&quot;</span>)
+    if (!<span class="kw">exists</span>(<span class="st">&quot;result2&quot;</span>)) 
+        result2 &lt;-<span class="st"> </span><span class="kw">do.call</span>(<span class="st">&quot;sum&quot;</span>, <span class="kw">c</span>(result, <span class="dt">na.rm =</span> T))
+    <span class="kw">print</span>(<span class="st">&quot;result2 raster layer created&quot;</span>)
     result &lt;-<span class="st"> </span><span class="kw">brick</span>(result)
+    <span class="kw">print</span>(<span class="st">&quot;result brick created&quot;</span>)
     if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) {
         b.fid &lt;-<span class="st"> </span><span class="kw">mask</span>(b.fid, shp)
         result &lt;-<span class="st"> </span><span class="kw">mask</span>(result, shp)
@@ -267,12 +331,23 @@ if (<span class="kw">all</span>(<span class="kw">file.exists</span>(<span class=
     }
     <span class="kw">names</span>(result) &lt;-<span class="st"> </span><span class="kw">names</span>(b.fid) &lt;-<span class="st"> </span>yrs.all
     <span class="kw">names</span>(result2) &lt;-<span class="st"> </span><span class="kw">paste</span>(yrs.all[<span class="dv">1</span>], <span class="kw">tail</span>(yrs.all, <span class="dv">1</span>), <span class="dt">sep =</span> <span class="st">&quot;_&quot;</span>)
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(<span class="kw">writeRaster</span>(b.fid, b.fid.name, <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
-        <span class="dt">overwrite =</span> T))
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(<span class="kw">writeRaster</span>(result, result.name, <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
-        <span class="dt">overwrite =</span> T))
-    dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(<span class="kw">writeRaster</span>(result2, result2.name, <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
-        <span class="dt">overwrite =</span> T))
+    if (!<span class="kw">file.exists</span>(result.name)) {
+        <span class="co"># writeRaster(result, result.name, datatype=&#39;FLT4S&#39;, overwrite=T)</span>
+        b &lt;-<span class="st"> </span><span class="kw">brick</span>(result, <span class="dt">values =</span> <span class="ot">FALSE</span>)
+        b &lt;-<span class="st"> </span><span class="kw">writeStart</span>(b, <span class="dt">filename =</span> result.name, <span class="dt">format =</span> <span class="st">&quot;GTiff&quot;</span>, <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
+            <span class="dt">overwrite =</span> <span class="ot">TRUE</span>)
+        tr &lt;-<span class="st"> </span><span class="kw">blockSize</span>(b)
+        for (i in <span class="dv">1</span>:tr$n) {
+            v &lt;-<span class="st"> </span><span class="kw">getValuesBlock</span>(result, <span class="dt">row =</span> tr$row[i], <span class="dt">nrows =</span> tr$nrows[i])
+            b &lt;-<span class="st"> </span><span class="kw">writeValues</span>(b, v, tr$row[i])
+        }
+        b &lt;-<span class="st"> </span><span class="kw">writeStop</span>(b)
+        <span class="kw">print</span>(<span class="st">&quot;result file written&quot;</span>)
+    }
+    if (!<span class="kw">file.exists</span>(result2.name)) {
+        <span class="kw">writeRaster</span>(result2, result2.name, <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, <span class="dt">overwrite =</span> T)
+        <span class="kw">print</span>(<span class="st">&quot;result2 file written&quot;</span>)
+    }
 }</code></pre>
 </div>
 

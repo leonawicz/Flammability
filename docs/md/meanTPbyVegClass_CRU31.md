@@ -29,6 +29,14 @@ setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")
 veg.vec <- getValues(r.veg)
 sort(unique(veg.vec))
+rm.eco <- T
+ecoreg <- raster(as.matrix(read.table("../data/ecoreg_mark_mask_zero.txt", skip = 6, 
+    header = F)))
+drop.ind <- Which(ecoreg == 4, cells = T)
+if (rm.eco) eco.ind <- values(Which(ecoreg != 0 & ecoreg != 4)) else eco.ind <- 1
+if (any(is.na(veg.vec))) veg.vec[is.na(veg.vec)] <- 0
+veg.vec <- as.numeric(veg.vec != 0) * eco.ind * veg.vec
+
 veg.vec[veg.vec == 3 | veg.vec == 4] <- 2  # for forest
 if (allcavm) veg.vec[veg.vec == 6 | veg.vec == 7] <- 5  # 'cavm' all three shrub, graminoid, wetland combined
 
@@ -43,9 +51,11 @@ dir.create(outDir <- file.path("../data/meanTPbyVegClass", scenario, modnames),
     showWarnings = F, recursive = T)
 dir.create(wsDir <- "meanTPbyVegClass", showWarnings = F)
 
-### pick the years and months for the analysis
-yr.start <- 1901
-yr.end <- 2009
+yrs <- 1950:2009
+
+fid <- brick("../data/historicalFireObs/fireIDbrick_annual_observed_Statewide_lightning_1950_2013.tif")
+fid <- subset(fid, 1:(diff(range(yrs)) + 1))
+names(fid) <- yrs
 ```
 
 ### Function
@@ -68,36 +78,17 @@ f <- function(k, path, veg.vec, veg.vals, veg.names) {
         means.T.mos.veg <- cbind(means.T.mos.veg, round(colMeans(temp.tmp[veg.vec == 
             veg.vals[j], ], na.rm = T), 1))
     }
-    row.names(means.P.mos.veg) <- row.names(means.T.mos.veg) <- month.abb
+    rownames(means.P.mos.veg) <- rownames(means.T.mos.veg) <- month.abb
     colnames(means.P.mos.veg) <- colnames(means.T.mos.veg) <- veg.names
     print(k)
     return(list(Pmeans = means.P.mos.veg, Tmeans = means.T.mos.veg, k = k - 
-        yr.start + 1))
+        yrs[1] + 1))
 }
 ```
 
 ### Run
 
 
-```r
-f.out <- mclapply(yr.start:yr.end, f, path = path, veg.vec = veg.vec, veg.vals = veg.vals, 
-    veg.names = veg.names, mc.cores = min(length(yr.start:yr.end), 32))
-names(f.out) <- yr.start:yr.end
-for (i in 1:length(veg.vals)) {
-    assign(paste("table.p", veg.names[i], scenario, modnames, sep = "."), c())
-    assign(paste("table.t", veg.names[i], scenario, modnames, sep = "."), c())
-}
-for (j in 1:length(f.out)) {
-    for (i in 1:length(veg.vals)) {
-        assign(paste("table.p", veg.names[i], scenario, modnames, sep = "."), 
-            rbind(get(paste("table.p", veg.names[i], scenario, modnames, sep = ".")), 
-                c(Year = as.numeric(names(f.out)[j]), f.out[[j]]$Pmeans[, i])))
-        assign(paste("table.t", veg.names[i], scenario, modnames, sep = "."), 
-            rbind(get(paste("table.t", veg.names[i], scenario, modnames, sep = ".")), 
-                c(Year = as.numeric(names(f.out)[j]), f.out[[j]]$Tmeans[, i])))
-    }
-}
-```
 
 ### Save outputs
 
@@ -112,8 +103,7 @@ for (i in 1:length(veg.names)) {
             ".csv", sep = ""), row.names = F)
 }
 
-rm(comargs, i, j, f.out, yr.start, yr.end, veg.vals, veg.vec, path, f, f2, modnames, 
-    scenario, r.veg, veg.names, outDir, allcavm)
-if (length(ls(pattern = ".*.cavm.*."))) save.image(file.path(wsDir, "meanTPbyVegClass_CRU31_cavm.RData")) else save.image(file.path(wsDir, 
-    "meanTPbyVegClass_CRU31_individual.RData"))
+if (allcavm) save(list = ls(pattern = "^table\\."), file = file.path(wsDir, 
+    "meanTPbyVegClass_CRU31_cavm.RData")) else save(list = ls(pattern = "^table\\."), 
+    file = file.path(wsDir, "meanTPbyVegClass_CRU31_individual.RData"))
 ```
