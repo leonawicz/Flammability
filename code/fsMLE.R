@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/30/2015        ####
+#### Last updated:   05/29/2015        ####
 
 # @knitr setup
 setwd("C:/github/Flammability/workspaces")
