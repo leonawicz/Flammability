@@ -6,7 +6,11 @@ proj.location <- matt.proj.path # Use default file location
 docDir <- c("Rmd/include", "md", "html", "Rnw", "pdf", "timeline")
 newProject(proj.name, proj.location, docs.dirs=docDir, overwrite=T) # create a new project
 
+appcode.frp.files <- list.files("Y:/Users/mfleonawicz/FRP_test/shiny/FRP_template", pattern="\\.R$", full=TRUE, recursive=TRUE)
+appcode.alf.files <- list.files("C:/github/shiny-apps/run_alfresco", pattern="\\.R$", full=TRUE, recursive=TRUE)
 rfile.path <- file.path(proj.location, proj.name, "code") # path to R scripts
+file.copy(appcode.frp.files, paste0(rfile.path, "/appcode_frp_", basename(appcode.frp.files)), overwrite=TRUE)
+file.copy(appcode.alf.files, paste0(rfile.path, "/appcode_alf_", basename(appcode.alf.files)), overwrite=TRUE)
 docs.path <- file.path(proj.location, proj.name, "docs")
 rmd.path <- file.path(docs.path, "Rmd")
 
@@ -39,7 +43,8 @@ proj.submenu <- list(
 	c("GBM Modeling", "gbm.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "FlammabilityMapMultipliers.R"),
 	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "fseByVeg.R", "divider", "Supporting scripts", "obs_fire_setup.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
 	c("Fire size distributions", "EDA: fire samples", "EDA: Noatak shrub fire", "EDA: statewide forest fire", "divider", "MLE: setup", "MLE: Noatak shrub fire", "MLE: statewide forest fire"),
-	c("ALFRESCO launcher", "divider", "Results app"), # Insert code files from both apps
+	c("ALFRESCO launcher", "global.R", "ui.R", "server.R", "sidebar.R", "reactives.R", "about.R", "divider",
+		"Results app", "ui.R", "server.R", "sidebar.R", "app.R", "reactives.R", "plotFunctions.R", "about.R"),
 	c("empty")
 )
 
@@ -49,7 +54,8 @@ proj.files <- list(
 	c("header", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
 	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "fseByVeg.html", "divider", "header", "obs_fire_setup.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
 	c("header", "fse_eda1.html", "fse_eda2.html", "fse_eda3.html", "divider", "fse_mle1.html", "fse_mle2.html", "fse_mle3.html"),
-	c("header", "divider", "header"), # Insert html files for code from both apps
+	c("header", "appcode_alf_global.html", "appcode_alf_ui.html", "appcode_alf_server.html", "appcode_alf_sidebar.html", "appcode_alf_reactives.html", "appcode_alf_about.html", "divider",
+		"header", "appcode_frp_ui.html", "appcode_frp_server.html", "appcode_frp_sidebar.html", "appcode_frp_app.html", "appcode_frp_reactives.html", "appcode_frp_plotFunctions.html", "appcode_frp_about.html"),
 	c("http://leonawicz.github.io")
 )
 
