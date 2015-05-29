@@ -9,14 +9,14 @@ output:
 
 ```{r knitr_setup, echo=FALSE}
 opts_chunk$set(cache=FALSE, eval=FALSE, tidy=TRUE, message=FALSE, warning=FALSE)
-read_chunk("../../code/fseByVeg.R")
+read_chunk("../../code/fsByVeg.R")
 ```
 
 ##
 ##
-## fseByVeg.R
+## fsByVeg.R
 
-The `fseByVeg.R` script carries out post-processing of ALFRESCO simulation outputs.
+The `fsByVeg.R` script carries out post-processing of ALFRESCO simulation outputs.
 It is assumed that `AlfrescoCalibration.R` has already executed. This and any other post-processing **R** script are always run secondary to the primary script.
 
 The script extracts fire event sizes (FSE) from ALFRESCO output fire scar geotiffs for each simulation replicate,

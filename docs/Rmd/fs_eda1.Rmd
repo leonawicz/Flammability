@@ -9,15 +9,15 @@ output:
 
 ```{r knitr_setup, echo=FALSE}
 opts_chunk$set(cache=FALSE, eval=TRUE, tidy=TRUE, message=FALSE, warning=FALSE, dpi=300, fig.height=7, fig.width=10.5)
-read_chunk("../../code/fseMLE.R")
+read_chunk("../../code/fsMLE.R")
 ```
 
 ##
 ##
-## fseMLE.R EDA part 1
+## fsMLE.R EDA part 1
 ### Fire samples
 
-The `fseMLE.R` script performs exploratory data analysis followed by maximum likelihood estimation of fire size distributions based on historical observations and ALFRESCO simulation outputs.
+The `fsMLE.R` script performs exploratory data analysis followed by maximum likelihood estimation of fire size distributions based on historical observations and ALFRESCO simulation outputs.
 Currently under development.
 Preliminary EDA plots available.
 

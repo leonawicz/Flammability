@@ -9,12 +9,12 @@ output:
 
 ```{r knitr_setup, echo=FALSE}
 opts_chunk$set(cache=FALSE, eval=TRUE, tidy=TRUE, message=FALSE, warning=FALSE, dpi=300, fig.height=7, fig.width=10.5)
-read_chunk("../../code/fseMLE.R")
+read_chunk("../../code/fsMLE.R")
 ```
 
 ##
 ##
-## fseMLE.R
+## fsMLE.R
 
 ```{r setup, echo=FALSE, results="hide"}
 ```
