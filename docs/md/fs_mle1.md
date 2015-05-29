@@ -5,7 +5,7 @@
 ##
 ## fsMLE.R
 
-Maximum likelihood estimation of fire event size distributions functions are shown below.
+Maximum likelihood estimation of fire size distributions functions are shown below.
 
 
 
