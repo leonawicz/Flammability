@@ -64,7 +64,7 @@ f <- function(i, a, b=NULL, type="coef", outDir, files, flam.min=NULL, f_of_xy=N
 		if(is.null(b)) stop("b cannot be NULL if type='year'. Change to type='coef' or provide a raster brick b.")
 		b.yrs <- as.numeric(substr(names(b), 2, 5))
 		ind <- which(b.yrs==a[i])
-		if(is.null(f_of_xy)) { r2 <- subset(b, ind); r2[r2 < 0.5] <- 0.5; r <- r2*r } else f_of_xy(x=subset(b, ind), y=r)
+		if(is.null(f_of_xy)) { r2 <- subset(b, ind); r <- r2*r } else f_of_xy(x=subset(b, ind), y=r)
 	}
 	r <- round(r, 8)
 	writeRaster(r, file.path(outDir, files[i]), datatype="FLT4S", overwrite=T)
@@ -73,4 +73,4 @@ f <- function(i, a, b=NULL, type="coef", outDir, files, flam.min=NULL, f_of_xy=N
 }
 
 # @knit run
-mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, flam.min=0.025, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
+mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, flam.min=0.01, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
