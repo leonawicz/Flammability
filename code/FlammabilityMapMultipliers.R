@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/03/2015        ####
+#### Last updated:   06/08/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -73,4 +73,4 @@ f <- function(i, a, b=NULL, type="coef", outDir, files, flam.min=NULL, f_of_xy=N
 }
 
 # @knit run
-mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, flam.min=0.01, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
+mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, flam.min=0.025, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
