@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/08/2015        ####
+#### Last updated:   06/10/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -22,10 +22,10 @@ if(!exists("cp_originals")) cp_originals <- TRUE
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
-dir.create(outDir <- paste0("../", mapset, "_scaled"), showWarnings=FALSE)
+dir.create(outDir <- paste0("../", mapset, "_L"), showWarnings=FALSE)
 if(cp2scratch){
 	dir.create(outDir2a <- file.path("/big_scratch/mfleonawicz/Alf_Files_20121129/gbmFlamMaps", period, model, mapset), recursive=TRUE, showWarnings=FALSE)
-	dir.create(outDir2b <- paste0(outDir2a, "_scaled"), showWarnings=FALSE)
+	dir.create(outDir2b <- paste0(outDir2a, "_L"), showWarnings=FALSE)
 } else outDir2b <- NULL
 if(!cp_originals) outDir2a <- NULL
 
@@ -73,4 +73,4 @@ f <- function(i, a, b=NULL, type="coef", outDir, files, flam.min=NULL, f_of_xy=N
 }
 
 # @knit run
-mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, flam.min=0.025, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
+mclapply(1:length(files), f, a=a, b=kde.maps, type="year", outDir=outDir, files=files, cp.origin=outDir2a, cp.new=outDir2b, mc.cores=32)
