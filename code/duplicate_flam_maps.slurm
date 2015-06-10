@@ -12,8 +12,8 @@
 #### $1 period, passed as period=\'historical\', period=\'rcp60\', etc., required;
 #### $2 model, passed as model=\'CRU31\', model=\'GFDL-CM3\', etc., required;
 #### $3 samples, passed as samples=TRUE, defaults to TRUE, optional;
-#### $4 mapset, passed as mapset=\'3models_tif\', etc., required;
-#### $5 out, passed as out=\'3models_loop1950to2009_tif_scaled', etc., required, mapset and out may be the same;
+#### $4 mapset, passed as mapset=\'3m\', etc., required;
+#### $5 out, passed as out=\'3m_loop', etc., required, mapset and out may be the same;
 #### $6 yearloop, passed as yearloop=1950:2009, etc., required;
 #### $7 n, passed as n=40, etc., optional, defaults to 40, see code for details on use;
 Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/duplicate_flam_maps.R $1 $2 $3 $4 $5 $6 $7
