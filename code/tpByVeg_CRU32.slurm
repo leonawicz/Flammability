@@ -1,0 +1,16 @@
+#!/bin/sh
+#SBATCH --exclusive
+#SBATCH --mail-type=END
+#SBATCH --mail-user=mfleonawicz@alaska.edu
+#SBATCH --ntasks=32
+#SBATCH --nodes=1
+####SBATCH --nodelist=atlas10
+#SBATCH --job-name=tpvCRU
+#SBATCH --account=snap
+#SBATCH -p main
+
+#### $1 optional argument, recommended, samples=TRUE, defaults to TRUE if unspecified;
+#### $2 optional/required sample size argument, e.g., n=100, n is ignored if samples=FALSE;
+####    Will throw exception if samples=TRUE and n not specified;
+#### $3 optional argument, allcavm=TRUE, defaults to FALSE if unspecified;
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/tpByVeg_CRU32.R $1 $2 $3
