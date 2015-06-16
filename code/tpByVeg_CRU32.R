@@ -4,13 +4,16 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/14/2015        ####
+#### Last updated:   06/16/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
 if(length(comargs)) for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
 
+if(!exists("samples")) samples <- TRUE
 if(!exists("allcavm")) allcavm <- FALSE
+if(!exists("n") & samples) stop("Must provide n if samples=TRUE.")
+if(!is.logical(samples)) stop("Argument 'samples' must be logical.")
 if(!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
 
 library(raster)
@@ -33,13 +36,14 @@ if(allcavm) veg.vec[veg.vec==6|veg.vec==7] <- 5 # "cavm" all three shrub, gramin
 
 veg.vals <- if(allcavm) 5 else c(1,2,5,6,7)
 veg.names <- if(allcavm) "cavm" else c("tundra","forest","shrub","graminoid","wetland")
-modnames <- "cru_TS31"
+modnames <- "CRU_TS32"
 scenario <- "historical"
 path <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", scenario, modnames, c("pr", "tas"))
-dir.create(outDir <- file.path("../data/meanTPbyVegClass", scenario, modnames), showWarnings=F, recursive=T)
-dir.create(wsDir <- "meanTPbyVegClass", showWarnings=F)
+#if(samples) type <- "samples" else type <- "means"
+#dir.create(outDir <- file.path("../data/tpByVeg", type, scenario, modnames), showWarnings=F, recursive=T)
+dir.create(wsDir <- "tpByVeg", showWarnings=F)
 
-yrs <- 1950:2009
+yrs <- 1950:2013
 
 fid <- brick("../data/historicalFireObs/fireIDbrick_annual_observed_Statewide_lightning_1950_2013.tif")
 fid <- subset(fid, 1:(diff(range(yrs))+1))
@@ -163,6 +167,7 @@ f3 <- function(k, path, veg.vec, veg.vals, veg.names, n=100, fid=NULL, fire.only
 }
 
 # @knitr run_means
+if(!samples){
 f.out <- mclapply(yrs, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=min(length(yrs), 32))
 names(f.out) <- yrs
 for(i in 1:length(veg.vals)){
@@ -175,7 +180,7 @@ for(j in 1:length(f.out)){
     assign(paste("table.t", veg.names[i], scenario, modnames, sep="."), rbind( get(paste("table.t", veg.names[i], scenario, modnames, sep=".")), c("Year"=as.numeric(names(f.out)[j]),f.out[[j]]$Tmeans[,i]) ))
   }
 }
-
+}
 # @knitr run_boot
 #not in use
 
@@ -200,29 +205,35 @@ for(j in 1:length(f.out)){
 #}
 
 # @knitr run_samples
+if(samples){
 library(data.table)
 library(reshape2)
-system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=100, seed=NULL, mc.cores=min(length(yrs), 32)) )
+system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=n, seed=NULL, mc.cores=min(length(yrs), 32)) )
 d <- rbindlist(f.out)
 d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
 if(allcavm) d.cavm <- d
-
-# @knitr run_samples_fs
-library(data.table)
-library(reshape2)
-system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=100, fid=fid, seed=NULL, mc.cores=min(length(yrs), 32)) )
-d <- rbindlist(lapply(f.out, "[[", 1))
-d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
-if(allcavm) d.cavm <- d
-d.fs <- rbindlist(lapply(f.out, "[[", 2))
-
-# @knitr save
-for(i in 1:length(veg.names)){
-  write.table(get(paste("table.p", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/pr_", scenario, "_", modnames, "_", veg.names[i], ".csv", sep=""), row.names=F)
-  write.table(get(paste("table.t", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/tas_", scenario, "_", modnames, "_", sort(veg.names)[i], ".csv", sep=""), row.names=F)
 }
 
-if(allcavm) save(list=ls(pattern="^table\\."), file=file.path(wsDir, "meanTPbyVegClass_CRU31_cavm.RData")) else save(list=ls(pattern="^table\\."), file=file.path(wsDir, "meanTPbyVegClass_CRU31_individual.RData"))
+# @knitr run_samples_fs
+#library(data.table)
+#library(reshape2)
+#system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=100, fid=fid, seed=NULL, mc.cores=min(length(yrs), 32)) )
+#d <- rbindlist(lapply(f.out, "[[", 1))
+#d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
+#if(allcavm) d.cavm <- d
+#d.fs <- rbindlist(lapply(f.out, "[[", 2))
+
+# @knitr save
+#for(i in 1:length(veg.names)){
+#  write.table(get(paste("table.p", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/pr_", scenario, "_", modnames, "_", veg.names[i], ".csv", sep=""), row.names=F)
+#  write.table(get(paste("table.t", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/tas_", scenario, "_", modnames, "_", sort(veg.names)[i], ".csv", sep=""), row.names=F)
+#}
+
+if(!samples){
+    if(allcavm) save(list=ls(pattern="^table\\."), file=file.path(wsDir, "tpByVeg_means_CRU32_cavm.RData")) else save(list=ls(pattern="^table\\."), file=file.path(wsDir, "tpByVeg_means_CRU32_individual.RData"))
+}
 
 # @knitr save_samples
-if(allcavm) save(d.cavm, file=file.path(wsDir, "tpByVegSamples100_CRU31_cavm.RData")) else save(d, file=file.path(wsDir, "tpByVegSamples100_CRU31_individual.RData"))
+if(samples){
+    if(allcavm) save(d.cavm, file=paste0(wsDir, "/tpByVeg_samples", n, "_CRU32_cavm.RData")) else save(d, file=paste0(wsDir, "/tpByVeg_samples", n, "_CRU32_individual.RData"))
+}
