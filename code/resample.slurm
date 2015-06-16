@@ -9,4 +9,6 @@
 #SBATCH --account=snap
 #SBATCH -p main
 
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/clim_resample_2km_1km.R
+#### $1 is optional cru=TRUE, defaults to FALSE;
+
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/clim_resample_2km_1km.R $1
