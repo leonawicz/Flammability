@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   03/31/2015        ####
+#### Last updated:   06/16/2015        ####
 
 # @knitr alf_calib
 comArgs <- commandArgs(TRUE)
@@ -77,7 +77,7 @@ save.image(file.path(outDir, "postProcess.RData"))
 
 sink(file=file.path(outDir, "message.txt"))
 cat(
-	"This message comes from the shiny user directory.\n
-	See ALFRESCO calibration figures [attached].\n"
+"This message comes from the shiny user directory.\n
+See ALFRESCO calibration figures [attached].\n"
 )
 sink()

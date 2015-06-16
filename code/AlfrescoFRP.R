@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/03/2015        ####
+#### Last updated:   06/16/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -256,6 +256,7 @@ friFun <- function(d){
 fri.dat <- friFun(rab.dat)
 
 # Load/save objects in a workspace file to be transported to app
+dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tolower(alf.domain),1,6)=="statew") "Statewide"
 load(paste0(out, "/fsByVeg_df_", dom, ".RData")) # assumed to have run fsByVeg.R
 prefix <- ifelse(group.name=="none", "RAB_FRP", paste0(run.name, "_RAB_FRP"))
 ws <- ifelse(group.name=="none",
