@@ -132,22 +132,26 @@ img {
           <li class="dropdown">
             <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
             <ul class="dropdown-menu">
+              <li><a href="clim_prep.html">Climate data prep</a></li>
               <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
-              <li><a href="meanTPbyVegClass_CRU31.html">meanTPbyVegClass_CRU31.R</a></li>
-              <li><a href="meanTPbyVegClass_CMIP5.html">meanTPbyVegClass_CMIP5.R</a></li>
+              <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
+              <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
             </ul>
 
           <li class="dropdown">
             <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
               <li><a href="gbm.html">gbm.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
+              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
+              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
@@ -227,9 +231,9 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="meantpbyvegclass_cmip5.r" class="section level2">
-<h2>meanTPbyVegClass_CMIP5.R</h2>
-<p>The <code>meanTPbyVegClass_CMIP5.R</code> script calculates mean temperature and precipitation over all grid cells in a CGM map layer conditional of vegetation class using a given vegetation classification map. These vegetation-specific climate means are used as variables in gradient boosting machine (GBM), or generalized boosted regression modeling. The resulting GBM models are used to develop climate-driven, vegetation-mediated flammability maps with a nonlinear fire response to climate for use in ALFRESCO in place of basic temperature and precipitation maps.</p>
+<div id="tpbyveg_cmip5.r" class="section level2">
+<h2>tpByVeg_CMIP5.R</h2>
+<p>The <code>tpByVeg_CMIP5.R</code> script calculates mean temperature and precipitation over all grid cells in a CGM map layer conditional on vegetation class using a given vegetation classification map. Unlike the <code>tpByVeg_CRU32.R</code> script, this script does not currently provide a sampling option since the CMIP5 models are not used for fitting GBM models.</p>
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
@@ -250,6 +254,13 @@ dataDir &lt;-<span class="st"> &quot;/big_scratch/mfleonawicz/Climate_1km_AKstat
 r.veg &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif&quot;</span>)
 veg.vec &lt;-<span class="st"> </span><span class="kw">getValues</span>(r.veg)
 <span class="kw">sort</span>(<span class="kw">unique</span>(veg.vec))
+rm.eco &lt;-<span class="st"> </span>T
+ecoreg &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">as.matrix</span>(<span class="kw">read.table</span>(<span class="st">&quot;../data/ecoreg_mark_mask_zero.txt&quot;</span>, <span class="dt">skip =</span> <span class="dv">6</span>, 
+    <span class="dt">header =</span> F)))
+drop.ind &lt;-<span class="st"> </span><span class="kw">Which</span>(ecoreg ==<span class="st"> </span><span class="dv">4</span>, <span class="dt">cells =</span> T)
+if (rm.eco) eco.ind &lt;-<span class="st"> </span><span class="kw">values</span>(<span class="kw">Which</span>(ecoreg !=<span class="st"> </span><span class="dv">0</span> &amp;<span class="st"> </span>ecoreg !=<span class="st"> </span><span class="dv">4</span>)) else eco.ind &lt;-<span class="st"> </span><span class="dv">1</span>
+veg.vec &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(veg.vec !=<span class="st"> </span><span class="dv">0</span>) *<span class="st"> </span>eco.ind *<span class="st"> </span>veg.vec
+
 veg.vec[veg.vec ==<span class="st"> </span><span class="dv">3</span> |<span class="st"> </span>veg.vec ==<span class="st"> </span><span class="dv">4</span>] &lt;-<span class="st"> </span><span class="dv">2</span>  <span class="co"># for forest</span>
 if (allcavm) veg.vec[veg.vec ==<span class="st"> </span><span class="dv">6</span> |<span class="st"> </span>veg.vec ==<span class="st"> </span><span class="dv">7</span>] &lt;-<span class="st"> </span><span class="dv">5</span>  <span class="co"># &#39;cavm&#39; all three shrub, graminoid, wetland combined</span>
 
@@ -261,11 +272,10 @@ modnames &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="
 scenario &lt;-<span class="st"> </span><span class="kw">rep</span>(scenario, <span class="dt">each =</span> <span class="kw">length</span>(modnames)/<span class="kw">length</span>(scenario))
 path &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">file.path</span>(dataDir, scenario, modnames, <span class="st">&quot;pr&quot;</span>), <span class="kw">file.path</span>(dataDir, 
     scenario, modnames, <span class="st">&quot;tas&quot;</span>))
-<span class="kw">dir.create</span>(wsDir &lt;-<span class="st"> &quot;meanTPbyVegClass&quot;</span>, <span class="dt">showWarnings =</span> F)
+<span class="kw">dir.create</span>(wsDir &lt;-<span class="st"> &quot;tpByVeg&quot;</span>, <span class="dt">showWarnings =</span> F)
 
 ### pick the years and months for the analysis
-yr.start &lt;-<span class="st"> </span><span class="dv">2006</span>
-yr.end &lt;-<span class="st"> </span><span class="dv">2100</span></code></pre>
+yrs &lt;-<span class="st"> </span><span class="dv">2010</span>:<span class="dv">2099</span></code></pre>
 </div>
 <div id="function" class="section level3">
 <h3>Function</h3>
@@ -285,20 +295,20 @@ yr.end &lt;-<span class="st"> </span><span class="dv">2100</span></code></pre>
         means.T.mos.veg &lt;-<span class="st"> </span><span class="kw">cbind</span>(means.T.mos.veg, <span class="kw">round</span>(<span class="kw">colMeans</span>(temp.tmp[veg.vec ==<span class="st"> </span>
 <span class="st">            </span>veg.vals[j], ], <span class="dt">na.rm =</span> T), <span class="dv">1</span>))
     }
-    <span class="kw">row.names</span>(means.P.mos.veg) &lt;-<span class="st"> </span><span class="kw">row.names</span>(means.T.mos.veg) &lt;-<span class="st"> </span>month.abb
+    <span class="kw">rownames</span>(means.P.mos.veg) &lt;-<span class="st"> </span><span class="kw">rownames</span>(means.T.mos.veg) &lt;-<span class="st"> </span>month.abb
     <span class="kw">colnames</span>(means.P.mos.veg) &lt;-<span class="st"> </span><span class="kw">colnames</span>(means.T.mos.veg) &lt;-<span class="st"> </span>veg.names
     <span class="kw">print</span>(k)
     <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">Pmeans =</span> means.P.mos.veg, <span class="dt">Tmeans =</span> means.T.mos.veg, <span class="dt">k =</span> k -<span class="st"> </span>
-<span class="st">        </span>yr.start +<span class="st"> </span><span class="dv">1</span>))
+<span class="st">        </span>yrs[<span class="dv">1</span>] +<span class="st"> </span><span class="dv">1</span>))
 }</code></pre>
 </div>
 <div id="run-and-save-outputs" class="section level3">
 <h3>Run and save outputs</h3>
 <pre class="sourceCode r"><code class="sourceCode r">for (z in <span class="dv">1</span>:<span class="kw">length</span>(path[[<span class="dv">1</span>]])) {
-    f.out &lt;-<span class="st"> </span><span class="kw">mclapply</span>(yr.start:yr.end, f, <span class="dt">path =</span> <span class="kw">c</span>(path[[<span class="dv">1</span>]][z], path[[<span class="dv">2</span>]][z]), 
-        <span class="dt">veg.vec =</span> veg.vec, <span class="dt">veg.vals =</span> veg.vals, <span class="dt">veg.names =</span> veg.names, <span class="dt">mc.cores =</span> <span class="kw">min</span>(<span class="kw">length</span>(yr.start:yr.end), 
+    f.out &lt;-<span class="st"> </span><span class="kw">mclapply</span>(yrs, f, <span class="dt">path =</span> <span class="kw">c</span>(path[[<span class="dv">1</span>]][z], path[[<span class="dv">2</span>]][z]), <span class="dt">veg.vec =</span> veg.vec, 
+        <span class="dt">veg.vals =</span> veg.vals, <span class="dt">veg.names =</span> veg.names, <span class="dt">mc.cores =</span> <span class="kw">min</span>(<span class="kw">length</span>(yrs), 
             <span class="dv">32</span>))
-    <span class="kw">names</span>(f.out) &lt;-<span class="st"> </span>yr.start:yr.end
+    <span class="kw">names</span>(f.out) &lt;-<span class="st"> </span>yrs
     for (i in <span class="dv">1</span>:<span class="kw">length</span>(veg.vals)) {
         <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario[z], modnames[z], <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), 
             <span class="kw">c</span>())
@@ -317,23 +327,13 @@ yr.end &lt;-<span class="st"> </span><span class="dv">2100</span></code></pre>
                 f.out[[j]]$Tmeans[, i])))
         }
     }
-    <span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;../data/meanTPbyVegClass&quot;</span>, scenario[z], 
-        modnames[z]), <span class="dt">showWarnings =</span> F, <span class="dt">recursive =</span> T)
-    for (k in <span class="dv">1</span>:<span class="kw">length</span>(veg.names)) {
-        <span class="kw">write.csv</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[k], scenario[z], modnames[z], 
-            <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), <span class="kw">paste</span>(outDir, <span class="st">&quot;/pr_&quot;</span>, scenario[z], <span class="st">&quot;_&quot;</span>, modnames[z], 
-            <span class="st">&quot;_&quot;</span>, veg.names[k], <span class="st">&quot;.csv&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">row.names =</span> F)
-        <span class="kw">write.csv</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[k], scenario[z], modnames[z], 
-            <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), <span class="kw">paste</span>(outDir, <span class="st">&quot;/tas_&quot;</span>, scenario[z], <span class="st">&quot;_&quot;</span>, modnames[z], 
-            <span class="st">&quot;_&quot;</span>, veg.names[k], <span class="st">&quot;.csv&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">row.names =</span> F)
-        
-    }
 }
 
-<span class="kw">rm</span>(comargs, i, j, k, f.out, yr.start, yr.end, veg.vals, veg.vec, path, f, modnames, 
-    scenario, r.veg, veg.names, outDir, dataDir, allcavm)
-if (<span class="kw">length</span>(<span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;.*.cavm.*.&quot;</span>))) <span class="kw">save.image</span>(<span class="kw">file.path</span>(wsDir, <span class="st">&quot;meanTPbyVegClass_CMIP5_cavm.RData&quot;</span>)) else <span class="kw">save.image</span>(<span class="kw">file.path</span>(wsDir, 
-    <span class="st">&quot;meanTPbyVegClass_CMIP5_individual.RData&quot;</span>))</code></pre>
+if (<span class="kw">length</span>(<span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;.*.cavm.*.&quot;</span>))) {
+    <span class="kw">save</span>(<span class="dt">list =</span> <span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^table</span><span class="ch">\\</span><span class="st">.&quot;</span>), <span class="dt">file =</span> <span class="kw">file.path</span>(wsDir, <span class="st">&quot;tpByVeg_means_CMIP5_cavm.RData&quot;</span>))
+} else {
+    <span class="kw">save</span>(<span class="dt">list =</span> <span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^table</span><span class="ch">\\</span><span class="st">.&quot;</span>), <span class="dt">file =</span> <span class="kw">file.path</span>(wsDir, <span class="st">&quot;tpByVeg_means_CMIP5_individual.RData&quot;</span>))
+}</code></pre>
 </div>
 </div>
 

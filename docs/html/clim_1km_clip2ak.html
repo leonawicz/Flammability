@@ -132,22 +132,26 @@ img {
           <li class="dropdown">
             <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
             <ul class="dropdown-menu">
+              <li><a href="clim_prep.html">Climate data prep</a></li>
               <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
-              <li><a href="meanTPbyVegClass_CRU31.html">meanTPbyVegClass_CRU31.R</a></li>
-              <li><a href="meanTPbyVegClass_CMIP5.html">meanTPbyVegClass_CMIP5.R</a></li>
+              <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
+              <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
             </ul>
 
           <li class="dropdown">
             <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
               <li><a href="gbm.html">gbm.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
+              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
+              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
@@ -244,23 +248,20 @@ if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span cl
 if (!<span class="kw">exists</span>(<span class="st">&quot;cru&quot;</span>)) cru &lt;-<span class="st"> </span><span class="ot">FALSE</span>
 if (!<span class="kw">is.logical</span>(cru)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;cru&#39; must be logical.&quot;</span>)
 
-msk &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif&quot;</span>)
+msk &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif&quot;</span>)
 e &lt;-<span class="st"> </span><span class="kw">extent</span>(msk)
 
+mainDir &lt;-<span class="st"> &quot;/big_scratch/mfleonawicz/Climate_1km&quot;</span>
 if (cru) {
-    mainDir &lt;-<span class="st"> &quot;/Data/Base_Data/ALFRESCO_formatted/ALFRESCO_Master_Dataset/ALFRESCO_Model_Input_Datasets/AK_CAN_Inputs/Climate&quot;</span>
     varid &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>)
     rcp &lt;-<span class="st"> &quot;historical&quot;</span>
-    model &lt;-<span class="st"> &quot;cru_TS31&quot;</span>
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, model, rcp, varid)
+    model &lt;-<span class="st"> &quot;CRU_TS32&quot;</span>
 } else {
-    mainDir &lt;-<span class="st"> &quot;/big_scratch/mfleonawicz/CMIP5_Climate_1km&quot;</span>
     varid &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>), <span class="dv">15</span>)
     rcp &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">rep</span>(<span class="kw">paste0</span>(<span class="st">&quot;rcp&quot;</span>, <span class="kw">c</span>(<span class="dv">45</span>, <span class="dv">60</span>, <span class="dv">85</span>)), <span class="dt">each =</span> <span class="dv">2</span>), <span class="dv">5</span>)
     model &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="kw">list.files</span>(<span class="kw">file.path</span>(mainDir, <span class="st">&quot;rcp60&quot;</span>)), <span class="dt">each =</span> <span class="dv">6</span>)
-    subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, rcp, model, varid)
 }
-
+subDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, rcp, model, varid)
 outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, rcp, 
     model, varid)
 for (i in <span class="dv">1</span>:<span class="kw">length</span>(outDir)) <span class="kw">dir.create</span>(outDir[i], <span class="dt">recursive =</span> T, <span class="dt">showWarnings =</span> F)</code></pre>

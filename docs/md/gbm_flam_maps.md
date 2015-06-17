@@ -28,6 +28,7 @@ if (!exists("allcavm")) allcavm <- FALSE
 if (!exists("samples")) samples <- FALSE
 if (!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
 if (!is.logical(samples)) stop("Argument 'samples' must be logical.")
+if (samples & !exists("n")) stop("Must provide n if samples=TRUE")
 
 library(gbm)
 library(rgdal)
@@ -41,6 +42,7 @@ ncores <- 32
 verDir <- if (samples) "samples_based" else "means_based"
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
+suffix <- if (samples) paste0(n, "n") else "Mean"
 
 # Load gbm models
 if (samples) {
@@ -53,18 +55,16 @@ if (samples) {
 gbm.names <- c("gbm.forest", "gbm.alp.tundra", "gbm.shrub", "gbm.gram", "gbm.wetland")
 
 if (allcavm) {
-    out <- "3models_tif"
-    plot.out <- "3models_png"
+    out <- paste0("3m", suffix)
     gbm.gram <- gbm.shrub <- gbm.wetland <- gbm.cavm
     tree.numbers <- tree.numbers[c(1, 2, 6, 6, 6)]  # order: forest, alpine tundra, shrub, graminoid, wetland
 } else {
-    out <- "5models_tif"
-    plot.out <- "5models_png"
+    out <- paste0("5m", suffix)
 }
 dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model, 
     out), recursive = T, showWarnings = F)
 dir.create(plotDir <- file.path("../plots/gbmFlammability", verDir, period, 
-    model, plot.out), recursive = T, showWarnings = F)
+    model, out), recursive = T, showWarnings = F)
 ```
 
 ### Prep function

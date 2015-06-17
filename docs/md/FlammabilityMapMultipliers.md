@@ -33,11 +33,11 @@ if (!exists("cp_originals")) cp_originals <- TRUE
 verDir <- if (samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", 
     verDir, period, model, mapset))
-dir.create(outDir <- paste0("../", mapset, "_scaled"), showWarnings = FALSE)
+dir.create(outDir <- paste0("../", mapset, "_L"), showWarnings = FALSE)
 if (cp2scratch) {
     dir.create(outDir2a <- file.path("/big_scratch/mfleonawicz/Alf_Files_20121129/gbmFlamMaps", 
         period, model, mapset), recursive = TRUE, showWarnings = FALSE)
-    dir.create(outDir2b <- paste0(outDir2a, "_scaled"), showWarnings = FALSE)
+    dir.create(outDir2b <- paste0(outDir2a, "_L"), showWarnings = FALSE)
 } else outDir2b <- NULL
 if (!cp_originals) outDir2a <- NULL
 
@@ -91,7 +91,6 @@ f <- function(i, a, b = NULL, type = "coef", outDir, files, flam.min = NULL,
         ind <- which(b.yrs == a[i])
         if (is.null(f_of_xy)) {
             r2 <- subset(b, ind)
-            r2[r2 < 0.5] <- 0.5
             r <- r2 * r
         } else f_of_xy(x = subset(b, ind), y = r)
     }
@@ -104,6 +103,5 @@ f <- function(i, a, b = NULL, type = "coef", outDir, files, flam.min = NULL,
 
 # @knit run
 mclapply(1:length(files), f, a = a, b = kde.maps, type = "year", outDir = outDir, 
-    files = files, flam.min = 0.1, cp.origin = outDir2a, cp.new = outDir2b, 
-    mc.cores = 32)
+    files = files, cp.origin = outDir2a, cp.new = outDir2b, mc.cores = 32)
 ```

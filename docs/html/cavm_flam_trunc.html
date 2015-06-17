@@ -231,85 +231,73 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="fsmle.r-eda-part-1" class="section level2">
-<h2>fsMLE.R EDA part 1</h2>
-<div id="fire-samples" class="section level3">
-<h3>Fire samples</h3>
-<p>The <code>fsMLE.R</code> script performs exploratory data analysis followed by maximum likelihood estimation of fire size distributions based on historical observations and ALFRESCO simulation outputs. Currently under development. Preliminary EDA plots available.</p>
-</div>
-</div>
-<div id="r-code-and-results" class="section level2">
-<h2>R code and results</h2>
-<div id="setup" class="section level3">
-<h3>Setup</h3>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setwd</span>(<span class="st">&quot;C:/github/Flammability/workspaces&quot;</span>)
-<span class="kw">load</span>(<span class="st">&quot;fseByVeg_df_Noatak.RData&quot;</span>)
-d.fse.veg$Domain &lt;-<span class="st"> &quot;Noatak&quot;</span>
-d &lt;-<span class="st"> </span>d.fse.veg
-<span class="kw">load</span>(<span class="st">&quot;fseByVeg_df_Statewide.RData&quot;</span>)
-d.fse.veg$Domain &lt;-<span class="st"> &quot;Statewide&quot;</span>
-d &lt;-<span class="st"> </span><span class="kw">rbind</span>(d, d.fse.veg)
-<span class="kw">rm</span>(d.fse.veg)
+<div id="truncation-of-flammability-distributions" class="section level2">
+<h2>Truncation of flammability distributions</h2>
+<p>Flammability distributions in each map layer are trimmed at a lower and upper bound. Truncations are unique to each vegetation class’s flammability distribution. Bounds are the critical values pertaining to the 10th and 90th percentiles of the global flammability distribution. The global distribution refers to the distribution of flammability values through time (1950 - 2013) and across space for an individual vegetation class.</p>
+<p>Lower and upper bounds for each vegetation class can be seen in the code below and are based on explorations of the distributions carried out in the <code>cavm_flam_dist.R</code> script. Distribution trimming only applies to CAVM tundra classes and not to alpine tundra or forest vegetation, which are outside of the CAVM region. The distribution of the aggregate CAVM tundra class, which combines shrub, graminoid, and wetland tundra, is also trimmed with respect to its global 10th and 90th percentiles.</p>
+<div id="r-code" class="section level3">
+<h3>R code</h3>
+<pre class="sourceCode r"><code class="sourceCode r">comargs &lt;-<span class="st"> </span>(<span class="kw">commandArgs</span>(<span class="ot">TRUE</span>))
+if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span class="st">&quot;no&quot;</span>) else for (z in <span class="dv">1</span>:<span class="kw">length</span>(comargs)) <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text =</span> comargs[[z]]))
 
-d &lt;-<span class="st"> </span><span class="kw">transform</span>(d, <span class="dt">Decade =</span> Year -<span class="st"> </span>Year%%<span class="dv">10</span>)
-d$Decade &lt;-<span class="st"> </span><span class="kw">paste0</span>(d$Decade, <span class="st">&quot;s&quot;</span>)
-d &lt;-<span class="st"> </span><span class="kw">subset</span>(d, Year &lt;<span class="st"> </span><span class="dv">2010</span>)
-<span class="co"># veg.names &lt;- unique(d.fse.veg$Vegetation)</span>
-veg.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Alpine&quot;</span>, <span class="st">&quot;Forest&quot;</span>, <span class="st">&quot;Shrub&quot;</span>, <span class="st">&quot;Graminoid&quot;</span>, <span class="st">&quot;Wetland&quot;</span>)
-n.veg &lt;-<span class="st"> </span><span class="kw">length</span>(veg.names)
-reps &lt;-<span class="st"> </span><span class="kw">unique</span>(d$Replicate)
-n.reps &lt;-<span class="st"> </span><span class="kw">length</span>(reps)
-dec &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">unique</span>(d$Decade))
-n.dec &lt;-<span class="st"> </span><span class="kw">length</span>(dec)
-doms &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Noatak&quot;</span>, <span class="st">&quot;Statewide&quot;</span>)
-d &lt;-<span class="st"> </span><span class="kw">transform</span>(d, <span class="dt">Replicate =</span> <span class="kw">factor</span>(Replicate, <span class="dt">levels =</span> <span class="kw">unique</span>(Replicate)), 
-    <span class="dt">Source =</span> <span class="kw">factor</span>(Source, <span class="dt">levels =</span> <span class="kw">c</span>(<span class="st">&quot;Observed&quot;</span>, <span class="st">&quot;Modeled&quot;</span>)))
+if (!<span class="kw">exists</span>(<span class="st">&quot;period&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;period&#39; not passed at command line.&quot;</span>)
+if (!<span class="kw">exists</span>(<span class="st">&quot;model&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;model&#39; not passed at command line.&quot;</span>)
+if (!(period %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, <span class="st">&quot;rcp45&quot;</span>, <span class="st">&quot;rcp60&quot;</span>, <span class="st">&quot;rcp85&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid period specified.&quot;</span>)
+if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU31&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
+    <span class="st">&quot;MRI-CGCM3&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid data set specified.&quot;</span>)
+if (!<span class="kw">exists</span>(<span class="st">&quot;samples&quot;</span>)) samples &lt;-<span class="st"> </span><span class="ot">TRUE</span>
+if (!<span class="kw">exists</span>(<span class="st">&quot;mapset&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;mapset&#39; not passed at command line.&quot;</span>)
+if (<span class="kw">substr</span>(mapset, <span class="dv">1</span>, <span class="dv">1</span>) ==<span class="st"> &quot;3&quot;</span>) gbm &lt;-<span class="st"> </span><span class="dv">3</span> else gbm &lt;-<span class="st"> </span><span class="dv">5</span>
 
-<span class="kw">library</span>(dplyr)
-<span class="kw">library</span>(ggplot2)
-<span class="kw">dir.create</span>(plotDir &lt;-<span class="st"> &quot;C:/github/Flammability/plots/fseMLE&quot;</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
-cbpal &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gray40&quot;</span>, <span class="st">&quot;#E69F00&quot;</span>, <span class="st">&quot;#56B4E9&quot;</span>, <span class="st">&quot;#009E73&quot;</span>, <span class="st">&quot;#F0E442&quot;</span>, <span class="st">&quot;#0072B2&quot;</span>, 
-    <span class="st">&quot;#D55E00&quot;</span>, <span class="st">&quot;#CC79A7&quot;</span>)
-border &lt;-<span class="st"> </span><span class="ot">TRUE</span>  <span class="co"># Set TRUE for knitted documents</span>
+<span class="co"># 10th and 90th percentiles of the flammability distributions across space</span>
+<span class="co"># and through time, by vegetation class</span>
+q.cavm &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.0031</span>, <span class="fl">0.0164</span>)
+q.shrub &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.0054</span>, <span class="fl">0.0126</span>)
+q.gram &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.0083</span>, <span class="fl">0.0209</span>)
+q.wet &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="fl">0.0042</span>, <span class="fl">0.0087</span>)
 
-<span class="co"># Plot setup</span>
-g &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d, <span class="kw">aes</span>(<span class="dt">x =</span> Replicate, <span class="dt">fill =</span> Source)) +<span class="st"> </span><span class="kw">theme_bw</span>(<span class="dt">base_size =</span> <span class="dv">14</span>) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="st">&quot;bottom&quot;</span>, <span class="dt">axis.text.x =</span> <span class="kw">element_text</span>(<span class="dt">angle =</span> <span class="dv">45</span>, 
-        <span class="dt">hjust =</span> <span class="dv">1</span>)) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span><span class="kw">scale_colour_manual</span>(<span class="dt">values =</span> cbpal) +<span class="st"> </span>
-<span class="st">    </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="ot">NULL</span>, <span class="dt">y =</span> <span class="st">&quot;Fire count&quot;</span>)</code></pre>
-</div>
-</div>
-<div id="section-2" class="section level2">
-<h2></h2>
-</div>
-<div id="section-3" class="section level2">
-<h2></h2>
-<div id="exploratory-data-analysis" class="section level3">
-<h3>Exploratory data analysis</h3>
-<div id="fire-count-by-vegetation-class-noatak" class="section level4">
-<h4>Fire count by vegetation class: Noatak</h4>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Observed and modeled fire counts by vegetation class</span>
-(p01a &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Noatak&quot;</span>)) +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, 
-    <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled Noatak fire events 1950 - 2009&quot;</span>))</code></pre>
-<p><img src="fs_eda1_files/figure-html/fc_noa_veg-1.png" /></p>
-</div>
-<div id="fire-count-by-vegetation-class-statewide" class="section level4">
-<h4>Fire count by vegetation class: Statewide</h4>
-<pre class="sourceCode r"><code class="sourceCode r">(p01b &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_bar</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Domain ==<span class="st"> &quot;Statewide&quot;</span>)) +<span class="st"> </span><span class="kw">facet_wrap</span>(~Vegetation, 
-    <span class="dt">ncol =</span> <span class="dv">1</span>, <span class="dt">scales =</span> <span class="st">&quot;free_y&quot;</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled statewide fire events 1950 - 2009&quot;</span>))</code></pre>
-<p><img src="fs_eda1_files/figure-html/fc_sw_veg-1.png" /></p>
-</div>
-<div id="fire-count-by-decade-noatak-shrub" class="section level4">
-<h4>Fire count by decade: Noatak shrub</h4>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Observed and modeled fire counts by decade given vegetation class</span>
-(p01c &lt;-<span class="st"> </span>p01a +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled Noatak shrub fire events&quot;</span>))</code></pre>
-<p><img src="fs_eda1_files/figure-html/fc_noa_shrub_dec-1.png" /></p>
-</div>
-<div id="fire-count-by-decade-statewide-forest" class="section level4">
-<h4>Fire count by decade: Statewide forest</h4>
-<pre class="sourceCode r"><code class="sourceCode r">(p01d &lt;-<span class="st"> </span>p01b +<span class="st"> </span><span class="kw">facet_wrap</span>(~Decade, <span class="dt">ncol =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">title =</span> <span class="st">&quot;Number of observed and modeled statewide forest fire events&quot;</span>))</code></pre>
-<p><img src="fs_eda1_files/figure-html/fc_sw_forest_dec-1.png" /></p>
-</div>
+verDir &lt;-<span class="st"> </span>if (samples) <span class="st">&quot;samples_based&quot;</span> else <span class="st">&quot;means_based&quot;</span>
+<span class="kw">setwd</span>(<span class="kw">file.path</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability&quot;</span>, 
+    verDir, period, model, mapset))
+<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;../&quot;</span>, mapset, <span class="st">&quot;_cavmDistTrunc&quot;</span>), <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
+
+<span class="kw">library</span>(raster)
+<span class="kw">library</span>(parallel)
+
+files &lt;-<span class="st"> </span><span class="kw">list.files</span>(<span class="dt">pattern =</span> <span class="st">&quot;</span><span class="ch">\\</span><span class="st">.tif$&quot;</span>)
+yrs &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">gsub</span>(<span class="st">&quot;gbm.flamm_&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="kw">gsub</span>(<span class="st">&quot;</span><span class="ch">\\</span><span class="st">.tif&quot;</span>, <span class="st">&quot;&quot;</span>, files)))
+files &lt;-<span class="st"> </span>files[<span class="kw">order</span>(yrs)]
+yrs &lt;-<span class="st"> </span>yrs[<span class="kw">order</span>(yrs)]
+
+r.veg &lt;-<span class="st"> </span><span class="kw">readAll</span>(<span class="kw">raster</span>(<span class="st">&quot;../../../../../alf2005.cavm.merged.030212.tif&quot;</span>))
+noa.shp &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2&quot;</span>)
+ind.cavm &lt;-<span class="st"> </span><span class="kw">which</span>(r.veg[] &gt;=<span class="st"> </span><span class="dv">5</span>)
+ind.shrub &lt;-<span class="st"> </span><span class="kw">which</span>(r.veg[] ==<span class="st"> </span><span class="dv">5</span>)
+ind.gram &lt;-<span class="st"> </span><span class="kw">which</span>(r.veg[] ==<span class="st"> </span><span class="dv">6</span>)
+ind.wet &lt;-<span class="st"> </span><span class="kw">which</span>(r.veg[] ==<span class="st"> </span><span class="dv">7</span>)</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(i, outDir, files, gbm, ...) {
+    
+    func_trunc &lt;-<span class="st"> </span>function(x, q, ind) {
+        ind &lt;-<span class="st"> </span><span class="kw">intersect</span>(ind, <span class="kw">which</span>(!<span class="kw">is.na</span>(x[])))
+        x[ind][x[ind] &lt;<span class="st"> </span>q[<span class="dv">1</span>]] &lt;-<span class="st"> </span>q[<span class="dv">1</span>]
+        x[ind][x[ind] &gt;<span class="st"> </span>q[<span class="dv">2</span>]] &lt;-<span class="st"> </span>q[<span class="dv">2</span>]
+        x
+    }
+    
+    r &lt;-<span class="st"> </span><span class="kw">raster</span>(files[i])
+    if (gbm ==<span class="st"> </span><span class="dv">3</span>) 
+        r &lt;-<span class="st"> </span><span class="kw">func_trunc</span>(r, q.cavm, ind.cavm)
+    if (gbm ==<span class="st"> </span><span class="dv">5</span>) {
+        r &lt;-<span class="st"> </span><span class="kw">func_trunc</span>(r, q.shrub, ind.shrub)
+        r &lt;-<span class="st"> </span><span class="kw">func_trunc</span>(r, q.gram, ind.gram)
+        r &lt;-<span class="st"> </span><span class="kw">func_trunc</span>(r, q.wet, ind.wet)
+    }
+    <span class="kw">writeRaster</span>(r, <span class="kw">file.path</span>(outDir, files[i]), <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, <span class="dt">overwrite =</span> T)
+    <span class="kw">print</span>(i)
+}
+
+<span class="co"># @knit run</span>
+<span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(files), f, <span class="dt">outDir =</span> outDir, <span class="dt">files =</span> files, <span class="dt">gbm =</span> gbm, <span class="dt">mc.cores =</span> <span class="dv">32</span>)</code></pre>
 </div>
 </div>
 

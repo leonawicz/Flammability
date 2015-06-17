@@ -132,22 +132,26 @@ img {
           <li class="dropdown">
             <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
             <ul class="dropdown-menu">
+              <li><a href="clim_prep.html">Climate data prep</a></li>
               <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
-              <li><a href="meanTPbyVegClass_CRU31.html">meanTPbyVegClass_CRU31.R</a></li>
-              <li><a href="meanTPbyVegClass_CMIP5.html">meanTPbyVegClass_CMIP5.R</a></li>
+              <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
+              <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
             </ul>
 
           <li class="dropdown">
             <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
               <li><a href="gbm.html">gbm.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
+              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
+              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
@@ -252,11 +256,11 @@ if (!<span class="kw">exists</span>(<span class="st">&quot;cp_originals&quot;</s
 verDir &lt;-<span class="st"> </span>if (samples) <span class="st">&quot;samples_based&quot;</span> else <span class="st">&quot;means_based&quot;</span>
 <span class="kw">setwd</span>(<span class="kw">file.path</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability&quot;</span>, 
     verDir, period, model, mapset))
-<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;../&quot;</span>, mapset, <span class="st">&quot;_scaled&quot;</span>), <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
+<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;../&quot;</span>, mapset, <span class="st">&quot;_L&quot;</span>), <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
 if (cp2scratch) {
     <span class="kw">dir.create</span>(outDir2a &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Alf_Files_20121129/gbmFlamMaps&quot;</span>, 
         period, model, mapset), <span class="dt">recursive =</span> <span class="ot">TRUE</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
-    <span class="kw">dir.create</span>(outDir2b &lt;-<span class="st"> </span><span class="kw">paste0</span>(outDir2a, <span class="st">&quot;_scaled&quot;</span>), <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
+    <span class="kw">dir.create</span>(outDir2b &lt;-<span class="st"> </span><span class="kw">paste0</span>(outDir2a, <span class="st">&quot;_L&quot;</span>), <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
 } else outDir2b &lt;-<span class="st"> </span><span class="ot">NULL</span>
 if (!cp_originals) outDir2a &lt;-<span class="st"> </span><span class="ot">NULL</span>
 
@@ -307,7 +311,6 @@ if (lightning) {
         ind &lt;-<span class="st"> </span><span class="kw">which</span>(b.yrs ==<span class="st"> </span>a[i])
         if (<span class="kw">is.null</span>(f_of_xy)) {
             r2 &lt;-<span class="st"> </span><span class="kw">subset</span>(b, ind)
-            r2[r2 &lt;<span class="st"> </span><span class="fl">0.5</span>] &lt;-<span class="st"> </span><span class="fl">0.5</span>
             r &lt;-<span class="st"> </span>r2 *<span class="st"> </span>r
         } else <span class="kw">f_of_xy</span>(<span class="dt">x =</span> <span class="kw">subset</span>(b, ind), <span class="dt">y =</span> r)
     }
@@ -320,8 +323,7 @@ if (lightning) {
 
 <span class="co"># @knit run</span>
 <span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(files), f, <span class="dt">a =</span> a, <span class="dt">b =</span> kde.maps, <span class="dt">type =</span> <span class="st">&quot;year&quot;</span>, <span class="dt">outDir =</span> outDir, 
-    <span class="dt">files =</span> files, <span class="dt">flam.min =</span> <span class="fl">0.1</span>, <span class="dt">cp.origin =</span> outDir2a, <span class="dt">cp.new =</span> outDir2b, 
-    <span class="dt">mc.cores =</span> <span class="dv">32</span>)</code></pre>
+    <span class="dt">files =</span> files, <span class="dt">cp.origin =</span> outDir2a, <span class="dt">cp.new =</span> outDir2b, <span class="dt">mc.cores =</span> <span class="dv">32</span>)</code></pre>
 </div>
 </div>
 

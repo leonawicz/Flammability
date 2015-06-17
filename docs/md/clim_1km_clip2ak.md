@@ -23,23 +23,20 @@ if (!length(comargs)) q("no") else for (z in 1:length(comargs)) eval(parse(text 
 if (!exists("cru")) cru <- FALSE
 if (!is.logical(cru)) stop("Argument 'cru' must be logical.")
 
-msk <- raster("/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif")
+msk <- raster("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 e <- extent(msk)
 
+mainDir <- "/big_scratch/mfleonawicz/Climate_1km"
 if (cru) {
-    mainDir <- "/Data/Base_Data/ALFRESCO_formatted/ALFRESCO_Master_Dataset/ALFRESCO_Model_Input_Datasets/AK_CAN_Inputs/Climate"
     varid <- c("pr", "tas")
     rcp <- "historical"
-    model <- "cru_TS31"
-    subDir <- file.path(mainDir, model, rcp, varid)
+    model <- "CRU_TS32"
 } else {
-    mainDir <- "/big_scratch/mfleonawicz/CMIP5_Climate_1km"
     varid <- rep(c("pr", "tas"), 15)
     rcp <- rep(rep(paste0("rcp", c(45, 60, 85)), each = 2), 5)
     model <- rep(list.files(file.path(mainDir, "rcp60")), each = 6)
-    subDir <- file.path(mainDir, rcp, model, varid)
 }
-
+subDir <- file.path(mainDir, rcp, model, varid)
 outDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", rcp, 
     model, varid)
 for (i in 1:length(outDir)) dir.create(outDir[i], recursive = T, showWarnings = F)

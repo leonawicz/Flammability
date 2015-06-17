@@ -53,33 +53,6 @@ img.centered {
 <link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
 
 
-<style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
-  margin: 0; padding: 0; vertical-align: baseline; border: none; }
-table.sourceCode { width: 100%; line-height: 100%; background-color: #303030; color: #cccccc; }
-td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; }
-td.sourceCode { padding-left: 5px; }
-pre, code { color: #cccccc; background-color: #303030; }
-code > span.kw { color: #f0dfaf; }
-code > span.dt { color: #dfdfbf; }
-code > span.dv { color: #dcdccc; }
-code > span.bn { color: #dca3a3; }
-code > span.fl { color: #c0bed1; }
-code > span.ch { color: #dca3a3; }
-code > span.st { color: #cc9393; }
-code > span.co { color: #7f9f7f; }
-code > span.ot { color: #efef8f; }
-code > span.al { color: #ffcfaf; }
-code > span.fu { color: #efef8f; }
-code > span.er { color: #c3bf9f; }
-</style>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
-
 
 
 <script>
@@ -231,41 +204,19 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="cabvsfsplot.r" class="section level2">
-<h2>CABvsFSPlot.R</h2>
-<p><code>CABvsFSPlot.R</code> stores the function <code>CABvsFSPlot</code>, which plots curves of cumulative burn area over the burnable ALFRESCO domain by fire size event conditional on a fixed period of time. A curve is plotted for each simulation replicate. The plot includes an overlay curve representing the historically observed cumulative burn area by historically observed fire event size.</p>
-<p>This plot is called in <code>AlfrescoCalibration.R</code> and currently is hardcoded to plot curves based on 1950 - 2011.</p>
-</div>
-<div id="r-code" class="section level2">
-<h2>R code</h2>
-<pre class="sourceCode r"><code class="sourceCode r">CABvsFSPlot &lt;-<span class="st"> </span>function(years, d.obs.fs) {
-    akfire.trun1km &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">round</span>(d.obs.fs$FS, <span class="dv">0</span>))
-    <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="st">&quot;CABvsFireSize.png&quot;</span>), <span class="dt">res =</span> <span class="dv">120</span>, <span class="dt">width =</span> <span class="dv">1000</span>, <span class="dt">height =</span> <span class="dv">800</span>)
-    <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">2</span>) +<span class="st"> </span><span class="fl">0.1</span>)
-    sort.tmp &lt;-<span class="st"> </span><span class="kw">list</span>()
-    for (i in <span class="dv">1</span>:numrep) {
-        ind &lt;-<span class="st"> </span>alf.fse[, <span class="dv">2</span>] ==<span class="st"> </span>(i -<span class="st"> </span><span class="dv">1</span>) &amp;<span class="st"> </span>alf.fse[, <span class="dv">1</span>] &gt;=<span class="st"> </span>years[<span class="dv">1</span>] &amp;<span class="st"> </span>alf.fse[, 
-            <span class="dv">1</span>] &lt;=<span class="st"> </span>years[<span class="kw">length</span>(years)]
-        sort.tmp[[i]] &lt;-<span class="st"> </span><span class="kw">sort</span>(alf.fse[, <span class="dv">3</span>][ind])
-    }
-    m &lt;-<span class="st"> </span><span class="kw">max</span>(akfire.trun1km)
-    m1 &lt;-<span class="st"> </span><span class="kw">sum</span>(akfire.trun1km)
-    m2 &lt;-<span class="st"> </span><span class="kw">max</span>(<span class="kw">unlist</span>(<span class="kw">lapply</span>(sort.tmp, sum)))
-    xlm &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, m)
-    ylm &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">1.1</span> *<span class="st"> </span><span class="kw">max</span>(m1, m2))
-    <span class="kw">plot</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> xlm, <span class="dt">ylim =</span> ylm, <span class="dt">main =</span> <span class="st">&quot;Cumulative Burn vs. Fire Size&quot;</span>, 
-        <span class="dt">xlab =</span> <span class="kw">expression</span>(<span class="kw">paste</span>(<span class="kw">plain</span>(<span class="st">&quot;Fire Size   &quot;</span>), (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>), <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), 
-        <span class="dt">ylab =</span> <span class="kw">expression</span>(<span class="kw">paste</span>(<span class="kw">plain</span>(<span class="st">&quot;Cumulative Area Burn   &quot;</span>), (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>), 
-            <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), <span class="dt">cex.axis =</span> <span class="fl">1.2</span>, <span class="dt">cex.lab =</span> <span class="fl">1.2</span>)
-    for (i in <span class="dv">1</span>:<span class="kw">length</span>(sort.tmp)) <span class="kw">lines</span>(sort.tmp[[i]], <span class="kw">cumsum</span>(sort.tmp[[i]]), 
-        <span class="dt">lty =</span> <span class="dv">2</span>, <span class="dt">lwd =</span> <span class="dv">1</span>, <span class="dt">col =</span> <span class="st">&quot;dark gray&quot;</span>)
-    <span class="kw">lines</span>(<span class="kw">sort</span>(akfire.trun1km), <span class="kw">cumsum</span>(<span class="kw">sort</span>(akfire.trun1km)), <span class="dt">col =</span> <span class="st">&quot;#CD6600&quot;</span>, 
-        <span class="dt">lty =</span> <span class="dv">1</span>, <span class="dt">lwd =</span> <span class="dv">3</span>)
-    <span class="kw">legend</span>(<span class="st">&quot;topleft&quot;</span>, <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;Empirical (&quot;</span>, years[<span class="dv">1</span>], <span class="st">&quot;:&quot;</span>, years[<span class="kw">length</span>(years)], 
-        <span class="st">&quot;); Truncated at 1km&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="st">&quot;ALFRESCO&quot;</span>), <span class="dt">lty =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>), <span class="dt">lwd =</span> <span class="kw">c</span>(<span class="dv">3</span>, 
-        <span class="dv">1</span>), <span class="dt">cex =</span> <span class="fl">1.2</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">col =</span> <span class="kw">c</span>(<span class="st">&quot;#CD6600&quot;</span>, <span class="st">&quot;dark gray&quot;</span>))
-    <span class="kw">dev.off</span>()
-}</code></pre>
+<div id="climate-data-prep" class="section level2">
+<h2>Climate data prep</h2>
+<p>SNAP’s 2-km PRISM downscaled CRU 3.2 historical climate data is resampled to the ALFRESCO 1-km resolution and “statewide” extent. The “statewide” ALFRESCO vegetation cover map is used to extract climate data conditional on underlying vegetation class.</p>
+<p>Vegetation classes are forest, alpine tundra, shrub tundra, graminoid tundra, and wetland tundra. The forest classification is a union of black spruce, white spruce, and deciduous classes in the vegetation cover map. Additionally, a single tundra class pertaining to the “CAVM” region of the map is a union of shrub, graminoid, and wetland tundra. These three tundra classes occur only in the CAVM region of the map, whereas alpine tundra and forest occur exclusive outside the CAVM region.</p>
+<p>Temperature and precipitation data are extracted as means and samples (n=100 and n=1,000) for each vegetation class. For example, all pixels in the vegetation map which are classified as forest are used to compute a mean value for temperature and precipitation associated with that class. Means are calculated for each month of the year, for the period 1950 - 2013. Temperature and precipitation samples are also compiled for each month over the same period.</p>
+<p>Simple random samples of sizes 100 and 1,000 are taken for both climate variables. The sampling frame from which random draws are made is the set of map pixels representing the intersection of a specific vegetation class and existing temperature and precipitation data. A random seed is set only at the beginning of the sampling procedure, which proceeds by year. This ensures that pixels sampled are consistent across twelve consecutive months, but are permitted to vary each year. This allows seasonal variables to be computed from monthly variables while reducing the possibility of spatially biased samples.</p>
+<p>The following <strong>R</strong> scripts shown in subsequent sections are used to prepare climate data for the Flammability project.</p>
+<ul>
+<li><code>clim_resample_2km_1km.R</code></li>
+<li><code>clim_1km_clip2ak.R</code></li>
+<li><code>tpByVeg_CRU32.R</code></li>
+<li><code>tpByVeg_CMIP5.R</code></li>
+</ul>
 </div>
 
 <!-- some extra javascript for older browsers -->
