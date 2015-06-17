@@ -13,10 +13,10 @@ column(4,
 			),
 			fluidRow(
 				column(6, selectInput("json_files", "Select JSON:", c("", JSON_files), width="100%")),
-				column(6, selectInput("mapset", "Map set", c("3-GBM base 1950-2009", "5-GBM base 1950-2009")))#,
+				column(6, selectInput("mapset", "Map set", c("3m 50-09 trunc", "3m 50-09 trunc + L", "5m 50-09 trunc", "5m 50-09 trunc + L")))#,
 				#column(1, helpPopup('Choose .fif','Select a FIF from the list to use in your Alfresco run.'))
 			),
-			checkboxInput("useMultipliers", "Use time series scalar coefficients", TRUE),
+			#checkboxInput("useMultipliers", "Use time series scalar coefficients", TRUE),
 			fluidRow(
 				column(6, selectInput("climMod", "Climate model:", choices=c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"), selected="CRU31", width="100%")),
 				column(6, selectInput("climPeriod", "Time Period/RCP:", choices=c("historical", "RCP 4.5", "RCP 6.0", "RCP 8.5"), selected="historical", width="100%"))
