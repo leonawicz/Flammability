@@ -1,10 +1,10 @@
-####################################################################################
-#### This R script calculates mean temperature and climate by vegetation class. ####
-####################################################################################
+#################################################################################################
+#### This R script calculates CMIP5 temperature and precipitation means by vegetation class. ####
+#################################################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/16/2015        ####
+#### Last updated:   06/17/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -26,7 +26,6 @@ rm.eco <- T
 ecoreg <- raster(as.matrix(read.table("../data/ecoreg_mark_mask_zero.txt", skip=6, header=F)))
 drop.ind <- Which(ecoreg==4,cells=T)
 if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
-if(any(is.na(veg.vec))) veg.vec[is.na(veg.vec)] <- 0
 veg.vec <- as.numeric(veg.vec!=0)*eco.ind*veg.vec
 
 veg.vec[veg.vec==3|veg.vec==4] <- 2 # for forest
@@ -77,11 +76,6 @@ for(z in 1:length(path[[1]])){
 		assign(paste("table.t",veg.names[i],scenario[z],modnames[z],sep="."), rbind( get(paste("table.t",veg.names[i],scenario[z],modnames[z],sep=".")), c("Year"=as.numeric(names(f.out)[j]),f.out[[j]]$Tmeans[,i]) ))
 	  }
 	}	
-	#dir.create(outDir <- file.path("../data/tpByVeg", scenario[z], modnames[z]), showWarnings=F, recursive=T)
-	#for(k in 1:length(veg.names)){
-	#	write.csv(get(paste("table.p",veg.names[k],scenario[z],modnames[z],sep=".")), paste(outDir, "/pr_", scenario[z], "_", modnames[z], "_", veg.names[k], ".csv", sep=""), row.names=F)
-	#	write.csv(get(paste("table.t",veg.names[k],scenario[z],modnames[z],sep=".")), paste(outDir, "/tas_", scenario[z], "_", modnames[z], "_", veg.names[k], ".csv", sep=""), row.names=F)
-	#}
 }
 
 if(length(ls(pattern=".*.cavm.*."))){

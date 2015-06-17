@@ -1,10 +1,10 @@
-####################################################################################
-#### This R script calculates mean temperature and climate by vegetation class. ####
-####################################################################################
+##############################################################################################################
+#### This R script calculates CRU 3.2 temperature and precipitation means or samples by vegetation class. ####
+##############################################################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/16/2015        ####
+#### Last updated:   06/17/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -28,7 +28,6 @@ rm.eco <- T
 ecoreg <- raster(as.matrix(read.table("../data/ecoreg_mark_mask_zero.txt", skip=6, header=F)))
 drop.ind <- Which(ecoreg==4,cells=T)
 if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
-if(any(is.na(veg.vec))) veg.vec[is.na(veg.vec)] <- 0
 veg.vec <- as.numeric(veg.vec!=0)*eco.ind*veg.vec
 
 veg.vec[veg.vec==3|veg.vec==4] <- 2 # for forest
@@ -39,15 +38,14 @@ veg.names <- if(allcavm) "cavm" else c("tundra","forest","shrub","graminoid","we
 modnames <- "CRU_TS32"
 scenario <- "historical"
 path <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", scenario, modnames, c("pr", "tas"))
-#if(samples) type <- "samples" else type <- "means"
-#dir.create(outDir <- file.path("../data/tpByVeg", type, scenario, modnames), showWarnings=F, recursive=T)
 dir.create(wsDir <- "tpByVeg", showWarnings=F)
 
 yrs <- 1950:2013
 
-fid <- brick("../data/historicalFireObs/fireIDbrick_annual_observed_Statewide_lightning_1950_2013.tif")
-fid <- subset(fid, 1:(diff(range(yrs))+1))
-names(fid) <- yrs
+# @knitr ignore1
+#fid <- brick("../data/historicalFireObs/fireIDbrick_annual_observed_Statewide_lightning_1950_2013.tif")
+#fid <- subset(fid, 1:(diff(range(yrs))+1))
+#names(fid) <- yrs
 
 # @knitr func_means
 f <- function(k, path, veg.vec, veg.vals, veg.names){
@@ -124,6 +122,7 @@ f3 <- function(k, path, veg.vec, veg.vals, veg.names, n=100, fid=NULL, fire.only
 	temp.paths <- paths[13:24]
     precip.tmp <- getValues(stack(precip.paths, quick=T))
     temp.tmp <- getValues(stack(temp.paths, quick=T))
+    na.rows <- unique(c(which(is.na(precip.tmp), arr.ind=TRUE)[,1], which(is.na(temp.tmp), arr.ind=TRUE)[,1]))
 	mp <- mt <- c()
 	nv <- length(veg.vals)
 	if(!is.null(fid)){
@@ -140,9 +139,9 @@ f3 <- function(k, path, veg.vec, veg.vals, veg.names, n=100, fid=NULL, fire.only
 	if(!is.null(seed)) set.seed(seed)
 	for(j in 1:nv){
 		if(!is.null(fid) && fire.only){
-			ind2 <- !is.na(veg.vec) & veg.vec==veg.vals[j] & !is.na(fid)
+			ind2 <- veg.vec==veg.vals[j] & !(1:length(veg.vec) %in% na.rows) & !is.na(fid)
 		} else {
-			ind2 <- !is.na(veg.vec) & veg.vec==veg.vals[j]
+			ind2 <- veg.vec==veg.vals[j] & !(1:length(veg.vec) %in% na.rows)
 		}
 		pre <- precip.tmp[ind2,]
 		tas <- temp.tmp[ind2,]
@@ -208,6 +207,7 @@ for(j in 1:length(f.out)){
 if(samples){
 library(data.table)
 library(reshape2)
+set.seed(55)
 system.time( f.out <- mclapply(yrs, f3, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, n=n, seed=NULL, mc.cores=min(length(yrs), 32)) )
 d <- rbindlist(f.out)
 d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
@@ -223,17 +223,17 @@ if(allcavm) d.cavm <- d
 #if(allcavm) d.cavm <- d
 #d.fs <- rbindlist(lapply(f.out, "[[", 2))
 
-# @knitr save
+# @knitr save_old
 #for(i in 1:length(veg.names)){
 #  write.table(get(paste("table.p", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/pr_", scenario, "_", modnames, "_", veg.names[i], ".csv", sep=""), row.names=F)
 #  write.table(get(paste("table.t", veg.names[i], scenario, modnames, sep=".")), paste(outDir, "/tas_", scenario, "_", modnames, "_", sort(veg.names)[i], ".csv", sep=""), row.names=F)
 #}
 
+# @knitr save
 if(!samples){
     if(allcavm) save(list=ls(pattern="^table\\."), file=file.path(wsDir, "tpByVeg_means_CRU32_cavm.RData")) else save(list=ls(pattern="^table\\."), file=file.path(wsDir, "tpByVeg_means_CRU32_individual.RData"))
 }
 
-# @knitr save_samples
 if(samples){
     if(allcavm) save(d.cavm, file=paste0(wsDir, "/tpByVeg_samples", n, "_CRU32_cavm.RData")) else save(d, file=paste0(wsDir, "/tpByVeg_samples", n, "_CRU32_individual.RData"))
 }
