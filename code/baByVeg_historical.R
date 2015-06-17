@@ -1,3 +1,4 @@
+# @knitr script
 library(raster)
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data")
 b <- brick("historicalFireObs/firescarbrick_annual_observed_Statewide_lightning_1950_2013.tif")
