@@ -132,22 +132,26 @@ img {
           <li class="dropdown">
             <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
             <ul class="dropdown-menu">
+              <li><a href="clim_prep.html">Climate data prep</a></li>
               <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
-              <li><a href="meanTPbyVegClass_CRU31.html">meanTPbyVegClass_CRU31.R</a></li>
-              <li><a href="meanTPbyVegClass_CMIP5.html">meanTPbyVegClass_CMIP5.R</a></li>
+              <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
+              <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
             </ul>
 
           <li class="dropdown">
             <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
               <li><a href="gbm.html">gbm.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
+              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
+              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
@@ -243,10 +247,10 @@ img {
             ),
             <span class="kw">fluidRow</span>(
                 <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;json_files&quot;</span>, <span class="st">&quot;Select JSON:&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;&quot;</span>, JSON_files), <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
-                <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;mapset&quot;</span>, <span class="st">&quot;Map set&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;3-GBM base 1950-2009&quot;</span>, <span class="st">&quot;5-GBM base 1950-2009&quot;</span>)))<span class="co">#,</span>
+                <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;mapset&quot;</span>, <span class="st">&quot;Map set&quot;</span>, <span class="kw">c</span>(<span class="st">&quot;3m 50-09 trunc&quot;</span>, <span class="st">&quot;3m 50-09 trunc + L&quot;</span>, <span class="st">&quot;5m 50-09 trunc&quot;</span>, <span class="st">&quot;5m 50-09 trunc + L&quot;</span>)))<span class="co">#,</span>
                 <span class="co">#column(1, helpPopup(&#39;Choose .fif&#39;,&#39;Select a FIF from the list to use in your Alfresco run.&#39;))</span>
             ),
-            <span class="kw">checkboxInput</span>(<span class="st">&quot;useMultipliers&quot;</span>, <span class="st">&quot;Use time series scalar coefficients&quot;</span>, <span class="ot">TRUE</span>),
+            <span class="co">#checkboxInput(&quot;useMultipliers&quot;, &quot;Use time series scalar coefficients&quot;, TRUE),</span>
             <span class="kw">fluidRow</span>(
                 <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;climMod&quot;</span>, <span class="st">&quot;Climate model:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;CRU31&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, <span class="st">&quot;MRI-CGCM3&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;CRU31&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
                 <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;climPeriod&quot;</span>, <span class="st">&quot;Time Period/RCP:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, <span class="st">&quot;RCP 4.5&quot;</span>, <span class="st">&quot;RCP 6.0&quot;</span>, <span class="st">&quot;RCP 8.5&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;historical&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))

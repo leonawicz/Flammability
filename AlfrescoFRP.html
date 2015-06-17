@@ -132,22 +132,26 @@ img {
           <li class="dropdown">
             <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
             <ul class="dropdown-menu">
+              <li><a href="clim_prep.html">Climate data prep</a></li>
               <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
-              <li><a href="meanTPbyVegClass_CRU31.html">meanTPbyVegClass_CRU31.R</a></li>
-              <li><a href="meanTPbyVegClass_CMIP5.html">meanTPbyVegClass_CMIP5.R</a></li>
+              <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
+              <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
             </ul>
 
           <li class="dropdown">
             <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
               <li><a href="gbm.html">gbm.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
+              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
+              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
@@ -528,6 +532,8 @@ friFun &lt;-<span class="st"> </span>function(d) {
 fri.dat &lt;-<span class="st"> </span><span class="kw">friFun</span>(rab.dat)
 
 <span class="co"># Load/save objects in a workspace file to be transported to app</span>
+dom &lt;-<span class="st"> </span>if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) <span class="st">&quot;Noatak&quot;</span> else if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), 
+    <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;statew&quot;</span>) <span class="st">&quot;Statewide&quot;</span>
 <span class="kw">load</span>(<span class="kw">paste0</span>(out, <span class="st">&quot;/fsByVeg_df_&quot;</span>, dom, <span class="st">&quot;.RData&quot;</span>))  <span class="co"># assumed to have run fsByVeg.R</span>
 prefix &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="st">&quot;RAB_FRP&quot;</span>, <span class="kw">paste0</span>(run.name, <span class="st">&quot;_RAB_FRP&quot;</span>))
 ws &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;_Emp_&quot;</span>, yrs.all[<span class="dv">1</span>], 

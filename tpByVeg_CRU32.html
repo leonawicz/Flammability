@@ -132,22 +132,26 @@ img {
           <li class="dropdown">
             <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
             <ul class="dropdown-menu">
+              <li><a href="clim_prep.html">Climate data prep</a></li>
               <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
-              <li><a href="meanTPbyVegClass_CRU31.html">meanTPbyVegClass_CRU31.R</a></li>
-              <li><a href="meanTPbyVegClass_CMIP5.html">meanTPbyVegClass_CMIP5.R</a></li>
+              <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
+              <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
             </ul>
 
           <li class="dropdown">
             <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
               <li><a href="gbm.html">gbm.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
+              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
+              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
@@ -227,9 +231,9 @@ img {
 <div id="section-1" class="section level2">
 <h2></h2>
 </div>
-<div id="meantpbyvegclass_cru31.r" class="section level2">
-<h2>meanTPbyVegClass_CRU31.R</h2>
-<p>The <code>meanTPbyVegClass_CRU31.R</code> script calculates mean temperature and precipitation over all grid cells in a CRU 3.1 map layer conditional of vegetation class using a given vegetation classification map. These vegetation-specific climate means are used as variables in gradient boosting machine (GBM), or generalized boosted regression modeling. The resulting GBM models are used to develop climate-driven, vegetation-mediated flammability maps with a nonlinear fire response to climate for use in ALFRESCO in place of basic temperature and precipitation maps.</p>
+<div id="tpbyveg_cru32.r" class="section level2">
+<h2>tpByVeg_CRU32.R</h2>
+<p>The <code>tpByVeg_CRU32.R</code> script calculates mean temperature and precipitation over all grid cells in CRU 3.2 map layers conditional on vegetation class using a given vegetation classification map. Alternatively, instead of computing an overall mean, the script can be passed arguments to specify sampling of climate values and a sample size. These vegetation-specific climate means and/or samples are used as variables in gradient boosting machine (GBM), or generalized boosted regression modeling. The resulting GBM models are used to develop climate-driven, vegetation-mediated flammability maps with a distinct nonlinear fire responses to climate for each vegetation class. These flammability maps are used in ALFRESCO in lieu of the original temperature and precipitation maps.</p>
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
@@ -238,7 +242,10 @@ img {
 <pre class="sourceCode r"><code class="sourceCode r">comargs &lt;-<span class="st"> </span>(<span class="kw">commandArgs</span>(<span class="ot">TRUE</span>))
 if (<span class="kw">length</span>(comargs)) for (z in <span class="dv">1</span>:<span class="kw">length</span>(comargs)) <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text =</span> comargs[[z]]))
 
+if (!<span class="kw">exists</span>(<span class="st">&quot;samples&quot;</span>)) samples &lt;-<span class="st"> </span><span class="ot">TRUE</span>
 if (!<span class="kw">exists</span>(<span class="st">&quot;allcavm&quot;</span>)) allcavm &lt;-<span class="st"> </span><span class="ot">FALSE</span>
+if (!<span class="kw">exists</span>(<span class="st">&quot;n&quot;</span>) &amp;<span class="st"> </span>samples) <span class="kw">stop</span>(<span class="st">&quot;Must provide n if samples=TRUE.&quot;</span>)
+if (!<span class="kw">is.logical</span>(samples)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;samples&#39; must be logical.&quot;</span>)
 if (!<span class="kw">is.logical</span>(allcavm)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;allcavm&#39; must be logical.&quot;</span>)
 
 <span class="kw">library</span>(raster)
@@ -254,7 +261,6 @@ ecoreg &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class=
     <span class="dt">header =</span> F)))
 drop.ind &lt;-<span class="st"> </span><span class="kw">Which</span>(ecoreg ==<span class="st"> </span><span class="dv">4</span>, <span class="dt">cells =</span> T)
 if (rm.eco) eco.ind &lt;-<span class="st"> </span><span class="kw">values</span>(<span class="kw">Which</span>(ecoreg !=<span class="st"> </span><span class="dv">0</span> &amp;<span class="st"> </span>ecoreg !=<span class="st"> </span><span class="dv">4</span>)) else eco.ind &lt;-<span class="st"> </span><span class="dv">1</span>
-if (<span class="kw">any</span>(<span class="kw">is.na</span>(veg.vec))) veg.vec[<span class="kw">is.na</span>(veg.vec)] &lt;-<span class="st"> </span><span class="dv">0</span>
 veg.vec &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(veg.vec !=<span class="st"> </span><span class="dv">0</span>) *<span class="st"> </span>eco.ind *<span class="st"> </span>veg.vec
 
 veg.vec[veg.vec ==<span class="st"> </span><span class="dv">3</span> |<span class="st"> </span>veg.vec ==<span class="st"> </span><span class="dv">4</span>] &lt;-<span class="st"> </span><span class="dv">2</span>  <span class="co"># for forest</span>
@@ -263,22 +269,16 @@ if (allcavm) veg.vec[veg.vec ==<span class="st"> </span><span class="dv">6</span
 veg.vals &lt;-<span class="st"> </span>if (allcavm) <span class="dv">5</span> else <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">6</span>, <span class="dv">7</span>)
 veg.names &lt;-<span class="st"> </span>if (allcavm) <span class="st">&quot;cavm&quot;</span> else <span class="kw">c</span>(<span class="st">&quot;tundra&quot;</span>, <span class="st">&quot;forest&quot;</span>, <span class="st">&quot;shrub&quot;</span>, <span class="st">&quot;graminoid&quot;</span>, 
     <span class="st">&quot;wetland&quot;</span>)
-modnames &lt;-<span class="st"> &quot;cru_TS31&quot;</span>
+modnames &lt;-<span class="st"> &quot;CRU_TS32&quot;</span>
 scenario &lt;-<span class="st"> &quot;historical&quot;</span>
 path &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, scenario, 
     modnames, <span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>))
-<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;../data/meanTPbyVegClass&quot;</span>, scenario, modnames), 
-    <span class="dt">showWarnings =</span> F, <span class="dt">recursive =</span> T)
-<span class="kw">dir.create</span>(wsDir &lt;-<span class="st"> &quot;meanTPbyVegClass&quot;</span>, <span class="dt">showWarnings =</span> F)
+<span class="kw">dir.create</span>(wsDir &lt;-<span class="st"> &quot;tpByVeg&quot;</span>, <span class="dt">showWarnings =</span> F)
 
-yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2009</span>
-
-fid &lt;-<span class="st"> </span><span class="kw">brick</span>(<span class="st">&quot;../data/historicalFireObs/fireIDbrick_annual_observed_Statewide_lightning_1950_2013.tif&quot;</span>)
-fid &lt;-<span class="st"> </span><span class="kw">subset</span>(fid, <span class="dv">1</span>:(<span class="kw">diff</span>(<span class="kw">range</span>(yrs)) +<span class="st"> </span><span class="dv">1</span>))
-<span class="kw">names</span>(fid) &lt;-<span class="st"> </span>yrs</code></pre>
+yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span></code></pre>
 </div>
-<div id="function" class="section level3">
-<h3>Function</h3>
+<div id="functions" class="section level3">
+<h3>Functions</h3>
 <pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(k, path, veg.vec, veg.vals, veg.names) {
     paths &lt;-<span class="st"> </span><span class="kw">list.files</span>(path, <span class="dt">full =</span> T)
     ind &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">as.numeric</span>(<span class="kw">substr</span>(paths, <span class="kw">nchar</span>(paths) -<span class="st"> </span><span class="dv">7</span>, <span class="kw">nchar</span>(paths) -<span class="st"> </span><span class="dv">4</span>)) ==<span class="st"> </span>
@@ -301,24 +301,121 @@ fid &lt;-<span class="st"> </span><span class="kw">subset</span>(fid, <span clas
     <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">Pmeans =</span> means.P.mos.veg, <span class="dt">Tmeans =</span> means.T.mos.veg, <span class="dt">k =</span> k -<span class="st"> </span>
 <span class="st">        </span>yrs[<span class="dv">1</span>] +<span class="st"> </span><span class="dv">1</span>))
 }</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">f3 &lt;-<span class="st"> </span>function(k, path, veg.vec, veg.vals, veg.names, <span class="dt">n =</span> <span class="dv">100</span>, <span class="dt">fid =</span> <span class="ot">NULL</span>, <span class="dt">fire.only =</span> <span class="ot">FALSE</span>, 
+    <span class="dt">seed =</span> <span class="dv">2504</span>) {
+    paths &lt;-<span class="st"> </span><span class="kw">list.files</span>(path, <span class="dt">full =</span> T)
+    ind &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">as.numeric</span>(<span class="kw">substr</span>(paths, <span class="kw">nchar</span>(paths) -<span class="st"> </span><span class="dv">7</span>, <span class="kw">nchar</span>(paths) -<span class="st"> </span><span class="dv">4</span>)) ==<span class="st"> </span>
+<span class="st">        </span>k)
+    paths &lt;-<span class="st"> </span>paths[ind]
+    precip.paths &lt;-<span class="st"> </span>paths[<span class="dv">1</span>:<span class="dv">12</span>]
+    temp.paths &lt;-<span class="st"> </span>paths[<span class="dv">13</span>:<span class="dv">24</span>]
+    precip.tmp &lt;-<span class="st"> </span><span class="kw">getValues</span>(<span class="kw">stack</span>(precip.paths, <span class="dt">quick =</span> T))
+    temp.tmp &lt;-<span class="st"> </span><span class="kw">getValues</span>(<span class="kw">stack</span>(temp.paths, <span class="dt">quick =</span> T))
+    na.rows &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">c</span>(<span class="kw">which</span>(<span class="kw">is.na</span>(precip.tmp), <span class="dt">arr.ind =</span> <span class="ot">TRUE</span>)[, <span class="dv">1</span>], <span class="kw">which</span>(<span class="kw">is.na</span>(temp.tmp), 
+        <span class="dt">arr.ind =</span> <span class="ot">TRUE</span>)[, <span class="dv">1</span>]))
+    mp &lt;-<span class="st"> </span>mt &lt;-<span class="st"> </span><span class="kw">c</span>()
+    nv &lt;-<span class="st"> </span><span class="kw">length</span>(veg.vals)
+    if (!<span class="kw">is.null</span>(fid)) {
+        fid &lt;-<span class="st"> </span><span class="kw">getValues</span>(<span class="kw">raster</span>(fid, <span class="kw">which</span>(<span class="kw">as.numeric</span>(<span class="kw">substr</span>(<span class="kw">names</span>(fid), <span class="dv">2</span>, 
+            <span class="dv">5</span>)) ==<span class="st"> </span>k)))
+        fs_df &lt;-<span class="st"> </span>function(i, x, vegID) {
+            if (<span class="kw">length</span>(x[[i]])) 
+                FID &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">names</span>(x[[i]])) else FID &lt;-<span class="st"> </span><span class="ot">NA</span>
+            if (<span class="kw">length</span>(x[[i]])) 
+                FS &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(x[[i]]) else FS &lt;-<span class="st"> </span><span class="ot">NA</span>
+            <span class="kw">data.frame</span>(<span class="dt">VegID =</span> vegID[i], <span class="dt">FID =</span> FID, <span class="dt">FS =</span> FS)
+        }
+        tb &lt;-<span class="st"> </span><span class="kw">tapply</span>(fid, veg.vec, table)
+        d.fs &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(<span class="kw">lapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(tb), fs_df, <span class="dt">x =</span> tb, <span class="dt">vegID =</span> <span class="kw">as.numeric</span>(<span class="kw">names</span>(tb))))
+        fs &lt;-<span class="st"> </span><span class="kw">c</span>()
+    }
+    if (!<span class="kw">is.null</span>(seed)) 
+        <span class="kw">set.seed</span>(seed)
+    for (j in <span class="dv">1</span>:nv) {
+        if (!<span class="kw">is.null</span>(fid) &amp;&amp;<span class="st"> </span>fire.only) {
+            ind2 &lt;-<span class="st"> </span>veg.vec ==<span class="st"> </span>veg.vals[j] &amp;<span class="st"> </span>!(<span class="dv">1</span>:<span class="kw">length</span>(veg.vec) %in%<span class="st"> </span>na.rows) &amp;<span class="st"> </span>
+<span class="st">                </span>!<span class="kw">is.na</span>(fid)
+        } else {
+            ind2 &lt;-<span class="st"> </span>veg.vec ==<span class="st"> </span>veg.vals[j] &amp;<span class="st"> </span>!(<span class="dv">1</span>:<span class="kw">length</span>(veg.vec) %in%<span class="st"> </span>na.rows)
+        }
+        pre &lt;-<span class="st"> </span>precip.tmp[ind2, ]
+        tas &lt;-<span class="st"> </span>temp.tmp[ind2, ]
+        samp &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(pre), n)
+        mp &lt;-<span class="st"> </span><span class="kw">cbind</span>(mp, <span class="kw">as.numeric</span>(pre[samp, ]))
+        mt &lt;-<span class="st"> </span><span class="kw">cbind</span>(mt, <span class="kw">as.numeric</span>(tas[samp, ]))
+        if (!<span class="kw">is.null</span>(fid)) {
+            fid.tmp &lt;-<span class="st"> </span>fid[ind2][samp]
+            fs &lt;-<span class="st"> </span><span class="kw">cbind</span>(fs, <span class="kw">sapply</span>(fid.tmp, function(x, d) if (<span class="kw">is.na</span>(x)) 
+                <span class="kw">return</span>(<span class="dv">0</span>) else <span class="kw">return</span>(d$FS[<span class="kw">which</span>(d$FID ==<span class="st"> </span>x &amp;<span class="st"> </span>d$VegID ==<span class="st"> </span>veg.vals[j])]), <span class="dt">d =</span> d.fs))
+        }
+    }
+    mp &lt;-<span class="st"> </span><span class="kw">data.frame</span>(mp)
+    mt &lt;-<span class="st"> </span><span class="kw">data.frame</span>(mt)
+    <span class="kw">names</span>(mp) &lt;-<span class="st"> </span><span class="kw">names</span>(mt) &lt;-<span class="st"> </span>veg.names
+    mp$Month &lt;-<span class="st"> </span>mt$Month &lt;-<span class="st"> </span><span class="kw">rep</span>(month.abb, <span class="dt">each =</span> n)
+    mp$Var &lt;-<span class="st"> &quot;Precipitation&quot;</span>
+    mt$Var &lt;-<span class="st"> &quot;Temperature&quot;</span>
+    d &lt;-<span class="st"> </span><span class="kw">rbind</span>(mp, mt)
+    d &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="dt">Year =</span> k, d)
+    d &lt;-<span class="st"> </span>d[, <span class="kw">c</span>(<span class="dv">1</span>, nv +<span class="st"> </span>(<span class="dv">2</span>:<span class="dv">3</span>), <span class="dv">2</span>:(nv +<span class="st"> </span><span class="dv">1</span>))]
+    if (!<span class="kw">is.null</span>(fid)) {
+        fs &lt;-<span class="st"> </span><span class="kw">data.frame</span>(fs)
+        <span class="kw">names</span>(fs) &lt;-<span class="st"> </span>veg.names
+        fs &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="dt">Year =</span> k, fs)
+        <span class="kw">return</span>(<span class="kw">list</span>(<span class="dt">d =</span> d, <span class="dt">d.fs =</span> fs))
+    } else <span class="kw">return</span>(d)
+}</code></pre>
 </div>
 <div id="run" class="section level3">
 <h3>Run</h3>
+<pre class="sourceCode r"><code class="sourceCode r">if (!samples) {
+    f.out &lt;-<span class="st"> </span><span class="kw">mclapply</span>(yrs, f, <span class="dt">path =</span> path, <span class="dt">veg.vec =</span> veg.vec, <span class="dt">veg.vals =</span> veg.vals, 
+        <span class="dt">veg.names =</span> veg.names, <span class="dt">mc.cores =</span> <span class="kw">min</span>(<span class="kw">length</span>(yrs), <span class="dv">32</span>))
+    <span class="kw">names</span>(f.out) &lt;-<span class="st"> </span>yrs
+    for (i in <span class="dv">1</span>:<span class="kw">length</span>(veg.vals)) {
+        <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), 
+            <span class="kw">c</span>())
+        <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), 
+            <span class="kw">c</span>())
+    }
+    for (j in <span class="dv">1</span>:<span class="kw">length</span>(f.out)) {
+        for (i in <span class="dv">1</span>:<span class="kw">length</span>(veg.vals)) {
+            <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), 
+                <span class="kw">rbind</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, 
+                  <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), <span class="kw">c</span>(<span class="dt">Year =</span> <span class="kw">as.numeric</span>(<span class="kw">names</span>(f.out)[j]), f.out[[j]]$Pmeans[, 
+                  i])))
+            <span class="kw">assign</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>), 
+                <span class="kw">rbind</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, 
+                  <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), <span class="kw">c</span>(<span class="dt">Year =</span> <span class="kw">as.numeric</span>(<span class="kw">names</span>(f.out)[j]), f.out[[j]]$Tmeans[, 
+                  i])))
+        }
+    }
+}</code></pre>
+<pre class="sourceCode r"><code class="sourceCode r">if (samples) {
+    <span class="kw">library</span>(data.table)
+    <span class="kw">library</span>(reshape2)
+    <span class="kw">set.seed</span>(<span class="dv">55</span>)
+    <span class="kw">system.time</span>(f.out &lt;-<span class="st"> </span><span class="kw">mclapply</span>(yrs, f3, <span class="dt">path =</span> path, <span class="dt">veg.vec =</span> veg.vec, <span class="dt">veg.vals =</span> veg.vals, 
+        <span class="dt">veg.names =</span> veg.names, <span class="dt">n =</span> n, <span class="dt">seed =</span> <span class="ot">NULL</span>, <span class="dt">mc.cores =</span> <span class="kw">min</span>(<span class="kw">length</span>(yrs), 
+            <span class="dv">32</span>)))
+    d &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(f.out)
+    d &lt;-<span class="st"> </span><span class="kw">melt</span>(d, <span class="dt">id.var =</span> <span class="kw">c</span>(<span class="st">&quot;Year&quot;</span>, <span class="st">&quot;Month&quot;</span>, <span class="st">&quot;Var&quot;</span>), <span class="dt">variable.name =</span> <span class="st">&quot;Vegetation&quot;</span>, 
+        <span class="dt">value.name =</span> <span class="st">&quot;Val&quot;</span>)
+    if (allcavm) 
+        d.cavm &lt;-<span class="st"> </span>d
+}</code></pre>
 </div>
 <div id="save-outputs" class="section level3">
 <h3>Save outputs</h3>
-<pre class="sourceCode r"><code class="sourceCode r">for (i in <span class="dv">1</span>:<span class="kw">length</span>(veg.names)) {
-    <span class="kw">write.table</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.p&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), 
-        <span class="kw">paste</span>(outDir, <span class="st">&quot;/pr_&quot;</span>, scenario, <span class="st">&quot;_&quot;</span>, modnames, <span class="st">&quot;_&quot;</span>, veg.names[i], <span class="st">&quot;.csv&quot;</span>, 
-            <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">row.names =</span> F)
-    <span class="kw">write.table</span>(<span class="kw">get</span>(<span class="kw">paste</span>(<span class="st">&quot;table.t&quot;</span>, veg.names[i], scenario, modnames, <span class="dt">sep =</span> <span class="st">&quot;.&quot;</span>)), 
-        <span class="kw">paste</span>(outDir, <span class="st">&quot;/tas_&quot;</span>, scenario, <span class="st">&quot;_&quot;</span>, modnames, <span class="st">&quot;_&quot;</span>, <span class="kw">sort</span>(veg.names)[i], 
-            <span class="st">&quot;.csv&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">row.names =</span> F)
+<pre class="sourceCode r"><code class="sourceCode r">if (!samples) {
+    if (allcavm) 
+        <span class="kw">save</span>(<span class="dt">list =</span> <span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^table</span><span class="ch">\\</span><span class="st">.&quot;</span>), <span class="dt">file =</span> <span class="kw">file.path</span>(wsDir, <span class="st">&quot;tpByVeg_means_CRU32_cavm.RData&quot;</span>)) else <span class="kw">save</span>(<span class="dt">list =</span> <span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^table</span><span class="ch">\\</span><span class="st">.&quot;</span>), <span class="dt">file =</span> <span class="kw">file.path</span>(wsDir, <span class="st">&quot;tpByVeg_means_CRU32_individual.RData&quot;</span>))
 }
 
-if (allcavm) <span class="kw">save</span>(<span class="dt">list =</span> <span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^table</span><span class="ch">\\</span><span class="st">.&quot;</span>), <span class="dt">file =</span> <span class="kw">file.path</span>(wsDir, 
-    <span class="st">&quot;meanTPbyVegClass_CRU31_cavm.RData&quot;</span>)) else <span class="kw">save</span>(<span class="dt">list =</span> <span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^table</span><span class="ch">\\</span><span class="st">.&quot;</span>), 
-    <span class="dt">file =</span> <span class="kw">file.path</span>(wsDir, <span class="st">&quot;meanTPbyVegClass_CRU31_individual.RData&quot;</span>))</code></pre>
+if (samples) {
+    if (allcavm) 
+        <span class="kw">save</span>(d.cavm, <span class="dt">file =</span> <span class="kw">paste0</span>(wsDir, <span class="st">&quot;/tpByVeg_samples&quot;</span>, n, <span class="st">&quot;_CRU32_cavm.RData&quot;</span>)) else <span class="kw">save</span>(d, <span class="dt">file =</span> <span class="kw">paste0</span>(wsDir, <span class="st">&quot;/tpByVeg_samples&quot;</span>, n, <span class="st">&quot;_CRU32_individual.RData&quot;</span>))
+}</code></pre>
 </div>
 </div>
 
