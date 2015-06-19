@@ -4,22 +4,27 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/17/2015        ####
+#### Last updated:   06/18/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
 if(length(comargs)) for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
 
-if(!exists("allcavm")) allcavm <- FALSE
-if(!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
+if(!exists("samples")) samples <- TRUE
+if(!exists("vc")) vc <- "all"
+if(!exists("n") & samples) stop("Must provide n if samples=TRUE.")
+if(!is.logical(samples)) stop("Argument 'samples' must be logical.")
+if(!(vc %in% c("all", "cavm", "none"))) stop("Argument 'vc' must be one of 'all', 'cavm', or 'none'.")
 
 library(raster)
+library(data.table)
+library(reshape2)
 library(parallel)
 
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 dataDir <- "/big_scratch/mfleonawicz/Climate_1km_AKstatewide"
 
-r.veg <- raster("/workspace/Shared/Users/mfleonawicz/tmp/meanTPbyVegClass/alf2005.cavm.merged.030212.tif")
+r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")
 veg.vec <- getValues(r.veg)
 sort(unique(veg.vec))
 rm.eco <- T
@@ -28,58 +33,90 @@ drop.ind <- Which(ecoreg==4,cells=T)
 if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
 veg.vec <- as.numeric(veg.vec!=0)*eco.ind*veg.vec
 
-veg.vec[veg.vec==3|veg.vec==4] <- 2 # for forest
-if(allcavm) veg.vec[veg.vec==6|veg.vec==7] <- 5 # "cavm" all three shrub, graminoid, wetland combined
+if(vc=="none"){
+    veg.vec[veg.vec > 1] <- 1 # not conditional on veg, e.g., for lightning analyses
+} else { # veg-specific, e.g., for flammability analyses
+    veg.vec[veg.vec==3|veg.vec==4] <- 2 # for forest
+    if(vc=="cavm") veg.vec[veg.vec==6|veg.vec==7] <- 5 # "cavm" all three shrub, graminoid, wetland combined
+}
 
-veg.vals <- if(allcavm) 5 else c(1,2,5,6,7)
-veg.names <- if(allcavm) "cavm" else c("tundra","forest","shrub","graminoid","wetland")
+veg.vals <- if(vc=="cavm") 5 else if(vc=="all") c(1,2,5,6,7) else if(vc=="none") 1
+veg.names <- if(vc=="cavm") "cavm" else if(vc=="all") c("tundra","forest","shrub","graminoid","wetland") else if(vc=="none") "region"
 scenario <- c("rcp45", "rcp60", "rcp85")
 modnames <- rep(list.files(file.path(dataDir, scenario[1])), length(scenario))
 scenario <- rep(scenario, each=length(modnames)/length(scenario))
 path <- list(file.path(dataDir, scenario, modnames, "pr"), file.path(dataDir, scenario, modnames, "tas"))
 dir.create(wsDir <- "tpByVeg", showWarnings=F)
 
-### pick the years and months for the analysis
 yrs <- 2010:2099
+n.cores <- min(length(yrs), 32)
 
-# @knitr func_means
-f <- function(k, path, veg.vec, veg.vals, veg.names){
+# @knitr func
+f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=NULL){
+    if(!samples) n <- 1
 	paths <- list.files(path,full=T)
 	ind <- which(as.numeric(substr(paths,nchar(paths)-7,nchar(paths)-4))==k)
 	paths <- paths[ind]
 	precip.paths <- paths[1:12]
 	temp.paths <- paths[13:24]
-    precip.tmp <- getValues(stack(precip.paths))
-    temp.tmp <- getValues(stack(temp.paths))
-    means.P.mos.veg <- means.T.mos.veg <- c()
-	for(j in 1:length(veg.vals)){
-		means.P.mos.veg <- cbind(means.P.mos.veg, round(colMeans(precip.tmp[veg.vec==veg.vals[j],],na.rm=T)))
-		means.T.mos.veg <- cbind(means.T.mos.veg, round(colMeans(temp.tmp[veg.vec==veg.vals[j],],na.rm=T), 1))
-	}	
-    rownames(means.P.mos.veg) <- rownames(means.T.mos.veg) <- month.abb
-    colnames(means.P.mos.veg) <- colnames(means.T.mos.veg) <- veg.names
-	print(k)
-    return(list(Pmeans=means.P.mos.veg, Tmeans=means.T.mos.veg, k=k-yrs[1]+1))
+    precip.tmp <- getValues(stack(precip.paths, quick=T))
+    temp.tmp <- getValues(stack(temp.paths, quick=T))
+    if(samples) na.rows <- unique(c(which(is.na(precip.tmp), arr.ind=TRUE)[,1], which(is.na(temp.tmp), arr.ind=TRUE)[,1]))
+	mp <- mt <- c()
+	nv <- length(veg.vals)
+	if(!is.null(seed)) set.seed(seed)
+    if(!samples){
+        for(j in 1:nv){
+            mp <- cbind(mp, round(colMeans(precip.tmp[veg.vec==veg.vals[j],],na.rm=T)))
+            mt <- cbind(mt, round(colMeans(temp.tmp[veg.vec==veg.vals[j],],na.rm=T), 1))
+        }
+    } else if(samples) {
+        for(j in 1:nv){
+            ind2 <- veg.vec==veg.vals[j] & !(1:length(veg.vec) %in% na.rows)
+            pre <- precip.tmp[ind2,]
+            tas <- temp.tmp[ind2,]
+            samp <- sample(1:nrow(pre), n)
+            mp <- cbind(mp, as.numeric(pre[samp,]))
+            mt <- cbind(mt, as.numeric(tas[samp,]))
+        }
+    }
+	mp <- data.table(mp)
+	mt <- data.table(mt)
+	setnames(mp, veg.names)
+    setnames(mt, veg.names)
+	mp$Month <- mt$Month <- rep(month.abb, each=n)
+	mp$Var <- "Precipitation"
+	mt$Var <- "Temperature"
+	d <- rbind(mp, mt)
+	d <- cbind(Year=k, d)
+	d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
+    if(samples) d[, Obs := rep(1:n, each=12*2*nv)] else d[, Obs := 0]
+    print(k)
+	d
 }
 
-# @knitr run_save
+# @knitr run
+set.seed(55)
+d.list <- vector("list", length(path[[1]]))
 for(z in 1:length(path[[1]])){
-	f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=min(length(yrs), 32))
-	names(f.out) <- yrs
-	for(i in 1:length(veg.vals)){
-	  assign(paste("table.p",veg.names[i],scenario[z],modnames[z],sep="."), c())
-	  assign(paste("table.t",veg.names[i],scenario[z],modnames[z],sep="."), c())
-	}
-	for(j in 1:length(f.out)){
-	  for(i in 1:length(veg.vals)){
-		assign(paste("table.p",veg.names[i],scenario[z],modnames[z],sep="."), rbind( get(paste("table.p",veg.names[i],scenario[z],modnames[z],sep=".")), c("Year"=as.numeric(names(f.out)[j]),f.out[[j]]$Pmeans[,i]) ))
-		assign(paste("table.t",veg.names[i],scenario[z],modnames[z],sep="."), rbind( get(paste("table.t",veg.names[i],scenario[z],modnames[z],sep=".")), c("Year"=as.numeric(names(f.out)[j]),f.out[[j]]$Tmeans[,i]) ))
-	  }
-	}	
+    if(!samples) f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=n.cores)
+    if(samples)  f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, mc.cores=n.cores)
+    d <- rbindlist(f.out)
+    d[, Scenario := scenario[z]]
+    d[, Model := modnames[z]]
+    setcolorder(d, c("Scenario", "Model", names(d)[1:(ncol(d)-2)]))
+    d.list[[z]] <- d
 }
+d <- rbindlist(d.list)
+rm(f.out, d.list)
+if(vc=="cavm") d.cavm <- d else if(vc=="none") d.region <- d
 
-if(length(ls(pattern=".*.cavm.*."))){
-    save(list=ls(pattern="^table\\."), file=file.path(wsDir, "tpByVeg_means_CMIP5_cavm.RData"))
-} else {
-    save(list=ls(pattern="^table\\."), file=file.path(wsDir, "tpByVeg_means_CMIP5_individual.RData"))
+# @knitr save
+lab <- if(samples) paste0("samples", n) else "means"
+if(vc=="cavm"){
+    save(d.cavm, file=paste0(wsDir, "/tpByVeg_", lab, "_CMIP5_cavm.RData"))
+} else if(vc=="all") {
+    save(d, file=paste0(wsDir, "/tpByVeg_", lab, "_CMIP5_individual.RData"))
+} else if(vc=="none") {
+    save(d.region, file=paste0(wsDir, "/tpByVeg_", lab, "_CMIP5_regional.RData"))
 }
