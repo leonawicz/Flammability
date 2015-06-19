@@ -5,9 +5,12 @@
 #SBATCH --ntasks=32
 #SBATCH --nodes=1
 ####SBATCH --nodelist=atlas10
-#SBATCH --job-name=tpvcGCM
+#SBATCH --job-name=tpvGCM
 #SBATCH --account=snap
 #SBATCH -p main
 
-#### $1 optional argument, allcavm=TRUE, defaults to FALSE if unspecified;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/tpByVeg_CMIP5.R $1
+#### $1 optional argument, recommended, samples=TRUE, defaults to TRUE if unspecified;
+#### $2 optional/required sample size argument, e.g., n=100, n is ignored if samples=FALSE;
+####    Will throw exception if samples=TRUE and n not specified;
+#### $3 optional argument, vc (vegetation classes), defaults to \'all\'  if unspecified, options are \'all\', \'cavm\', or \'none'\;
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/tpByVeg_CMIP5.R $1 $2 $3

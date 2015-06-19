@@ -12,5 +12,5 @@
 #### $1 optional argument, recommended, samples=TRUE, defaults to TRUE if unspecified;
 #### $2 optional/required sample size argument, e.g., n=100, n is ignored if samples=FALSE;
 ####    Will throw exception if samples=TRUE and n not specified;
-#### $3 optional argument, allcavm=TRUE, defaults to FALSE if unspecified;
+#### $3 optional argument, vc (vegetation classes), defaults to \'all\'  if unspecified, options are \'all\', \'cavm\', or \'none'\;
 Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/tpByVeg_CRU32.R $1 $2 $3
