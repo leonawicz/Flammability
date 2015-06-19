@@ -29,20 +29,14 @@ These flammability maps are used in ALFRESCO in lieu of the original temperature
 ```{r setup}
 ```
 
-### Functions
+### Processing function
 
-```{r func_means}
-```
-
-```{r func_samples}
+```{r func}
 ```
 
 ### Run
 
-```{r run_means}
-```
-
-```{r run_samples}
+```{r run}
 ```
 
 ### Save outputs

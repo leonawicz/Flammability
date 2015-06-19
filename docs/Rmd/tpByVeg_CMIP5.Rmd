@@ -16,8 +16,11 @@ read_chunk("../../code/tpByVeg_CMIP5.R")
 ##
 ## tpByVeg_CMIP5.R
 
-The `tpByVeg_CMIP5.R` script calculates mean temperature and precipitation over all grid cells in a CGM map layer conditional on vegetation class using a given vegetation classification map.
-Unlike the `tpByVeg_CRU32.R` script, this script does not currently provide a sampling option since the CMIP5 models are not used for fitting GBM models.
+The `tpByVeg_CMIP5.R` script calculates mean temperature and precipitation over all grid cells in CRU 3.2 map layers conditional on vegetation class using a given vegetation classification map.
+Alternatively, instead of computing an overall mean, the script can be passed arguments to specify sampling of climate values and a sample size.
+These vegetation-specific climate means and/or samples are used as variables in gradient boosting machine (GBM), or generalized boosted regression modeling.
+The resulting GBM models are used to develop climate-driven, vegetation-mediated flammability maps with a distinct nonlinear fire responses to climate for each vegetation class.
+These flammability maps are used in ALFRESCO in lieu of the original temperature and precipitation maps.
 
 ## R code
 
@@ -26,12 +29,17 @@ Unlike the `tpByVeg_CRU32.R` script, this script does not currently provide a sa
 ```{r setup}
 ```
 
-### Function
+### Processing function
 
-```{r func_means}
+```{r func}
 ```
 
-### Run and save outputs
+### Run
 
-```{r run_save}
+```{r run}
+```
+
+### Save outputs
+
+```{r save}
 ```
