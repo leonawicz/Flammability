@@ -42,7 +42,7 @@ ind.names <- c("f.ind", "a.ind", "s.ind", "g.ind", "w.ind") # order: forest, alp
 # @knitr prep_save
 # Prepare and save workspace
 if(period=="historical"){
-	yrs <- 1950:2009
+	yrs <- 1950:2013
 	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "CRU_TS32")
 } else {
 	yrs <- 2010:2099

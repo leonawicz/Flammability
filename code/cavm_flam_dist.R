@@ -4,19 +4,19 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/09/2015        ####
+#### Last updated:   06/23/2015        ####
 
 # @knitr setup1
 # GBM flammability map comparisons
-setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU31")
+setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 
 library(raster)
 library(ggplot2)
 library(data.table)
 library(dplyr)
 
-s3 <- stack(list.files("3models_tif", pattern="\\.tif$", full=T))
-s5 <- stack(list.files("5models_tif", pattern="\\.tif$", full=T))
+s3 <- stack(list.files("3m100n", pattern="\\.tif$", full=T))
+s5 <- stack(list.files("5m100n", pattern="\\.tif$", full=T))
 r.veg <- readAll(raster("../../../../alf2005.cavm.merged.030212.tif"))
 noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2")
 flam.cavm <- extract(s3, which(r.veg[] >= 5))
@@ -24,7 +24,7 @@ flam.shrub <- extract(s5, which(r.veg[] == 5))
 flam.gram <- extract(s5, which(r.veg[] == 6))
 flam.wet <- extract(s5, which(r.veg[] == 7))
 
-yrs <- 1950:2009
+yrs <- 1950:2013
 set.seed(123)
 make_dt <- function(m, years, veg, sample=0.10){
     data.table(Vegetation=veg, Year=rep(years, each=nrow(m)), Flammability=as.numeric(m)) %>%
