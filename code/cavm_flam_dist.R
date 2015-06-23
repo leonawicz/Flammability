@@ -68,12 +68,12 @@ g <- ggplot(data=d, aes(x=Flammability)) + theme(legend.position="bottom")
 (p01a <- g + geom_line(aes(colour=Vegetation), stat="density", size=1))
 
 # @knitr plot01b
-# flammability marginal distributions (all years) by vegetation, truncated at 0.03
-(p01b <- g + geom_line(data=subset(d, Flammability <= 0.03), aes(colour=Vegetation), stat="density", size=1))
+# flammability marginal distributions (all years) by vegetation, truncated at 0.12
+(p01b <- g + geom_line(data=subset(d, Flammability <= 0.12), aes(colour=Vegetation), stat="density", size=1))
 
 # @knitr plot02
-# flammability distributions by vegetation and year, truncated at 0.03
-(p02 <- g + geom_line(data=subset(d, Flammability <= 0.03), aes(group=Year), stat="density", alpha=0.5) + facet_wrap(~ Vegetation))
+# flammability distributions by vegetation and year, truncated at 0.12
+(p02 <- g + geom_line(data=subset(d, Flammability <= 0.12), aes(group=Year), stat="density", alpha=0.5) + facet_wrap(~ Vegetation))
 
 # @knitr table01
 d.stats %>% knitr::kable(digits=4, caption="Critical values associated with flammability by vegetation class")
