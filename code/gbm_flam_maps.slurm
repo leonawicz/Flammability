@@ -10,7 +10,8 @@
 #SBATCH -p main
 
 #### $1 period, passed as period=\'historical\', period=\'rcp60\', etc., required;
-#### $2 model, passed as model=\'CRU31\', model=\'GFDL-CM3\', etc., required;
+#### $2 model, passed as model=\'CRU32\', model=\'GFDL-CM3\', etc., required;
 #### $3 optional unified single-GBM CAVM region as allcavm=TRUE, defaults to FALSE;
 #### $4 samples=TRUE, optional, defaults to FALSE;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/gbm_flam_maps.R $1 $2 $3 $4
+#### $5 sample size, e.g. n=100, should be known for input data, required if samples=TRUE;
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/gbm_flam_maps.R $1 $2 $3 $4 $5
