@@ -8,13 +8,13 @@
 
 # @knitr setup1
 # GBM flammability map comparisons
-setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU31")
+setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 dir.create(plotDir <- "/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
 
 library(rasterVis)
 (dirs <- list.files())
-dirs3 <- dirs[c(1,3)]
-dirs5 <- dirs[c(5,7)]
+dirs3 <- dirs[c(1,4)]
+dirs5 <- dirs[c(5,8)]
 
 noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2")
 
@@ -22,7 +22,7 @@ yr <- 1957
 files3 <- unlist(lapply(dirs3, function(x, year) list.files(x, pattern=paste0("_", year, "\\.tif$"), full=TRUE), year=yr))
 files5 <- unlist(lapply(dirs5, function(x, year) list.files(x, pattern=paste0("_", year, "\\.tif$"), full=TRUE), year=yr))
 s <- stack(c(files3, files5))
-names(s) <- paste0(rep(c("GBM3", "GBM5"), each=length(dirs3)), paste0("_Flammability", c("", "0.01_Lightning_0.75")))
+names(s) <- paste0(rep(c("GBM3", "GBM5"), each=length(dirs3)), paste0("_Flammability", c("", "_TL")))
 s <- brick(s)
 
 # Check for difference between GBM 3-model and GBM 5-model versions in CAVM region
@@ -41,7 +41,7 @@ s2.noa <- mask(crop(s2, noa.shp), noa.shp)
 # Minimum threshold analysis
 # RV's X = flammability and Y = lightning probability, with condition min(XY) = c
 # @knitr setup1
-setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU31")
+setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 dir.create(plotDir <- "/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
 
 library(rasterVis)
