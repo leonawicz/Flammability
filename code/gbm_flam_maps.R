@@ -27,7 +27,7 @@ ncores <- 32
 verDir <- if(samples) "samples_based" else "means_based"
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
-suffix <- if(samples) paste0("n", n) else "Mean"
+suffix <- if(samples) paste0(n, "n") else "Mean"
 
 # Load gbm models
 if(samples){
