@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/22/2015        ####
+#### Last updated:   06/23/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -13,7 +13,7 @@ if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=co
 if(!exists("period")) stop("Argument 'period' not passed at command line.")
 if(!exists("model")) stop("Argument 'model' not passed at command line.")
 if(!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
-if(!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
+if(!(model %in% c("CRU32", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
 
 library(rgdal)
 library(raster)
@@ -43,7 +43,7 @@ ind.names <- c("f.ind", "a.ind", "s.ind", "g.ind", "w.ind") # order: forest, alp
 # Prepare and save workspace
 if(period=="historical"){
 	yrs <- 1950:2009
-	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "cru_TS31")
+	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "CRU_TS32")
 } else {
 	yrs <- 2010:2099
 	tpDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide", period, model)

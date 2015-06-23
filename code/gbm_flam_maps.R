@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/22/2015        ####
+#### Last updated:   06/23/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -13,7 +13,7 @@ if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=co
 if(!exists("period")) stop("Argument 'period' not passed at command line.")
 if(!exists("model")) stop("Argument 'model' not passed at command line.")
 if(!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
-if(!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
+if(!(model %in% c("CRU32", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
 if(!exists("allcavm")) allcavm <- FALSE
 if(!exists("samples")) samples <- FALSE
 if(!is.logical(allcavm)) stop("Argument 'allcavm' must be logical.")
@@ -27,11 +27,11 @@ ncores <- 32
 verDir <- if(samples) "samples_based" else "means_based"
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
-suffix <- if(samples) paste0(n, "n") else "Mean"
+suffix <- if(samples) paste0("n", n) else "Mean"
 
 # Load gbm models
 if(samples){
-	load("gbm_seasonal_all_models_1Ksamples.RData")
+	load("gbm_seasonal_all_models_100samples.RData")
 	tree.numbers <- c(5000, 5000, 5000, 5000, 5000, 5000) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
 } else {
 	load("gbm_seasonal_all_models.RData")
