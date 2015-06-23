@@ -28,7 +28,7 @@ Each plot is broken out by vegetation class within the CAVM tundra region as wel
 ### Marginal distribution
 
 The first plot shows a density function proportional to joint probability distribution for flammability in time and space,
-marginalized with repsect to time. The time period is 1950 - 2009. The second plot is the same, but truncated to a maximum of 0.03 flammability.
+marginalized with repsect to time. The time period is 1950 - 2013. The second plot is the same, but truncated to a maximum of 0.12 flammability.
 
 ```{r plot01a}
 ```
@@ -38,7 +38,7 @@ marginalized with repsect to time. The time period is 1950 - 2009. The second pl
 
 ### Conditional distribution
 
-This plot shows multiple overlapping spatial flammability distributions conditioned on each year, also truncated at 0.03.
+This plot shows multiple overlapping spatial flammability distributions conditioned on each year, also truncated at 0.12.
 
 ```{r plot02}
 ```
