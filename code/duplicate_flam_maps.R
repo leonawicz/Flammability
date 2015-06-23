@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/27/2015        ####
+#### Last updated:   06/23/2015        ####
 
 # @knitr duplicate
 comargs <- (commandArgs(TRUE))
@@ -13,9 +13,9 @@ if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=co
 if(!exists("period")) stop("Argument 'period' not passed at command line.")
 if(!exists("model")) stop("Argument 'model' not passed at command line.")
 if(!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
-if(!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
+if(!(model %in% c("CRU32", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MRI-CGCM3"))) stop("Invalid data set specified.")
 if(!exists("samples")) samples <- TRUE
-if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.") # Currently must be "3models_tif" or "5models_tif"
+if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.")
 if(!exists("out")) stop("Argument 'out' not passed at command line.")
 if(!exists("n")) n <- 40
 if(!exists("yearloop")) stop("Argument 'yearloop' not passed at command line.")
