@@ -5,7 +5,7 @@
 #SBATCH --ntasks=32
 #SBATCH --nodes=1
 ####SBATCH --nodelist=atlas01
-#SBATCH --job-name=FlamMultipliers
+#SBATCH --job-name=FlamTrim
 #SBATCH --account=snap
 #SBATCH -p main
 
@@ -13,7 +13,4 @@
 #### $2 model, passed as model=\'CRU32\', model=\'GFDL-CM3\', etc., required;
 #### $3 samples, passed as samples=TRUE, defaults to TRUE, optional;
 #### $4 mapset, passed as mapset=\'3m\' or mapset=\'5m\', etc., required;
-#### $5 lightning, passed as lightning=TRUE, defaults to TRUE, optional;
-#### $5 cp2scratch, passed as TRUE or FALSE, optional, defaults to TRUE;
-#### $6 cp_originals, passed as TRUE or FALSE, optional, defaults to TRUE;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/FlammabilityMapMultipliers.R $1 $2 $3 $4 $5 $6 $7
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/cavm_flam_trunc.R $1 $2 $3 $4
