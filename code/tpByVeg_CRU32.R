@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/18/2015        ####
+#### Last updated:   06/26/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -75,6 +75,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=
             pre <- precip.tmp[ind2,]
             tas <- temp.tmp[ind2,]
             samp <- sample(1:nrow(pre), n)
+            if(j==1) print(paste("sample number one is", samp[1]))
             mp <- cbind(mp, as.numeric(pre[samp,]))
             mt <- cbind(mt, as.numeric(tas[samp,]))
         }
@@ -97,7 +98,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=
 # @knitr run
 set.seed(55)
 if(!samples) f.out <- mclapply(yrs, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=n.cores)
-if(samples)  f.out <- mclapply(yrs, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, mc.cores=n.cores)
+if(samples)  f.out <- mclapply(yrs, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, seed=55, mc.cores=n.cores)
 d <- rbindlist(f.out)
 d[, Scenario := "historical"]
 d[, Model := "CRU32"]
