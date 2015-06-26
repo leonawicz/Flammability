@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/23/2015        ####
+#### Last updated:   06/26/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -26,7 +26,7 @@ ncores <- 32
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
-load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
+load(paste0("gbmFlammability/", model, "_", period, "_Jan-SepTP.RData"))
 suffix <- if(samples) paste0(n, "n") else "Mean"
 
 # Load gbm models
@@ -50,12 +50,13 @@ dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model,
 dir.create(plotDir <- file.path("../plots/gbmFlammability", verDir, period, model, out), recursive=T, showWarnings=F)
 
 # @knitr func_prep
-f <- function(p, yrs=NULL, bins=1, samples=FALSE){
-	d.names <- sort(rownames(summary(get(gbm.names[p])))) # force alphabetical
+f <- function(p, yrs=NULL, bins=1, standardize=FALSE){
+	d.names <- rownames(summary(get(gbm.names[p])))
 	tmp <- c()
 	if(any(grep("Summer", d.names))){
 		obj.names.list <- list(ls(pattern="^m\\..*.P$", envir=.GlobalEnv), ls(pattern="^m\\..*.T$", envir=.GlobalEnv)) # alphabetical
-		for(i in 1:nrow(summary(get(gbm.names[p])))){
+        ord <- order(d.names)
+		for(i in ord){
 			obj.names <- obj.names.list[[i]]
 			n <- length(obj.names)
 			tmp2 <- 0
@@ -65,7 +66,7 @@ f <- function(p, yrs=NULL, bins=1, samples=FALSE){
 			tmp2 <- tmp2[get(ind.names[p]),]
 			dims <- dim(tmp2)
 			tmp2 <- as.numeric(tmp2)
-			if(samples) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
+			if(standardize) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
 			tmp <- cbind(tmp, tmp2)
 			rm(tmp2); gc()
 		}
@@ -74,7 +75,7 @@ f <- function(p, yrs=NULL, bins=1, samples=FALSE){
 			tmp2 <- get(paste0("m.",d.names[i]))[get(ind.names[p]),]
 			dims <- dim(tmp2)
 			tmp2 <- as.numeric(tmp2)
-			if(samples) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
+			if(standardize) tmp2 <- (tmp2 - mean(tmp2, na.rm=TRUE))/sd(tmp2, na.rm=TRUE)
 			tmp <- cbind(tmp, tmp2)
 		}
 	}
@@ -112,7 +113,7 @@ partifs <- function(i, r, flam, outDir){
 # @knitr run
 preds <- list()
 for(zzz in 1:5){
-	model.index <- f(zzz, bins=ncores, samples=samples) # Prep data
+	model.index <- f(zzz, bins=ncores) # Prep data
 	tmp.preds <- mclapply(1:ncores, getGBMpreds, b=model.index, nam1=gbm.names, nam2=tmp.names, mc.cores=ncores) # GBM predictions
 	tmp.preds <- rbindlist(tmp.preds)
 	preds[[model.index]] <- matrix(tmp.preds$Predicted, ncol=length(yrs))
