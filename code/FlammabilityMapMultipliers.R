@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/23/2015        ####
+#### Last updated:   06/29/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -18,7 +18,7 @@ if(!exists("samples")) samples <- TRUE
 if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.")
 if(!exists("lightning")) lightning <- TRUE
 if(!exists("cp2scratch")) cp2scratch <- TRUE
-if(!exists("cp_originals")) cp_originals <- TRUE
+if(!exists("cp_originals")) cp_originals <- FALSE
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
