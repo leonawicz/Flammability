@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/26/2015        ####
+#### Last updated:   06/29/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -26,17 +26,18 @@ ncores <- 32
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
-load(paste0("gbmFlammability/", model, "_", period, "_Jan-SepTP.RData"))
+load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
+#load(paste0("gbmFlammability/", model, "_", period, "_Jan-SepTP.RData"))
 suffix <- if(samples) paste0(n, "n") else "Mean"
 
 # Load gbm models
 if(samples){
-	load("gbm_seasonal_all_models_100samples.RData")
+	load("gbm_monthly_all_100samples.RData")
 	tree.numbers <- c(5000, 5000, 5000, 5000, 5000, 5000) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
-} else {
-	load("gbm_seasonal_all_models.RData")
-	tree.numbers <- c(3355, 32, 2200, 152, 2478, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
-}
+} else stop("Currently must use samples=TRUE. Also, only month-based GBMs available. No seasonal GBMs.") #{
+	#load("gbm_seasonal_all.RData")
+	#tree.numbers <- c(3355, 32, 2200, 152, 2478, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
+#}
 gbm.names <- c("gbm.forest", "gbm.alp.tundra", "gbm.shrub", "gbm.gram", "gbm.wetland")
 
 if(allcavm){
