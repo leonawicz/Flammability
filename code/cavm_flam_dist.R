@@ -7,7 +7,6 @@
 #### Last updated:   06/23/2015        ####
 
 # @knitr setup1
-# GBM flammability map comparisons
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 
 library(raster)
@@ -69,11 +68,11 @@ g <- ggplot(data=d, aes(x=Flammability)) + theme(legend.position="bottom")
 
 # @knitr plot01b
 # flammability marginal distributions (all years) by vegetation, truncated at 0.12
-(p01b <- g + geom_line(data=subset(d, Flammability <= 0.12), aes(colour=Vegetation), stat="density", size=1))
+(p01b <- g + geom_line(data=subset(d, Flammability <= 0.16), aes(colour=Vegetation), stat="density", size=1))
 
 # @knitr plot02
 # flammability distributions by vegetation and year, truncated at 0.12
-(p02 <- g + geom_line(data=subset(d, Flammability <= 0.12), aes(group=Year), stat="density", alpha=0.5) + facet_wrap(~ Vegetation))
+(p02 <- g + geom_line(data=subset(d, Flammability <= 0.16), aes(group=Year), stat="density", alpha=0.5) + facet_wrap(~ Vegetation))
 
 # @knitr table01
 d.stats %>% knitr::kable(digits=4, caption="Critical values associated with flammability by vegetation class")
