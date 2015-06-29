@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/23/2015        ####
+#### Last updated:   06/29/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -19,10 +19,10 @@ if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.")
 if(substr(mapset, 1, 1) == "3") gbm <- 3 else gbm <- 5
 
 # 10th and 90th percentiles of the flammability distributions across space and through time, by vegetation class
-q.cavm <- c(0.0180, 0.0449)
-q.shrub <- c(0.0078, 0.0216)
-q.gram <- c(0.0069, 0.0310)
-q.wet <- c(0.0059, 0.0164)
+q.cavm <- c(0.1372, 0.1487)
+q.shrub <- c(0.1364, 0.1397)
+q.gram <- c(0.1363, 0.1427)
+q.wet <- c(0.1364, 0.1399)
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
@@ -48,7 +48,7 @@ f <- function(i, outDir, files, gbm, ...){
 
     func_trunc <- function(x, q, ind){
         ind <- intersect(ind, which(!is.na(x[])))
-        x[ind][x[ind] < q[1]] <- q[1]
+        x[ind][x[ind] < q[1]] <- 0 #q[1]
         x[ind][x[ind] > q[2]] <- q[2]
         x
     }
