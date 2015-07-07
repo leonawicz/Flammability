@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   04/03/2015        ####
+#### Last updated:   06/06/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -88,10 +88,10 @@ fs.emp <- as.data.frame(rbindlist(fs.emp))
 num.reps <- 32 # hardcoded
 fs.alf.list <- mclapply(1:min(num.reps, 32), fsByRep, mainDir=mainDir, vid=vid, v.veg=v.veg, years=yrs.all, mc.cores=min(num.reps, 32))
 fs.alf <- as.data.frame(rbindlist(fs.alf.list))
-d.fs.veg <- rbind(fs.emp, fs.alf)
-d.fs.veg$Vegetation <- v.names[d.fs.veg$Vegetation]
+d.fs <- rbind(fs.emp, fs.alf)
+d.fs$Vegetation <- v.names[d.fs$Vegetation]
 dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tolower(alf.domain),1,6)=="statew") "Statewide"
-save(d.fs.veg, file=paste0(out, "/fsByVeg_df_", dom, ".RData"))
+save(d.fs, file=paste0(out, "/fsByVeg_df_", dom, ".RData"))
 
 sink(file=file.path(out, "message.txt"), append=TRUE)
 cat("An R workspace file containing fire event sizes partitioned by vegetation class is attached.\n")
