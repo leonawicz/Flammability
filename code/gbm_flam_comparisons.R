@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/05/2015        ####
+#### Last updated:   07/10/2015        ####
 
 # @knitr setup1
 # GBM flammability map comparisons
@@ -18,7 +18,9 @@ dirs5 <- dirs[c(5,8)]
 
 noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2")
 
-yr <- 1957
+yrs <- c(1954, 1957, 1968, 1969, 1977, 2004, 2005, 2007)
+for(yr in yrs){
+
 files3 <- unlist(lapply(dirs3, function(x, year) list.files(x, pattern=paste0("_", year, "\\.tif$"), full=TRUE), year=yr))
 files5 <- unlist(lapply(dirs5, function(x, year) list.files(x, pattern=paste0("_", year, "\\.tif$"), full=TRUE), year=yr))
 s <- stack(c(files3, files5))
@@ -36,6 +38,50 @@ names(s2) <- c("GBM3", "GBM5", "Difference")
 
 s.noa <- mask(crop(s, noa.shp), noa.shp)
 s2.noa <- mask(crop(s2, noa.shp), noa.shp)
+
+# @knitr plot
+# Setup
+library(grid)
+library("gridBase")
+
+at.vals <- c(0, 0.25, 0.499, 0.75, 1)
+colkey <- list(at=at.vals, labels=list(labels=c("Low", "Medium", "High", "Severe"), at=at.vals + 0.125))
+
+# Theme settings
+revRasterTheme <- function (pch = 19, cex = 0.7, region=colorRampPalette(brewer.pal(9, "YlOrRd")[-1])(30), ...){
+    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
+    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
+    theme$add.line$lwd = 0.4
+    theme
+}
+
+
+# Write PNGs from part one: comparisons
+# Statewide
+w <- h <- 1600
+png(paste0(plotDir, "/gbm.flamm_", yr,"_comparisons_Statewide.png"), height=h, width=w, res=200)
+p <- levelplot(s, maxpixels=ncell(s)/10, main=paste(yr, "flammability map comparisons"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
+print(p)
+dev.off()
+
+png(paste0(plotDir, "/GBM3vsGBM5_", yr, "_Statewide.png"), height=h, width=w*1.5, res=200)
+p <- levelplot(s2, maxpixels=ncell(s)/10, main=paste(yr, "3- vs. 5-GBM flammability maps"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
+print(p)
+dev.off()
+
+# Noatak
+png(paste0(plotDir, "/gbm.flamm_", yr,"_comparisons_Noatak.png"), height=h, width=w*1.5, res=200)
+p <- levelplot(s.noa, maxpixels=ncell(s.noa), main=paste(yr,"flammability map comparisons"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
+print(p)
+dev.off()
+
+png(paste0(plotDir, "/GBM3vsGBM5_", yr, "_Noatak.png"), height=h*1.5, width=w, res=200)
+p <- levelplot(s2.noa, maxpixels=ncell(s2.noa), main=paste(yr, "3- vs. 5-GBM flammability maps"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
+print(p)
+dev.off()
+
+print(yr)
+} # end yrs loop
 
 # @knitr setup2
 # Minimum threshold analysis
@@ -93,48 +139,7 @@ r5tot <- r5tot/nlayers(s5)
 s <- stack(r3tot, r5tot)
 names(s) <- c("GBM-3", "GBM-5")
 
-# @knitr plot
-# Setup
-library(grid)
-library("gridBase")
-
-at.vals <- c(0, 0.25, 0.499, 0.75, 1)
-colkey <- list(at=at.vals, labels=list(labels=c("Low", "Medium", "High", "Severe"), at=at.vals + 0.125))
-
-# Theme settings
-revRasterTheme <- function (pch = 19, cex = 0.7, region=colorRampPalette(brewer.pal(9, "YlOrRd")[-1])(30), ...){
-    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
-    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
-    theme$add.line$lwd = 0.4
-    theme
-}
-
-
-# Write PNGs from part one: comparisons
-# Statewide
-w <- h <- 1600
-png(paste0(plotDir, "/gbm.flamm_", yr,"_comparisons_Statewide.png"), height=h, width=w, res=200)
-p <- levelplot(s, maxpixels=ncell(s)/10, main=paste(yr, "flammability map comparisons"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
-print(p)
-dev.off()
-
-png(paste0(plotDir, "/GBM3vsGBM5_", yr, "_Statewide.png"), height=h, width=w*1.5, res=200)
-p <- levelplot(s2, maxpixels=ncell(s)/10, main=paste(yr, "3- vs. 5-GBM flammability maps"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
-print(p)
-dev.off()
-
-# Noatak
-png(paste0(plotDir, "/gbm.flamm_", yr,"_comparisons_Noatak.png"), height=h, width=w*1.5, res=200)
-p <- levelplot(s.noa, maxpixels=ncell(s.noa), main=paste(yr,"flammability map comparisons"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
-print(p)
-dev.off()
-
-png(paste0(plotDir, "/GBM3vsGBM5_", yr, "_Noatak.png"), height=h*1.5, width=w, res=200)
-p <- levelplot(s2.noa, maxpixels=ncell(s2.noa), main=paste(yr, "3- vs. 5-GBM flammability maps"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
-print(p)
-dev.off()
-
-
+# @knitr plot2
 # Write PNGs from part two: thresholds
 png(paste0(plotDir, "/flam_spacetime_threshDist_", threshold, "_", domain, ".png"), height=2400, width=2400, res=200)
 p <- levelplot(s, maxpixels=ncell(s), main=paste("1950-2009", threshold, "flammability threshold distributions"), par.settings=revRasterTheme, contour=T, margin=F)#, at=at.vals, colorkey=colkey)
