@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/29/2015        ####
+#### Last updated:   07/16/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -39,7 +39,7 @@ files <- files[order(yrs)]
 yrs <- yrs[order(yrs)]
 
 # Sample random coeffcients for unobserved years
-set.seed(47)
+set.seed(51)
 if(lightning){
 	classes <- sapply(ignit.scalar$ignit.lightning, function(x) switch(as.character(x), '0.05'=1,'0.5'=2,'0.95'=3))
 	load("/workspace/UA/mfleonawicz/leonawicz/projects/Lightning/data/summerLightningMaps_2003_2012/summerLightningMaps.RData")
