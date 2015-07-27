@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/26/2015        ####
+#### Last updated:   07/27/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -46,9 +46,9 @@ if(period=="historical"){
 	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "CRU_TS32")
 } else {
 	yrs <- 2010:2099
-	tpDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide", period, model)
+	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, model)
 }
-mo.ind <- 1:9
+mo.ind <- 6:8 #1:9
 varid <- c("pr", "tas")
 pat.mo <- paste0(".*._", c(paste0(0,1:9),10:12), "_.*.tif$")
 files.precip <- files.temp <- list()
@@ -67,4 +67,5 @@ for(i in mo.ind){
 }
 
 keep.obj <- c(ls(pattern="^m\\.|\\.ind$"), "r.veg", "veg", "ind.names", "land.gray", "yrs")
-save(list=keep.obj, file=paste0(outDir, "/", model, "_", period, "_Jan-SepTP.RData"))
+save(list=keep.obj, file=paste0(outDir, "/", model, "_", period, "_Jun-AugTP.RData"))
+#save(list=keep.obj, file=paste0(outDir, "/", model, "_", period, "_Jan-SepTP.RData"))

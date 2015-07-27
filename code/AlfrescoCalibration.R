@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/16/2015        ####
+#### Last updated:   07/27/2015        ####
 
 # @knitr alf_calib
 comArgs <- commandArgs(TRUE)
@@ -14,6 +14,8 @@ if(length(comArgs>0)){
 	options(warn=-1); arg.char <- which(is.na(as.numeric(arg.mat[,2]))); options(warn=0)
 	if(length(arg.char>0)) arg.mat[arg.char,2] <- paste("'",arg.mat[arg.char,2],"'",sep="")
 	eval(parse(text=apply(arg.mat,1,paste,collapse="=")))
+    print(arg.mat)
+    print(ls())
 }
 
 if(exists("main")) dir.create(mainDir <- main, showWarnings=F) else stop("must provide 'main' directory")
@@ -22,6 +24,7 @@ if(exists("out")) dir.create(outDir <- out, showWarnings=F) else stop("must prov
 if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
 if(!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
 if(substr(tolower(alf.domain),1,6)=="statew") alf.domain <- "Statewide" else if(substr(tolower(alf.domain),1,6)=="noatak") alf.domain <- substr(alf.domain,1,6)
+if(!exists("n.sims")) n.sims <- 32
 
 # @knitr func_fsByVeg
 fsByVeg <- function(i, v, f){
@@ -55,7 +58,7 @@ v.names <- c("Alpine", "Forest", "", "", "Shrub", "Graminoid", "Wetland")
 # Process empirical data
 library(data.table)
 library(parallel)
-n.cores <- 32 # hardcoded
+n.cores <- 32
 d.fs.veg <- mclapply(1:nlayers(b.fid), fsByRepEmp, b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.all, mc.cores=n.cores)
 d.fs.veg <- as.data.frame(rbindlist(d.fs.veg))
 d.fs.veg$Vegetation <- v.names[d.fs.veg$Vegetation]
@@ -65,6 +68,7 @@ lapply(paste0("/big_scratch/mfleonawicz/Alf_Files_20121129/alfresco/", c("CABvsT
 #### Collect ALFRESCO data
 alf.fse <- as.matrix(read.table(file.path(mainDir, "FireSizeEvents.txt"), header=T))
 numrep <- length(unique(alf.fse[,2]))
+if(numrep!=n.sims) warning("numrep does not equal n.sims")
 alf.fs <- as.matrix(read.table(file.path(mainDir,"FireSize.txt"),skip=1))[,2:(numrep + 1)]
 
 # these functions use hardcoded inputs from another script/workspace

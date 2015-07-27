@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/16/2015        ####
+#### Last updated:   07/27/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -21,13 +21,15 @@ cat("Below you will find a link to an R Shiny Alfresco FRP results web applicati
 
 library(raster)
 library(parallel)
-library(plyr)
+library(dplyr)
 
 rasterOptions(tmpdir="/big_scratch/shiny", chunksize=10e10, maxmemory=10e11)
 mainDir <- file.path(input, "Maps")
 dir.create(outDir <- file.path(out, "FRP"), showWarnings=F)
 if(!exists("pts")) stop("No coordinates file provided for relative area burned time series extraction.")
 if(!exists("buffers")) stop("No buffer(s) provided for relative area burned time series extraction.")
+if(!exists("n.sims")) n.sims <- 32
+n.cores <- min(n.sims, 32)
 
 pts <- read.csv(file.path(input,pts))
 pts <- pts[order(pts$ID),]
@@ -164,9 +166,9 @@ r.burnable <- Which(r>0)
 # Process empirical data
 out.emp <- fireEventsFunEmpirical(b=result, pts=pts, buffer.list=buffers, fun.list=buffer.functions, burnable.cells.raster=r.burnable)
 # Process modeled data
-num.reps <- 32 # hardcoded
+n.cores <- min(n.sims, 32)
 print(paste("Process modeled fire scar data from entire Alfresco run. Time:"))
-system.time( out.alf <- mclapply(1:min(num.reps, 32), fireEventsFun, pts=pts, buffer.list=buffers, fun.list=buffer.functions, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=min(num.reps, 32)) )
+system.time( out.alf <- mclapply(1:n.sims, fireEventsFun, pts=pts, buffer.list=buffers, fun.list=buffer.functions, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=n.cores) )
 
 # @knitr FRP_maps
 alf.yrs <- out.alf[[1]][[4]]
@@ -196,7 +198,7 @@ FRPmapsNoBuffer <- function(i, alf.data, emp.data, odir, domain, alf.yrs, emp.yr
 }
 
 print(paste("Create 2-panel (emprical and modeled) 1-km no-buffer FRP maps. Time:"))
-print(system.time( mclapply(1:length(out.alf), FRPmapsNoBuffer, alf.data=out.alf, emp.data=result2, odir=outDir, domain=alf.domain, alf.yrs=alf.yrs, emp.yrs=yrs.all, mc.cores=min(length(out.alf), 32)) ))
+print(system.time( mclapply(1:length(out.alf), FRPmapsNoBuffer, alf.data=out.alf, emp.data=result2, odir=outDir, domain=alf.domain, alf.yrs=alf.yrs, emp.yrs=yrs.all, mc.cores=n.cores) ))
 
 # @knitr FRP_app_setup
 # Concatenate all elements in nested list x. Inner to outer levels: year, location, buffer, replicate
@@ -210,19 +212,21 @@ dfPrepFun <- function(x, multiple.reps=T){
 
 # Empirical observations and simulation replicates
 reps.emp <- "Observed"
-reps.alf <- paste0("Rep_",c(paste0(0,0:9),10:99))[1:length(out.alf)]
+reps.alf <- paste0("Rep_",c(paste0(0,0,0:9), paste0(0,10:99), 100:999)[1:length(out.alf)]
 
 # Organize observed data
 x.emp <- dfPrepFun(out.emp, multiple.reps=F)
-d.emp <- rev(expand.grid(Value=NA, Year=yrs.all, Location=locs, Buffer_km=buffers.labels, Replicate=reps.emp, stringsAsFactors=F))
-d.emp$Value <- x.emp
-d2.emp <- ddply(d.emp, .(Replicate, Buffer_km, Location), summarize, FRP=length(Year)/sum(Value))
+d.emp <- data.table(rev(expand.grid(Value=NA, Year=yrs.all, Location=locs, Buffer_km=buffers.labels, Replicate=reps.emp, stringsAsFactors=F)))
+d.emp[, Value:=x.emp]
+#d2.emp <- ddply(d.emp, .(Replicate, Buffer_km, Location), summarize, FRP=length(Year)/sum(Value))
+d.emp %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2.emp
 
 # Organize modeled data
 x <- dfPrepFun(out.alf)
-d <- rev(expand.grid(Value=NA, Year=alf.yrs, Location=locs, Buffer_km=buffers.labels, Replicate=reps.alf, stringsAsFactors=F))
-d$Value <- x
-d2 <- ddply(d, .(Replicate, Buffer_km, Location), summarize, FRP=length(Year)/sum(Value))
+d <- data.table(rev(expand.grid(Value=NA, Year=alf.yrs, Location=locs, Buffer_km=buffers.labels, Replicate=reps.alf, stringsAsFactors=F)))
+d[, Value:=x]
+#d2 <- ddply(d, .(Replicate, Buffer_km, Location), summarize, FRP=length(Year)/sum(Value))
+d %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2
 
 # Additional objects to transport to app
 buffersize <- unique(d.emp$Buffer_km)
@@ -237,20 +241,20 @@ frp.dat <- rbind(d2,d2.emp)
 rm(d2,d2.emp)
 dummy <- capture.output( gc() )
 
-rab.dat$Source <- "Observed"
-rab.dat$Source[rab.dat$Replicate!="Observed"] <- "Modeled"
-frp.dat$Source <- "Observed"
-frp.dat$Source[frp.dat$Replicate!="Observed"] <- "Modeled"
+rab.dat[, Source:="Observed"]
+rab.dat[Replicate!="Observed", Source:="Modeled"]
+frp.dat[, Source:="Observed"]
+frp.dat[Replicate!="Observed", Source:="Modeled"]
 
 # Make Fire Return Interval data frame
-friFun <- function(d){
-	d <- d[d$Value!=0,]
+friFun <- function(d){ # this function could be improved using data tables and dplyr
+	d <- data.frame(filter(d, Value!=0))
 	d$fac <- with(d, paste(Replicate, Buffer_km, Location))
 	fri.list <- with(d, tapply(Year, paste(Replicate, Buffer_km, Location), function(x) c(NA, diff(x))))
 	d <- d[order(d$fac),]
 	d$FRI <- as.numeric(unlist(fri.list))
 	d <- subset(d, !is.na(d$FRI), -which(names(d) %in% c("Year", "fac")))
-	d
+	data.table(d)
 }
 
 fri.dat <- friFun(rab.dat)

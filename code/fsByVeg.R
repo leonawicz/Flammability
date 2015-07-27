@@ -17,6 +17,8 @@ if(length(comArgs>0)){
 cat(comArgs)
 
 if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
+if(!exists("n.sims")) n.sims <- 32
+n.cores <- min(n.sims, 32)
 
 library(raster)
 library(data.table)
@@ -81,12 +83,10 @@ v.names <- c("Alpine", "Forest", "", "", "Shrub", "Graminoid", "Wetland")
 
 # @knitr run
 # Process empirical data
-n.cores <- 32 # hardcoded
 fs.emp <- mclapply(1:nlayers(b.fid), fsByRepEmp, b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.all, mc.cores=n.cores)
 fs.emp <- as.data.frame(rbindlist(fs.emp))
 # Process modeled data
-num.reps <- 32 # hardcoded
-fs.alf.list <- mclapply(1:min(num.reps, 32), fsByRep, mainDir=mainDir, vid=vid, v.veg=v.veg, years=yrs.all, mc.cores=min(num.reps, 32))
+fs.alf.list <- mclapply(1:n.sims, fsByRep, mainDir=mainDir, vid=vid, v.veg=v.veg, years=yrs.all, mc.cores=n.cores)
 fs.alf <- as.data.frame(rbindlist(fs.alf.list))
 d.fs <- rbind(fs.emp, fs.alf)
 d.fs$Vegetation <- v.names[d.fs$Vegetation]
