@@ -28,11 +28,12 @@ echo ${12}
 echo ${13}
 echo ${14}
 echo ${15}
+echo ${16}
 
 if [ $7 -eq 1 ]
 then
 ####mpirun -np 32 /home/UA/apbennett/bin/fresco-mpi --fif $6
-mpirun -np 32 /home/UA/apbennett/test/bin/fresco-mpi --fif $6
+mpirun -np ${16} /home/UA/apbennett/test/bin/fresco-mpi --fif $6
 fi
 
-sbatch -D $2 CompileData.slurm $1 $3 $4 $5 $6 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15}
+sbatch -D $2 CompileData.slurm $1 $3 $4 $5 $6 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16}

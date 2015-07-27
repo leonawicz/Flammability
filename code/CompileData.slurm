@@ -19,19 +19,20 @@ echo ${10}
 echo ${11}
 echo ${12}
 echo ${13}
+echo ${14}
 
-Rscript /big_scratch/shiny/AlfrescoCalibration.R main=$1 out=$2 input=$2 alf.domain=$4 baseline.year=${13}
+Rscript /big_scratch/shiny/AlfrescoCalibration.R main=$1 out=$2 input=$2 alf.domain=$4 ${12} baseline.year=${13} n.sims=${14}
 
 if [ $6 -eq 1 ]
 then
-Rscript /big_scratch/shiny/fseByVeg.R input=$2 out=$2 alf.domain=$4 ${12}
+Rscript /big_scratch/shiny/fseByVeg.R input=$2 out=$2 alf.domain=$4 ${12} n.sims=${14}
 fi
 
 if [ $7 -eq 1 ]
 then
-Rscript /big_scratch/shiny/AlfrescoFRP.R input=$2 out=$2 alf.domain=$4 $8 $9 ${10} ${11} ${12}
+Rscript /big_scratch/shiny/AlfrescoFRP.R input=$2 out=$2 alf.domain=$4 $8 $9 ${10} ${11} ${12} n.sims=${14}
 fi
 
-/big_scratch/shiny/mailPNGs.sh $5 $3 $2/message.txt
+/big_scratch/shiny/mailPNGs.sh $5 $3 $2/message.txt $7
 
 
