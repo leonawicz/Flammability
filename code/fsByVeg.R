@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/06/2015        ####
+#### Last updated:   07/29/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -16,7 +16,10 @@ if(length(comArgs>0)){
 }
 cat(comArgs)
 
-if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
+if(!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
+if(period=="historical") yr.start <- 1950 else yr.start <- baseline.year
+if(exists("yr.end")) yrs <- yr.start:yr.end else stop("must provide 'baseline.year' and 'yr.end'")
+yrs <- yr.start:yr.end
 if(!exists("n.sims")) n.sims <- 32
 n.cores <- min(n.sims, 32)
 
@@ -31,11 +34,11 @@ mainDir <- file.path(input, "Maps")
 fsByVeg <- function(i, v, f){
 	v[v!=i] <- NA
 	x <- f[!is.na(v) & !is.na(f)]
-	if(length(x)) return(data.frame(Vegetation=i, FS=sort(as.numeric(tapply(x, x, length))))) else return(NULL)
+	if(length(x)) return(data.table(Vegetation=i, FS=sort(as.numeric(tapply(x, x, length))))) else return(NULL)
 }
 
 # @knitr func_fsByRep
-fsByRep <- function(d, mainDir, vid, v.veg, years=1950:2013){ # hardcoded years
+fsByRep <- function(d, mainDir, vid, v.veg, years){
 	reps <- paste0("_",d-1,"_")
 	files <- list.files(mainDir, pattern=gsub("expression","",paste(bquote(expression("^FireSc.*.",.(reps),".*.tif$")),collapse="")), full=T)
 	yrs <- as.numeric(gsub("FireScar_\\d+_", "", gsub(".tif", "", basename(files))))
@@ -55,10 +58,12 @@ fsByRep <- function(d, mainDir, vid, v.veg, years=1950:2013){ # hardcoded years
 			dlist[[k]]$Year <- yrs[k]
 		}
 	}
-	d <- as.data.frame(rbindlist(dlist))
-	d$Source <- "Modeled"
-	d$Replicate <- paste("Rep", gsub("_", "", reps))
-	d <- d[,c(4,5,1,3,2)]
+	d <- rbindlist(dlist)
+    if(nrow(d) > 0){
+        d[, Source:="Modeled"]
+        d[, Replicate:=paste("Rep", gsub("_", "", reps))]
+        setcolorder(d, names(d)[c(4,5,1,3,2)])
+    } else d <- NULL
 	d
 }
 
@@ -67,10 +72,11 @@ fsByRepEmp <- function(i, b, vid, v.veg, yrs){
 	v.fid <- getValues(subset(b, i))
 	if(all(is.na(v.fid))) return(NULL)
 	dl <- lapply(vid, fsByVeg, v=v.veg, f=v.fid)
-	d <- as.data.frame(rbindlist(dl))
-	d$Year <- yrs[i]
-	d$Replicate <- d$Source <- "Observed"
-	d <- d[,c(4,5,1,3,2)]
+	d <- rbindlist(dl)
+	d[, Year:=yrs[i]]
+	d[, Source:="Observed"]
+    d[, Replicate:="Observed"]
+	setcolorder(d, names(d)[c(4,5,1,3,2)])
 	d
 }
 
@@ -83,13 +89,13 @@ v.names <- c("Alpine", "Forest", "", "", "Shrub", "Graminoid", "Wetland")
 
 # @knitr run
 # Process empirical data
-fs.emp <- mclapply(1:nlayers(b.fid), fsByRepEmp, b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.all, mc.cores=n.cores)
-fs.emp <- as.data.frame(rbindlist(fs.emp))
+fs.emp <- mclapply(1:nlayers(b.fid), fsByRepEmp, b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.hist.all, mc.cores=n.cores)
+fs.emp <- rbindlist(fs.emp)
 # Process modeled data
-fs.alf.list <- mclapply(1:n.sims, fsByRep, mainDir=mainDir, vid=vid, v.veg=v.veg, years=yrs.all, mc.cores=n.cores)
-fs.alf <- as.data.frame(rbindlist(fs.alf.list))
+fs.alf.list <- mclapply(1:n.sims, fsByRep, mainDir=mainDir, vid=vid, v.veg=v.veg, years=2014:2020, mc.cores=n.cores)
+fs.alf <- rbindlist(fs.alf.list)
 d.fs <- rbind(fs.emp, fs.alf)
-d.fs$Vegetation <- v.names[d.fs$Vegetation]
+d.fs[, Vegetation:=v.names[Vegetation]]
 dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tolower(alf.domain),1,6)=="statew") "Statewide"
 save(d.fs, file=paste0(out, "/fsByVeg_df_", dom, ".RData"))
 
