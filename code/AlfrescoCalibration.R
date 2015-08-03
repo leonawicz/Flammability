@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   07/27/2015        ####
+#### Last updated:   07/31/2015        ####
 
 # @knitr alf_calib
 comArgs <- commandArgs(TRUE)
@@ -21,8 +21,9 @@ if(length(comArgs>0)){
 if(exists("main")) dir.create(mainDir <- main, showWarnings=F) else stop("must provide 'main' directory")
 if(exists("input")) dir.create(mainDir <- input, showWarnings=F) else stop("must provide 'input' directory")
 if(exists("out")) dir.create(outDir <- out, showWarnings=F) else stop("must provide 'out' directory")
-if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
 if(!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
+if(period=="historical") yr.start <- 1950 else yr.start <- baseline.year
+if(exists("yr.end")) yrs <- yr.start:yr.end else stop("must provide 'baseline.year' and 'yr.end'")
 if(substr(tolower(alf.domain),1,6)=="statew") alf.domain <- "Statewide" else if(substr(tolower(alf.domain),1,6)=="noatak") alf.domain <- substr(alf.domain,1,6)
 if(!exists("n.sims")) n.sims <- 32
 
@@ -30,7 +31,7 @@ if(!exists("n.sims")) n.sims <- 32
 fsByVeg <- function(i, v, f){
 	v[v!=i] <- NA
 	x <- f[!is.na(v) & !is.na(f)]
-	if(length(x)) return(data.frame(Vegetation=i, FS=sort(as.numeric(tapply(x, x, length))))) else return(NULL)
+	if(length(x)) return(data.table(Vegetation=i, FS=sort(as.numeric(tapply(x, x, length))))) else return(NULL)
 }
 
 # @knitr func_fsByRepEmp
@@ -38,10 +39,11 @@ fsByRepEmp <- function(i, b, vid, v.veg, yrs){
 	v.fid <- getValues(subset(b, i))
 	if(all(is.na(v.fid))) return(NULL)
 	dl <- lapply(vid, fsByVeg, v=v.veg, f=v.fid)
-	d <- as.data.frame(rbindlist(dl))
-	d$Year <- yrs[i]
-	d$Replicate <- d$Source <- "Observed"
-	d <- d[,c(4,5,1,3,2)]
+	d <- rbindlist(dl)
+	d[, Year:=yrs[i]]
+	d[, Source:="Observed"]
+    d[, Replicate:="Observed"]
+	setcolorder(d, names(d)[c(4,5,1,3,2)])
 	d
 }
 
@@ -59,29 +61,29 @@ v.names <- c("Alpine", "Forest", "", "", "Shrub", "Graminoid", "Wetland")
 library(data.table)
 library(parallel)
 n.cores <- 32
-d.fs.veg <- mclapply(1:nlayers(b.fid), fsByRepEmp, b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.all, mc.cores=n.cores)
-d.fs.veg <- as.data.frame(rbindlist(d.fs.veg))
-d.fs.veg$Vegetation <- v.names[d.fs.veg$Vegetation]
+d.fs.veg <- mclapply(1:nlayers(b.fid), fsByRepEmp, b=b.fid, vid=vid, v.veg=v.veg, yrs=yrs.hist.all, mc.cores=n.cores)
+d.fs.veg <- rbindlist(d.fs.veg)
+d.fs.veg[, Vegetation:=v.names[Vegetation]]
 
 lapply(paste0("/big_scratch/mfleonawicz/Alf_Files_20121129/alfresco/", c("CABvsTimePlot.R", "histPrep.R", "AByearPlot.R", "fireSizePlot.R", "CABvsFSPlot.R")), source)
 
 #### Collect ALFRESCO data
 alf.fse <- as.matrix(read.table(file.path(mainDir, "FireSizeEvents.txt"), header=T))
-numrep <- length(unique(alf.fse[,2]))
-if(numrep!=n.sims) warning("numrep does not equal n.sims")
-alf.fs <- as.matrix(read.table(file.path(mainDir,"FireSize.txt"),skip=1))[,2:(numrep + 1)]
+fire.reps <- sort(unique(alf.fse[,2]))
+if(length(fire.reps)!=n.sims) warning("Not all replicates have fire activity.")
+alf.fs <- as.matrix(read.table(file.path(mainDir,"FireSize.txt"),skip=1))[,2:(n.sims + 1)]
 
 # these functions use hardcoded inputs from another script/workspace
-CABvsTimePlot(yrs, baseline.year=baseline.year, d.obs.fs=d.fs.veg) 
-AByearPlot(alf.fs, d.obs.fs=d.fs.veg, yrs, domain="total.ab.ha", domain.name="total", baseline=baseline.year)
-fireSizePlot(yrs, d.obs.fs=d.fs.veg)
-CABvsFSPlot(yrs, d.obs.fs=d.fs.veg)
+CABvsTimePlot(yrs, baseline.year=baseline.year, d.obs.fs=d.fs.veg, period=period) 
+AByearPlot(alf.fs, d.obs.fs=d.fs.veg, yrs, domain="total.ab.ha", domain.name="total", baseline=baseline.year, period=period)
+fireSizePlot(yrs, d.obs.fs=d.fs.veg, period=period)
+CABvsFSPlot(yrs, d.obs.fs=d.fs.veg, period=period)
 
 save.image(file.path(outDir, "postProcess.RData"))
 
 sink(file=file.path(outDir, "message.txt"))
 cat(
 "This message comes from the shiny user directory.\n
-See ALFRESCO calibration figures [attached].\n"
+See preliminary ALFRESCO output figures [attached].\n"
 )
 sink()
