@@ -22,35 +22,42 @@ if(!exists("cp_originals")) cp_originals <- FALSE
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
-dir.create(outDir <- paste0("../", mapset, "_L"), showWarnings=FALSE)
+suffix <- if(lightning) "_Lmap" else "_L"
+dir.create(outDir <- paste0("../", mapset, suffix), showWarnings=FALSE)
 if(cp2scratch){
 	dir.create(outDir2a <- file.path("/big_scratch/mfleonawicz/Alf_Files_20121129/gbmFlamMaps", period, model, mapset), recursive=TRUE, showWarnings=FALSE)
-	dir.create(outDir2b <- paste0(outDir2a, "_L"), showWarnings=FALSE)
+	dir.create(outDir2b <- paste0(outDir2a, suffix), showWarnings=FALSE)
 } else outDir2b <- NULL
 if(!cp_originals) outDir2a <- NULL
 
 library(raster)
 library(parallel)
-load("../../../../../../workspaces/gbmFlammability/ALF_ignit_premult.RData") # scalars data frame for observed years
+library(data.table)
+library(dplyr)
+load("../../../../../../workspaces/gbmFlammability/gbm_lightning_coefficients.RData") # scalars data table
 
 files <- list.files(pattern="\\.tif$")
 yrs <- as.numeric(gsub("gbm.flamm_", "", gsub("\\.tif", "", files)))
 files <- files[order(yrs)]
 yrs <- yrs[order(yrs)]
+d.sub <- filter(d.all, Period==period & Model==model & Year %in% yrs)
 
 # Sample random coeffcients for unobserved years
 set.seed(51)
 if(lightning){
-	classes <- sapply(ignit.scalar$ignit.lightning, function(x) switch(as.character(x), '0.05'=1,'0.5'=2,'0.95'=3))
-	load("/workspace/UA/mfleonawicz/leonawicz/projects/Lightning/data/summerLightningMaps_2003_2012/summerLightningMaps.RData")
+	classes <- sapply(d.sub$Class, function(x) switch(as.character(x), 'Low'=1,'Medium'=2,'High'=3))
+	load("/workspace/UA/mfleonawicz/leonawicz/projects/Lightning/data/summerLightningMaps_2003_2011/summerLightningMaps.RData")
 	light.yrs <- sapply(classes, function(x, d) sample(d$Year[d$Class==x], 1), d=d.coef)
-	ind <- which(ignit.scalar$V1 %in% d.coef$Year)
-	light.yrs[ind] <- ignit.scalar$V1[ind]
-	a <- sample(d.coef$Year, length(yrs), replace=T)
-	if(all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- light.yrs
+	ind <- which(d.sub$Year %in% d.coef$Year)
+	if(length(ind)) light.yrs[ind] <- d.sub$Year[ind]
+    d.coef$Prob <- sapply(d.coef$Class, function(x) switch(x, '1'=13/62, '2'=36/62, '3'=13/62))
+	a <- sample(d.coef$Year, length(yrs), prob=d.coef$Prob, replace=T)
+	if(period=="historical" & all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- light.yrs
+    if(period!="historical") a <- light.yrs
 } else {
-	a <- sample(c(0.05, 0.5, 0.95), length(yrs), prob=c(21/62, 20/62, 21/62), replace=T)
-	if(all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- ignit.scalar[,2]
+	a <- sample(c(0.05, 0.5, 0.95), length(yrs), prob=c(13/62, 36/62, 13/62), replace=T)
+	if(period=="historical" & all(1950:2011 %in% yrs)) a[yrs >= 1950 & yrs <= 2011] <- d.sub$Coef
+    if(period!="historical") a <- d.sub$Coef
 }
 
 # @knitr func
