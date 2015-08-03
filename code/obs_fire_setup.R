@@ -3,8 +3,7 @@ if(emp.fire.cause=="All") fah <- shapefile("/big_scratch/mfleonawicz/FAH/FireAre
 if(emp.fire.cause=="Lightning") fah <- shapefile("/big_scratch/mfleonawicz/FAH/Lightning_Fires_11182013.shp")
 fah <- subset(fah, FireYear >= 1950) # do nto use observed data prior to 1950
 yrs.fah <- sort(as.numeric(unique(fah@data$FireYear)))
-yrs.all <- seq(min(yrs), max(yrs))
-if(exists("yrs")) yrs.all <- intersect(yrs, yrs.all)
+if(period=="historical") yrs.hist.all <- yrs else yrs.hist.all <- 1950:2013 # default historical years when processing future Alfresco runs
 
 if(substr(tolower(alf.domain),1,6)=="noatak"){
 	r <- raster("/big_scratch/mfleonawicz/Alf_Files_20121129/alf2005.cavm.merged.030212_Noatak.tif")
@@ -14,7 +13,7 @@ if(substr(tolower(alf.domain),1,6)=="noatak"){
 	shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/statewide_shape/Alaska_Albers_ESRI.shp")
 }
 
-suffix <- paste0("_observed_", gsub("_", "", alf.domain), "_", tolower(emp.fire.cause), "_", min(yrs.all), "_", max(yrs.all), ".tif")
+suffix <- paste0("_observed_", gsub("_", "", alf.domain), "_", tolower(emp.fire.cause), "_", min(yrs.hist.all), "_", max(yrs.hist.all), ".tif")
 b.fid.name <- paste0("/big_scratch/shiny/fireIDbrick_annual", suffix)
 result.name <- paste0("/big_scratch/shiny/firescarbrick_annual", suffix)
 result2.name <- paste0("/big_scratch/shiny/firescarlayer_total", suffix)
@@ -38,7 +37,7 @@ library(parallel)
 n.cores <- 32 # hardcoded
 #fireScarsFunVec <- Vectorize(fireScarsFun,"year")
 if(!exists("b.fid")){
-	b.fid <- mclapply(yrs.all, fireScarsFun, x=fah, y=r, years.avail=yrs.fah, field="FIREID", mc.cores=n.cores)
+	b.fid <- mclapply(yrs.hist.all, fireScarsFun, x=fah, y=r, years.avail=yrs.fah, field="FIREID", mc.cores=n.cores)
 	print(summary(b.fid[[1]][]))
 	b.fid <- brick(b.fid)
 	print("b.fid brick created")
@@ -59,7 +58,7 @@ if(!exists("b.fid")){
 	print(summary(subset(b.fid,1)[]))
 }
 if(!exists("result")){
-	result <- mclapply(yrs.all, fireScarsFun, x=fah, y=r, years.avail=yrs.fah, mc.cores=n.cores)
+	result <- mclapply(yrs.hist.all, fireScarsFun, x=fah, y=r, years.avail=yrs.fah, mc.cores=n.cores)
 	print("result list created")
 	print(class(result))
 	print(length(result))
@@ -75,8 +74,8 @@ if(!exists("result")){
 		result <- mask(result, shp)
 		result2 <- mask(result2, shp)
 	}
-	names(result) <- names(b.fid) <- yrs.all
-	names(result2) <- paste(yrs.all[1], tail(yrs.all,1), sep="_")
+	names(result) <- names(b.fid) <- yrs.hist.all
+	names(result2) <- paste(yrs.hist.all[1], tail(yrs.hist.all,1), sep="_")
 	if(!file.exists(result.name)){
 		#writeRaster(result, result.name, datatype="FLT4S", overwrite=T)
 		b <- brick(result, values=FALSE)  
