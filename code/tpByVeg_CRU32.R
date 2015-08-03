@@ -90,7 +90,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=
 	d <- rbind(mp, mt)
 	d <- cbind(Year=k, d)
 	d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
-    if(samples) d[, Obs := rep(1:n, each=12*2*nv)] else d[, Obs := 0]
+    if(samples) d[, Obs := 1:n] else d[, Obs := 0]
     print(k)
 	d
 }

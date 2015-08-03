@@ -90,7 +90,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=
 	d <- rbind(mp, mt)
 	d <- cbind(Year=k, d)
 	d <- melt(d, id.var=c("Year", "Month", "Var"), variable.name="Vegetation", value.name="Val")
-    if(samples) d[, Obs := rep(1:n, each=12*2*nv)] else d[, Obs := 0]
+    if(samples) d[, Obs := 1:n] else d[, Obs := 0]
     print(k)
 	d
 }
@@ -100,7 +100,7 @@ set.seed(55)
 d.list <- vector("list", length(path[[1]]))
 for(z in 1:length(path[[1]])){
     if(!samples) f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=n.cores)
-    if(samples)  f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, mc.cores=n.cores)
+    if(samples)  f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, seed=55, mc.cores=n.cores)
     d <- rbindlist(f.out)
     d[, Scenario := scenario[z]]
     d[, Model := modnames[z]]
