@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   07/27/2015        ####
+#### Last updated:   07/29/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -17,10 +17,11 @@ if(length(comArgs>0)){
 cat(comArgs)
 dir.create(outDir <- file.path(out, "FRP"), showWarnings=F)
 sink(file=file.path(out, "message.txt"), append=TRUE)
-cat("Below you will find a link to an R Shiny Alfresco FRP results web application.\n")
+cat("Below you will find a link to a preliminary R Shiny Alfresco FRP/FRI results web application.\n")
 
 library(raster)
 library(parallel)
+library(data.table)
 library(dplyr)
 
 rasterOptions(tmpdir="/big_scratch/shiny", chunksize=10e10, maxmemory=10e11)
@@ -28,6 +29,9 @@ mainDir <- file.path(input, "Maps")
 dir.create(outDir <- file.path(out, "FRP"), showWarnings=F)
 if(!exists("pts")) stop("No coordinates file provided for relative area burned time series extraction.")
 if(!exists("buffers")) stop("No buffer(s) provided for relative area burned time series extraction.")
+if(!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
+if(period=="historical") yr.start <- 1950 else yr.start <- baseline.year
+if(exists("yr.end")) yrs <- yr.start:yr.end else stop("must provide 'baseline.year' and 'yr.end'")
 if(!exists("n.sims")) n.sims <- 32
 n.cores <- min(n.sims, 32)
 
@@ -158,7 +162,6 @@ fireEventsFunEmpirical <- function(b, pts, buffer.list=list(NULL), fun.list=list
 }
 
 # @knitr empirical_data_setup
-if(exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
 source("/big_scratch/shiny/obs_fire_setup.R")
 r.burnable <- Which(r>0)
 
@@ -187,18 +190,18 @@ FRPmapsNoBuffer <- function(i, alf.data, emp.data, odir, domain, alf.yrs, emp.yr
 		png(pngname, width=2400, height=1370)
 		layout(matrix(1:2,1,2))
 	}
-	plot(round(alf.data[[i]][[3]]/alf.data[[i]][[1]]),col=heat.colors(20),zlim=zlm,main=paste0(domain, " ", alf.yrs[1], "-", tail(alf.yrs,1), " replicate ",i-1," FRP"))
-	plot(shp,bg='transparent',add=TRUE)
-	plot(fah,bg='transparent',add=TRUE)
-	plot(round(length(emp.yrs)/emp.data),col=heat.colors(20),zlim=zlm,main=paste0(domain, " ", emp.yrs[1], "-", tail(emp.yrs,1), " observed FRP"))
-	plot(shp,bg='transparent',add=TRUE)
-	plot(fah,bg='transparent',add=TRUE)
+	plot(round(alf.data[[i]][[3]]/alf.data[[i]][[1]]), col=heat.colors(20), zlim=zlm, main=paste0(domain, " ", alf.yrs[1], "-", tail(alf.yrs,1), " replicate ",i-1," FRP"))
+	plot(shp, bg='transparent', add=TRUE)
+	plot(fah, bg='transparent', add=TRUE)
+	plot(round(length(emp.yrs)/emp.data), col=heat.colors(20), zlim=zlm, main=paste0(domain, " ", emp.yrs[1], "-", tail(emp.yrs,1), " observed FRP"))
+	plot(shp, bg='transparent',add=TRUE)
+	plot(fah, bg='transparent',add=TRUE)
 	dev.off()
 	if(i==1) file.copy(pngname, file.path(dirname(odir), basename(pngname)))
 }
 
-print(paste("Create 2-panel (emprical and modeled) 1-km no-buffer FRP maps. Time:"))
-print(system.time( mclapply(1:length(out.alf), FRPmapsNoBuffer, alf.data=out.alf, emp.data=result2, odir=outDir, domain=alf.domain, alf.yrs=alf.yrs, emp.yrs=yrs.all, mc.cores=n.cores) ))
+print(paste("Create 2-panel (empirical and modeled) 1-km no-buffer FRP maps. Time:"))
+print(system.time( mclapply(1:length(out.alf), FRPmapsNoBuffer, alf.data=out.alf, emp.data=result2, odir=outDir, domain=alf.domain, alf.yrs=alf.yrs, emp.yrs=yrs.hist.all, mc.cores=n.cores) ))
 
 # @knitr FRP_app_setup
 # Concatenate all elements in nested list x. Inner to outer levels: year, location, buffer, replicate
@@ -212,20 +215,18 @@ dfPrepFun <- function(x, multiple.reps=T){
 
 # Empirical observations and simulation replicates
 reps.emp <- "Observed"
-reps.alf <- paste0("Rep_",c(paste0(0,0,0:9), paste0(0,10:99), 100:999)[1:length(out.alf)]
+reps.alf <- paste0("Rep_",c(paste0(0,0,0:9), paste0(0,10:99), 100:999))[1:length(out.alf)]
 
 # Organize observed data
 x.emp <- dfPrepFun(out.emp, multiple.reps=F)
-d.emp <- data.table(rev(expand.grid(Value=NA, Year=yrs.all, Location=locs, Buffer_km=buffers.labels, Replicate=reps.emp, stringsAsFactors=F)))
+d.emp <- data.table(rev(expand.grid(Value=NA, Year=yrs.hist.all, Location=locs, Buffer_km=buffers.labels, Replicate=reps.emp, stringsAsFactors=F)))
 d.emp[, Value:=x.emp]
-#d2.emp <- ddply(d.emp, .(Replicate, Buffer_km, Location), summarize, FRP=length(Year)/sum(Value))
 d.emp %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2.emp
 
 # Organize modeled data
 x <- dfPrepFun(out.alf)
 d <- data.table(rev(expand.grid(Value=NA, Year=alf.yrs, Location=locs, Buffer_km=buffers.labels, Replicate=reps.alf, stringsAsFactors=F)))
 d[, Value:=x]
-#d2 <- ddply(d, .(Replicate, Buffer_km, Location), summarize, FRP=length(Year)/sum(Value))
 d %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2
 
 # Additional objects to transport to app
@@ -264,7 +265,7 @@ dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tol
 load(paste0(out, "/fsByVeg_df_", dom, ".RData")) # assumed to have run fsByVeg.R
 prefix <- ifelse(group.name=="none", "RAB_FRP", paste0(run.name, "_RAB_FRP"))
 ws <- ifelse(group.name=="none",
-		paste0(outDir,"/",prefix,"_Emp_",yrs.all[1],"_",tail(yrs.all,1),"_Alf_",alf.yrs[1],"_",tail(alf.yrs,1),".RData"),
+		paste0(outDir,"/",prefix,"_Emp_",yrs.hist.all[1],"_",tail(yrs.hist.all,1),"_Alf_",alf.yrs[1],"_",tail(alf.yrs,1),".RData"),
 		paste0(outDir,"/",prefix,".RData")
 	)
 save(d.fs, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, file=ws)
