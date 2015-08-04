@@ -23,7 +23,7 @@ The script also provides exploratory graphs of the assembled data.
 It presents the discrete classification of annual lightning intensity with several visualizations
 including time series, ranked and ordered values, and empirical CDF.
 
-Plots are made of exclusively CRU 3.2 based fitted values and backcast predictions.
+Plots are made of exclusively CRU 3.2-based fitted values and backcast predictions.
 Similar multi-panel plots are then made comparing each of five CMIP5 GCMs' predicted values with CRU 3.2 as a comparative baseline.
 
 The finalized compiled data table including discrete classified annual lightning intensity coefficients is saved to a new workspace to be sourced by other scripts.
@@ -53,10 +53,8 @@ For example, it is sourced by `FlammabilityMapMultipliers.R` for applying a scal
 
 ### RCP 6.0 CMIP5 GCM comparisons with CRU 3.2
 
-```{r plots_gcm}
+```{r plots_gcm_prep, results="hide"}
 ```
 
-### Save outputs
-
-```{r save}
+```{r plots_gcm}
 ```
