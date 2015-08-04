@@ -1,0 +1,5354 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+<title></title>
+
+<script src="libs/jquery-1.11.0/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="libs/bootstrap-3.3.1/css/flatly.min.css" rel="stylesheet" />
+<script src="libs/bootstrap-3.3.1/js/bootstrap.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/html5shiv.min.js"></script>
+<script src="libs/bootstrap-3.3.1/shim/respond.min.js"></script>
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+padding-top: 50px;
+padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar) */
+.section h2 {
+padding-top: 55px;
+margin-top: -55px;
+}
+.section h3 {
+padding-top: 55px;
+margin-top: -55px;
+}
+/* don't use link color in navbar */
+.dropdown-menu>li>a {
+color: black;
+}
+/* some padding for disqus */
+#disqus_thread {
+margin-top: 45px;
+}
+p {
+  text-align: justify;
+}
+img.centered {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
+<link rel="stylesheet" href="libs/font-awesome-4.1.0/css/font-awesome.min.css"/>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; background-color: #303030; color: #cccccc; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; }
+td.sourceCode { padding-left: 5px; }
+pre, code { color: #cccccc; background-color: #303030; }
+code > span.kw { color: #f0dfaf; }
+code > span.dt { color: #dfdfbf; }
+code > span.dv { color: #dcdccc; }
+code > span.bn { color: #dca3a3; }
+code > span.fl { color: #c0bed1; }
+code > span.ch { color: #dca3a3; }
+code > span.st { color: #cc9393; }
+code > span.co { color: #7f9f7f; }
+code > span.ot { color: #efef8f; }
+code > span.al { color: #ffcfaf; }
+code > span.fu { color: #efef8f; }
+code > span.er { color: #c3bf9f; }
+</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+
+
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-46129458-3', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img { 
+  max-width:100%; 
+  height: auto; 
+}
+</style>
+<div class="container-fluid main-container">
+
+<div class="navbar navbar-default navbar-fixed-top">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Flammability</a>
+      </div>
+      <div class="navbar-collapse collapse navbar-responsive-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="index.html">Overview</a></li>
+
+          <li class="dropdown">
+            <a href="data-prep" class="dropdown-toggle" data-toggle="dropdown">Data Prep <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li><a href="clim_prep.html">Climate data prep</a></li>
+              <li><a href="clim_resample_2km_1km.html">clim_resample_2km_1km.R</a></li>
+              <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
+              <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
+              <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
+            </ul>
+
+          <li class="dropdown">
+            <a href="gbm-flammability" class="dropdown-toggle" data-toggle="dropdown">GBM Flammability <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">GBM Modeling</li>
+              <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">Flammability maps</li>
+              <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
+              <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
+              <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
+              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
+              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">ALFRESCO prep</li>
+              <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
+            </ul>
+
+          <li class="dropdown">
+            <a href="alfresco" class="dropdown-toggle" data-toggle="dropdown">ALFRESCO <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">Main scripts</li>
+              <li><a href="AlfrescoCalibration.html">AlfrescoCalibration.R</a></li>
+              <li><a href="AlfrescoFRP.html">AlfrescoFRP.R</a></li>
+              <li><a href="fsByVeg.html">fsByVeg.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">Supporting scripts</li>
+              <li><a href="obs_fire_setup.html">obs_fire_setup.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">Functions</li>
+              <li><a href="histPrep.html">histPrep.R</a></li>
+              <li><a href="fireSizePlot.html">fireSizePlot.R</a></li>
+              <li><a href="AByearPlot.html">AByearPlot.R</a></li>
+              <li><a href="CABvsFSPlot.html">CABvsFSPlot.R</a></li>
+              <li><a href="CABvsTimePlot.html">CABvsTimePlot.R</a></li>
+            </ul>
+
+          <li class="dropdown">
+            <a href="statistics" class="dropdown-toggle" data-toggle="dropdown">Statistics <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">Fire size distributions</li>
+              <li><a href="fs_eda1.html">EDA: fire samples</a></li>
+              <li><a href="fs_eda2.html">EDA: Noatak shrub fire</a></li>
+              <li><a href="fs_eda3.html">EDA: statewide forest fire</a></li>
+              <li class="divider"></li>
+              <li><a href="fs_mle1.html">MLE: setup</a></li>
+              <li><a href="fs_mle2.html">MLE: Noatak shrub fire</a></li>
+              <li><a href="fs_mle3.html">MLE: statewide forest fire</a></li>
+            </ul>
+
+          <li class="dropdown">
+            <a href="apps" class="dropdown-toggle" data-toggle="dropdown">Apps <b class="caret"></b></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-header">ALFRESCO launcher</li>
+              <li><a href="appcode_alf_global.html">global.R</a></li>
+              <li><a href="appcode_alf_ui.html">ui.R</a></li>
+              <li><a href="appcode_alf_server.html">server.R</a></li>
+              <li><a href="appcode_alf_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_alf_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_alf_about.html">about.R</a></li>
+              <li class="divider"></li>
+              <li class="dropdown-header">Results app</li>
+              <li><a href="appcode_frp_ui.html">ui.R</a></li>
+              <li><a href="appcode_frp_server.html">server.R</a></li>
+              <li><a href="appcode_frp_sidebar.html">sidebar.R</a></li>
+              <li><a href="appcode_frp_app.html">app.R</a></li>
+              <li><a href="appcode_frp_reactives.html">reactives.R</a></li>
+              <li><a href="appcode_frp_plotFunctions.html">plotFunctions.R</a></li>
+              <li><a href="appcode_frp_about.html">about.R</a></li>
+            </ul>
+
+          <li><a href="http://leonawicz.github.io">All Projects</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <a class="btn btn-link" href="https://github.com/leonawicz/Flammability">
+            <i class="fa fa-github fa-lg"></i>
+            Github
+          </a>
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+
+
+
+<div id="section" class="section level2">
+<h2></h2>
+</div>
+<div id="section-1" class="section level2">
+<h2></h2>
+</div>
+<div id="gbm_lightning_coefficients.r" class="section level2">
+<h2>gbm_lightning_coefficients.R</h2>
+<p>The <code>gbm_lightning_coefficients.R</code> script assembles GBM lightning strike point model historical fitted values and backcast and forecast predictions. Historical and future values are loaded via workspace file.</p>
+<p>The script also provides exploratory graphs of the assembled data. It presents the discrete classification of annual lightning intensity with several visualizations including time series, ranked and ordered values, and empirical CDF.</p>
+<p>Plots are made of exclusively CRU 3.2 based fitted values and backcast predictions. Similar multi-panel plots are then made comparing each of five CMIP5 GCMs’ predicted values with CRU 3.2 as a comparative baseline.</p>
+<p>The finalized compiled data table including discrete classified annual lightning intensity coefficients is saved to a new workspace to be sourced by other scripts. For example, it is sourced by <code>FlammabilityMapMultipliers.R</code> for applying a scalar multiplier to GBM vegetation flammability maps used in ALFRESCO simulations.</p>
+</div>
+<div id="r-code" class="section level2">
+<h2>R code</h2>
+<div id="setup" class="section level3">
+<h3>Setup</h3>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setwd</span>(<span class="st">&quot;C:/github/Flammability/workspaces&quot;</span>)
+<span class="kw">dir.create</span>(plotDir &lt;-<span class="st"> &quot;../plots/lightning&quot;</span>, <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
+
+<span class="kw">load</span>(<span class="st">&quot;hist_rcp60_lightning_preds.RData&quot;</span>)
+
+<span class="kw">library</span>(reshape2)
+<span class="kw">library</span>(ggplot2)
+<span class="kw">library</span>(data.table)
+<span class="kw">library</span>(dplyr)</code></pre>
+</div>
+<div id="support-functions" class="section level3">
+<h3>Support functions</h3>
+<pre class="sourceCode r"><code class="sourceCode r">get_classes1 &lt;-<span class="st"> </span>function(x, <span class="dt">y =</span> qtiles) <span class="kw">cut</span>(x, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>, y, <span class="dv">99999</span>), <span class="dt">labels =</span> F)
+get_coefficients &lt;-<span class="st"> </span>function(x) <span class="kw">sapply</span>(x, function(y) switch(y, <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> </span><span class="fl">0.05</span>, 
+    <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> </span><span class="fl">0.5</span>, <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> </span><span class="fl">0.95</span>))
+get_classes2 &lt;-<span class="st"> </span>function(x) <span class="kw">factor</span>(x, <span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;Low&quot;</span>, <span class="st">&quot;Medium&quot;</span>, <span class="st">&quot;High&quot;</span>))
+
+<span class="co"># knitr quantiles</span>
+lb &lt;-<span class="st"> </span><span class="fl">0.2</span>
+ub &lt;-<span class="st"> </span><span class="fl">0.8</span>
+qtiles &lt;-<span class="st"> </span><span class="kw">quantile</span>(pred.light.hist, <span class="kw">c</span>(lb, ub))
+bins.cru &lt;-<span class="st"> </span><span class="kw">get_classes1</span>(pred.light.hist)
+coef.cru &lt;-<span class="st"> </span><span class="kw">get_coefficients</span>(bins.cru)
+bins.cru &lt;-<span class="st"> </span><span class="kw">get_classes2</span>(bins.cru)
+d &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="dt">Period =</span> <span class="st">&quot;historical&quot;</span>, <span class="dt">Model =</span> <span class="st">&quot;CRU32&quot;</span>, <span class="dt">Year =</span> <span class="dv">1950</span>:<span class="dv">2011</span>, <span class="dt">LightPred =</span> pred.light.hist, 
+    <span class="dt">Rank =</span> <span class="kw">rank</span>(pred.light.hist), <span class="dt">Class =</span> bins.cru, <span class="dt">Coef =</span> coef.cru, <span class="dt">ECDF =</span> <span class="kw">ecdf</span>(pred.light.hist)(pred.light.hist))</code></pre>
+</div>
+<div id="quantiles-and-classification" class="section level3">
+<h3>Quantiles and classification</h3>
+</div>
+<div id="cru-3.2-plots" class="section level3">
+<h3>CRU 3.2 plots</h3>
+<pre class="sourceCode r"><code class="sourceCode r">(g1 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d, <span class="kw">aes</span>(<span class="dt">x =</span> Rank, <span class="dt">y =</span> LightPred, <span class="dt">label =</span> Year)) +<span class="st"> </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> qtiles, 
+    <span class="dt">linetype =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">colour =</span> Class), <span class="dt">hjust =</span> <span class="dv">0</span>, 
+    <span class="dt">vjust =</span> <span class="dv">0</span>, <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">show_guide =</span> F) +<span class="st"> </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="dv">1</span>, <span class="dt">y =</span> qtiles, 
+    <span class="dt">label =</span> <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;qunatile =&quot;</span>, lb), <span class="kw">paste</span>(<span class="st">&quot;quantile =&quot;</span>, ub)), <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">vjust =</span> -<span class="fl">0.5</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Predicted rank&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Predicted number of strikes&quot;</span>, <span class="dt">title =</span> <span class="st">&quot;1950-2011 GBM-predicted summer lightning strikes: ranked and ordered&quot;</span>))</code></pre>
+<p><img src="gbm_lightning_coefficients_files/figure-html/plots_cru32-1.png" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">(g2 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d, <span class="kw">aes</span>(<span class="dt">x =</span> Year, <span class="dt">y =</span> LightPred, <span class="dt">label =</span> Rank)) +<span class="st"> </span><span class="kw">geom_line</span>() +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> qtiles, <span class="dt">linetype =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">colour =</span> Class), 
+    <span class="dt">hjust =</span> <span class="dv">0</span>, <span class="dt">vjust =</span> <span class="dv">0</span>, <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">show_guide =</span> F) +<span class="st"> </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="dv">1950</span>, 
+    <span class="dt">y =</span> qtiles, <span class="dt">label =</span> <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;qunatile =&quot;</span>, lb), <span class="kw">paste</span>(<span class="st">&quot;quantile =&quot;</span>, ub)), 
+    <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">vjust =</span> -<span class="fl">0.5</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Predicted number of strikes&quot;</span>, 
+    <span class="dt">title =</span> <span class="st">&quot;1950-2011 GBM-predicted summer lightning strikes: time series&quot;</span>))</code></pre>
+<p><img src="gbm_lightning_coefficients_files/figure-html/plots_cru32-2.png" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">(g3 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d, <span class="kw">aes</span>(<span class="dt">x =</span> LightPred, <span class="dt">label =</span> Year)) +<span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> qtiles, 
+    <span class="dt">linetype =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">stat_ecdf</span>() +<span class="st"> </span><span class="kw">stat_ecdf</span>(<span class="dt">geom =</span> <span class="st">&quot;point&quot;</span>) +<span class="st"> </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> ECDF, 
+    <span class="dt">colour =</span> Class), <span class="dt">hjust =</span> <span class="dv">0</span>, <span class="dt">vjust =</span> <span class="dv">0</span>, <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">show_guide =</span> F) +<span class="st"> </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, 
+    <span class="dt">x =</span> qtiles, <span class="dt">y =</span> <span class="dv">0</span>, <span class="dt">label =</span> <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;qunatile =&quot;</span>, lb), <span class="kw">paste</span>(<span class="st">&quot;quantile =&quot;</span>, 
+        ub)), <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">hjust =</span> -<span class="fl">0.1</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Predicted number of strikes&quot;</span>, 
+    <span class="dt">y =</span> <span class="st">&quot;CDF&quot;</span>, <span class="dt">title =</span> <span class="st">&quot;1950-2011 GBM-predicted summer lightning strikes: empirical CDF&quot;</span>))</code></pre>
+<p><img src="gbm_lightning_coefficients_files/figure-html/plots_cru32-3.png" /></p>
+</div>
+<div id="rcp-6.0-cmip5-gcm-comparisons-with-cru-3.2" class="section level3">
+<h3>RCP 6.0 CMIP5 GCM comparisons with CRU 3.2</h3>
+<pre class="sourceCode r"><code class="sourceCode r">d2 &lt;-<span class="st"> </span><span class="kw">data.table</span>(lightning.preds)
+d2 &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="kw">melt</span>(d2, <span class="dt">measure.vars =</span> <span class="kw">names</span>(d2)))
+d2[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Period, <span class="st">&quot;rcp60&quot;</span>)]</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">variable</th>
+<th align="right">value</th>
+<th align="left">Period</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">11762.282</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">30404.038</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35891.522</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23657.608</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">9942.099</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25051.641</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">10022.518</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35973.960</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24979.394</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27518.329</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">27073.715</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">14227.483</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">15012.245</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">14052.403</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25820.306</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27693.848</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">12559.473</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">36777.740</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">36385.663</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">15362.057</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35967.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">9675.916</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23902.194</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24503.627</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">12265.926</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">26376.983</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27918.833</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35234.698</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">11537.714</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33775.752</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">28519.264</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33034.586</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">34003.478</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24489.414</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">24849.554</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24167.996</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25879.784</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">20303.698</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23655.700</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">17347.002</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">21579.264</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">20303.698</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">22879.978</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34811.096</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25395.497</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">20371.259</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25103.707</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">26048.189</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33634.672</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35652.964</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">24757.480</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34282.047</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23145.312</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">14040.588</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35525.977</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">37143.285</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34619.029</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35525.977</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34282.047</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35235.574</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35973.960</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">10991.216</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33958.854</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">27044.551</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">12087.919</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26140.396</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">29473.799</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">23318.779</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">27663.164</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">25112.683</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">21140.192</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">36272.138</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34331.021</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">24396.538</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33440.707</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">16316.978</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26108.917</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">23055.620</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">28099.470</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">20488.036</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">24342.413</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34684.110</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26656.949</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">23745.392</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">23796.201</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">25839.114</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">25365.572</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">28178.838</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">26321.217</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34412.539</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34205.018</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25395.497</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">17641.758</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24648.456</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">17923.273</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">16804.013</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">27693.848</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">10884.313</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">12787.387</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25185.284</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">21972.686</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">14188.901</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">9196.747</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">22674.612</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">20442.771</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">17891.591</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">10599.450</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">16982.678</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">36855.716</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24434.450</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">19044.546</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33830.573</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">19692.792</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">14431.342</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">13396.819</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">14285.727</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">31271.696</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">12065.659</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35132.957</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">34166.340</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">30562.666</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">23559.508</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">11681.504</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">31167.574</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33637.933</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">28085.732</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">17616.814</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">9209.605</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35948.316</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">12753.626</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">19965.378</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25069.329</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">23999.239</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">27877.824</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34102.678</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">12738.947</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">25103.707</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21056.222</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34275.557</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">26687.062</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33855.433</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">21056.222</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24456.131</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24873.521</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">26196.376</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">26813.111</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35884.318</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21531.352</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">29800.591</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21495.293</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">28557.376</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21140.192</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21266.900</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">25958.655</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24633.439</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34137.027</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24836.469</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">26108.917</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">22930.368</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">26082.741</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">22912.149</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">21531.352</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">23875.990</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33440.707</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">20804.422</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">23923.902</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25099.779</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33818.904</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34282.047</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">19965.185</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33719.368</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21056.222</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">20769.708</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">17050.318</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">17447.386</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">9838.555</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">37143.285</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">9215.099</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24221.158</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">28455.621</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34692.362</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">22381.063</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24339.940</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25627.984</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23593.355</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">12012.844</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23902.662</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25559.226</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">10062.431</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34746.016</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34017.791</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25166.680</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36777.740</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">27693.848</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11846.253</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21888.715</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11945.956</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">12734.579</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21795.423</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36777.740</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">31969.086</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34017.791</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36286.393</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33371.841</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25067.560</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11115.756</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21314.812</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36805.208</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">18589.369</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36196.274</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36018.509</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23869.230</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36308.667</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34412.539</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35652.087</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24239.176</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21888.715</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">32124.203</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23273.539</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33288.060</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">28320.825</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23402.675</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34307.434</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24746.535</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25879.784</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34177.526</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24720.505</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21230.842</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34166.071</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11345.894</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34017.791</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">11762.282</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13157.436</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23804.279</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">11510.482</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16055.908</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26074.345</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17331.084</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24152.493</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26944.271</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">28387.708</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">19270.973</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15310.515</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">11199.727</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16109.317</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">14296.526</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">9600.301</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13701.424</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">19120.824</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17021.813</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15873.647</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33340.668</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24260.081</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17615.929</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">27667.320</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10322.556</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">14619.031</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35551.045</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23410.734</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13049.858</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17830.398</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10076.683</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">18571.163</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17616.814</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15730.606</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13587.549</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26630.687</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">12265.926</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23698.241</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26340.008</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">22638.307</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26728.236</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">8952.381</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">12494.332</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">9684.735</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">9464.065</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">27283.817</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">28041.458</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23921.718</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">22402.148</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13173.713</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10664.512</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20515.714</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24579.106</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16042.526</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24171.953</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">25559.226</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16642.352</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">27012.415</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">25056.964</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26799.366</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35444.211</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33453.359</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10325.652</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35884.318</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24482.404</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23263.733</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">19965.378</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26010.542</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20404.450</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24957.644</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23745.392</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">21428.067</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24579.106</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15076.026</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23923.902</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20492.838</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">34123.501</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">34044.585</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33217.237</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">12767.298</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20440.508</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">30079.093</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">25367.967</td>
+<td align="left">rcp60</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20162.411</td>
+<td align="left">rcp60</td>
+</tr>
+</tbody>
+</table>
+<pre class="sourceCode r"><code class="sourceCode r">d2[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Year, <span class="dv">2010</span>:<span class="dv">2099</span>)]</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">variable</th>
+<th align="right">value</th>
+<th align="left">Period</th>
+<th align="right">Year</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+<td align="right">2010</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">11762.282</td>
+<td align="left">rcp60</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">30404.038</td>
+<td align="left">rcp60</td>
+<td align="right">2012</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35891.522</td>
+<td align="left">rcp60</td>
+<td align="right">2013</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23657.608</td>
+<td align="left">rcp60</td>
+<td align="right">2014</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">9942.099</td>
+<td align="left">rcp60</td>
+<td align="right">2015</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25051.641</td>
+<td align="left">rcp60</td>
+<td align="right">2016</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+<td align="right">2017</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">10022.518</td>
+<td align="left">rcp60</td>
+<td align="right">2018</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+<td align="right">2019</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35973.960</td>
+<td align="left">rcp60</td>
+<td align="right">2020</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24979.394</td>
+<td align="left">rcp60</td>
+<td align="right">2021</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27518.329</td>
+<td align="left">rcp60</td>
+<td align="right">2022</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">27073.715</td>
+<td align="left">rcp60</td>
+<td align="right">2023</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">14227.483</td>
+<td align="left">rcp60</td>
+<td align="right">2024</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">15012.245</td>
+<td align="left">rcp60</td>
+<td align="right">2025</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">14052.403</td>
+<td align="left">rcp60</td>
+<td align="right">2026</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25820.306</td>
+<td align="left">rcp60</td>
+<td align="right">2027</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27693.848</td>
+<td align="left">rcp60</td>
+<td align="right">2028</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">12559.473</td>
+<td align="left">rcp60</td>
+<td align="right">2029</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+<td align="right">2030</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">36777.740</td>
+<td align="left">rcp60</td>
+<td align="right">2031</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">36385.663</td>
+<td align="left">rcp60</td>
+<td align="right">2032</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+<td align="right">2033</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">15362.057</td>
+<td align="left">rcp60</td>
+<td align="right">2034</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+<td align="right">2035</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35967.455</td>
+<td align="left">rcp60</td>
+<td align="right">2036</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">9675.916</td>
+<td align="left">rcp60</td>
+<td align="right">2037</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23902.194</td>
+<td align="left">rcp60</td>
+<td align="right">2038</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24503.627</td>
+<td align="left">rcp60</td>
+<td align="right">2039</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">12265.926</td>
+<td align="left">rcp60</td>
+<td align="right">2040</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">26376.983</td>
+<td align="left">rcp60</td>
+<td align="right">2041</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27918.833</td>
+<td align="left">rcp60</td>
+<td align="right">2042</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35234.698</td>
+<td align="left">rcp60</td>
+<td align="right">2043</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">11537.714</td>
+<td align="left">rcp60</td>
+<td align="right">2044</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33775.752</td>
+<td align="left">rcp60</td>
+<td align="right">2045</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">28519.264</td>
+<td align="left">rcp60</td>
+<td align="right">2046</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33034.586</td>
+<td align="left">rcp60</td>
+<td align="right">2047</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">34003.478</td>
+<td align="left">rcp60</td>
+<td align="right">2048</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24489.414</td>
+<td align="left">rcp60</td>
+<td align="right">2049</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">24849.554</td>
+<td align="left">rcp60</td>
+<td align="right">2050</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">24167.996</td>
+<td align="left">rcp60</td>
+<td align="right">2051</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25879.784</td>
+<td align="left">rcp60</td>
+<td align="right">2052</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">20303.698</td>
+<td align="left">rcp60</td>
+<td align="right">2053</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23655.700</td>
+<td align="left">rcp60</td>
+<td align="right">2054</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">17347.002</td>
+<td align="left">rcp60</td>
+<td align="right">2055</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">21579.264</td>
+<td align="left">rcp60</td>
+<td align="right">2056</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2057</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+<td align="right">2058</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2059</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">20303.698</td>
+<td align="left">rcp60</td>
+<td align="right">2060</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">22879.978</td>
+<td align="left">rcp60</td>
+<td align="right">2061</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25962.751</td>
+<td align="left">rcp60</td>
+<td align="right">2062</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34811.096</td>
+<td align="left">rcp60</td>
+<td align="right">2063</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">25395.497</td>
+<td align="left">rcp60</td>
+<td align="right">2064</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+<td align="right">2065</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">20371.259</td>
+<td align="left">rcp60</td>
+<td align="right">2066</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">25103.707</td>
+<td align="left">rcp60</td>
+<td align="right">2067</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+<td align="right">2068</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">26048.189</td>
+<td align="left">rcp60</td>
+<td align="right">2069</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33634.672</td>
+<td align="left">rcp60</td>
+<td align="right">2070</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+<td align="right">2071</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2072</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2073</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35652.964</td>
+<td align="left">rcp60</td>
+<td align="right">2074</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+<td align="right">2075</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">24757.480</td>
+<td align="left">rcp60</td>
+<td align="right">2076</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34282.047</td>
+<td align="left">rcp60</td>
+<td align="right">2077</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2078</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+<td align="right">2079</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">23145.312</td>
+<td align="left">rcp60</td>
+<td align="right">2080</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+<td align="right">2081</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">14040.588</td>
+<td align="left">rcp60</td>
+<td align="right">2082</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2083</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+<td align="right">2084</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35525.977</td>
+<td align="left">rcp60</td>
+<td align="right">2085</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">37143.285</td>
+<td align="left">rcp60</td>
+<td align="right">2086</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34619.029</td>
+<td align="left">rcp60</td>
+<td align="right">2087</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35525.977</td>
+<td align="left">rcp60</td>
+<td align="right">2088</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34282.047</td>
+<td align="left">rcp60</td>
+<td align="right">2089</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+<td align="right">2090</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35235.574</td>
+<td align="left">rcp60</td>
+<td align="right">2091</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+<td align="right">2092</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+<td align="right">2093</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2094</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">35973.960</td>
+<td align="left">rcp60</td>
+<td align="right">2095</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">10991.216</td>
+<td align="left">rcp60</td>
+<td align="right">2096</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2097</td>
+</tr>
+<tr class="odd">
+<td align="left">CCSM4</td>
+<td align="right">33958.854</td>
+<td align="left">rcp60</td>
+<td align="right">2098</td>
+</tr>
+<tr class="even">
+<td align="left">CCSM4</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2099</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">27044.551</td>
+<td align="left">rcp60</td>
+<td align="right">2010</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">12087.919</td>
+<td align="left">rcp60</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26140.396</td>
+<td align="left">rcp60</td>
+<td align="right">2012</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">29473.799</td>
+<td align="left">rcp60</td>
+<td align="right">2013</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">23318.779</td>
+<td align="left">rcp60</td>
+<td align="right">2014</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">27663.164</td>
+<td align="left">rcp60</td>
+<td align="right">2015</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">25112.683</td>
+<td align="left">rcp60</td>
+<td align="right">2016</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">21140.192</td>
+<td align="left">rcp60</td>
+<td align="right">2017</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+<td align="right">2018</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">36272.138</td>
+<td align="left">rcp60</td>
+<td align="right">2019</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34331.021</td>
+<td align="left">rcp60</td>
+<td align="right">2020</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">24396.538</td>
+<td align="left">rcp60</td>
+<td align="right">2021</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33440.707</td>
+<td align="left">rcp60</td>
+<td align="right">2022</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">16316.978</td>
+<td align="left">rcp60</td>
+<td align="right">2023</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26108.917</td>
+<td align="left">rcp60</td>
+<td align="right">2024</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">23055.620</td>
+<td align="left">rcp60</td>
+<td align="right">2025</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+<td align="right">2026</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">28099.470</td>
+<td align="left">rcp60</td>
+<td align="right">2027</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+<td align="right">2028</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2029</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">20488.036</td>
+<td align="left">rcp60</td>
+<td align="right">2030</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+<td align="right">2031</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2032</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">24342.413</td>
+<td align="left">rcp60</td>
+<td align="right">2033</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34684.110</td>
+<td align="left">rcp60</td>
+<td align="right">2034</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2035</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26656.949</td>
+<td align="left">rcp60</td>
+<td align="right">2036</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+<td align="right">2037</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">23745.392</td>
+<td align="left">rcp60</td>
+<td align="right">2038</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">23796.201</td>
+<td align="left">rcp60</td>
+<td align="right">2039</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2040</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">25839.114</td>
+<td align="left">rcp60</td>
+<td align="right">2041</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+<td align="right">2042</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">25365.572</td>
+<td align="left">rcp60</td>
+<td align="right">2043</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2044</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2045</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2046</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2047</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2048</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2049</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">28178.838</td>
+<td align="left">rcp60</td>
+<td align="right">2050</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2051</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2052</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2053</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+<td align="right">2054</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2055</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2056</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2057</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2058</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+<td align="right">2059</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2060</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">26321.217</td>
+<td align="left">rcp60</td>
+<td align="right">2061</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2062</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2063</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2064</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2065</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2066</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2067</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2068</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2069</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2070</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2071</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2072</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2073</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2074</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2075</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2076</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2077</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2078</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2079</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2080</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+<td align="right">2081</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2082</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2083</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">34412.539</td>
+<td align="left">rcp60</td>
+<td align="right">2084</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2085</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+<td align="right">2086</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2087</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2088</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2089</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+<td align="right">2090</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">34205.018</td>
+<td align="left">rcp60</td>
+<td align="right">2091</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2092</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33946.735</td>
+<td align="left">rcp60</td>
+<td align="right">2093</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2094</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2095</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2096</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2097</td>
+</tr>
+<tr class="odd">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2098</td>
+</tr>
+<tr class="even">
+<td align="left">GFDL-CM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2099</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25395.497</td>
+<td align="left">rcp60</td>
+<td align="right">2010</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">17641.758</td>
+<td align="left">rcp60</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24648.456</td>
+<td align="left">rcp60</td>
+<td align="right">2012</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">17923.273</td>
+<td align="left">rcp60</td>
+<td align="right">2013</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">16804.013</td>
+<td align="left">rcp60</td>
+<td align="right">2014</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">27693.848</td>
+<td align="left">rcp60</td>
+<td align="right">2015</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">10884.313</td>
+<td align="left">rcp60</td>
+<td align="right">2016</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">12787.387</td>
+<td align="left">rcp60</td>
+<td align="right">2017</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25185.284</td>
+<td align="left">rcp60</td>
+<td align="right">2018</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">21972.686</td>
+<td align="left">rcp60</td>
+<td align="right">2019</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">14188.901</td>
+<td align="left">rcp60</td>
+<td align="right">2020</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">9196.747</td>
+<td align="left">rcp60</td>
+<td align="right">2021</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">22674.612</td>
+<td align="left">rcp60</td>
+<td align="right">2022</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">20442.771</td>
+<td align="left">rcp60</td>
+<td align="right">2023</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">17891.591</td>
+<td align="left">rcp60</td>
+<td align="right">2024</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">10599.450</td>
+<td align="left">rcp60</td>
+<td align="right">2025</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">16982.678</td>
+<td align="left">rcp60</td>
+<td align="right">2026</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">36855.716</td>
+<td align="left">rcp60</td>
+<td align="right">2027</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24434.450</td>
+<td align="left">rcp60</td>
+<td align="right">2028</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">19044.546</td>
+<td align="left">rcp60</td>
+<td align="right">2029</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33830.573</td>
+<td align="left">rcp60</td>
+<td align="right">2030</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">19692.792</td>
+<td align="left">rcp60</td>
+<td align="right">2031</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">14431.342</td>
+<td align="left">rcp60</td>
+<td align="right">2032</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">13396.819</td>
+<td align="left">rcp60</td>
+<td align="right">2033</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">14285.727</td>
+<td align="left">rcp60</td>
+<td align="right">2034</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">31271.696</td>
+<td align="left">rcp60</td>
+<td align="right">2035</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">12065.659</td>
+<td align="left">rcp60</td>
+<td align="right">2036</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35132.957</td>
+<td align="left">rcp60</td>
+<td align="right">2037</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">34166.340</td>
+<td align="left">rcp60</td>
+<td align="right">2038</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">30562.666</td>
+<td align="left">rcp60</td>
+<td align="right">2039</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">23559.508</td>
+<td align="left">rcp60</td>
+<td align="right">2040</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">11681.504</td>
+<td align="left">rcp60</td>
+<td align="right">2041</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">31167.574</td>
+<td align="left">rcp60</td>
+<td align="right">2042</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33637.933</td>
+<td align="left">rcp60</td>
+<td align="right">2043</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">28085.732</td>
+<td align="left">rcp60</td>
+<td align="right">2044</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">17616.814</td>
+<td align="left">rcp60</td>
+<td align="right">2045</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">9209.605</td>
+<td align="left">rcp60</td>
+<td align="right">2046</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35948.316</td>
+<td align="left">rcp60</td>
+<td align="right">2047</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">12753.626</td>
+<td align="left">rcp60</td>
+<td align="right">2048</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">19965.378</td>
+<td align="left">rcp60</td>
+<td align="right">2049</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25069.329</td>
+<td align="left">rcp60</td>
+<td align="right">2050</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">23999.239</td>
+<td align="left">rcp60</td>
+<td align="right">2051</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">27877.824</td>
+<td align="left">rcp60</td>
+<td align="right">2052</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34102.678</td>
+<td align="left">rcp60</td>
+<td align="right">2053</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2054</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">12738.947</td>
+<td align="left">rcp60</td>
+<td align="right">2055</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+<td align="right">2056</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">25103.707</td>
+<td align="left">rcp60</td>
+<td align="right">2057</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21056.222</td>
+<td align="left">rcp60</td>
+<td align="right">2058</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34275.557</td>
+<td align="left">rcp60</td>
+<td align="right">2059</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">26687.062</td>
+<td align="left">rcp60</td>
+<td align="right">2060</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+<td align="right">2061</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33855.433</td>
+<td align="left">rcp60</td>
+<td align="right">2062</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">21056.222</td>
+<td align="left">rcp60</td>
+<td align="right">2063</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24456.131</td>
+<td align="left">rcp60</td>
+<td align="right">2064</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+<td align="right">2065</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24873.521</td>
+<td align="left">rcp60</td>
+<td align="right">2066</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">26196.376</td>
+<td align="left">rcp60</td>
+<td align="right">2067</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">26813.111</td>
+<td align="left">rcp60</td>
+<td align="right">2068</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35884.318</td>
+<td align="left">rcp60</td>
+<td align="right">2069</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21531.352</td>
+<td align="left">rcp60</td>
+<td align="right">2070</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">29800.591</td>
+<td align="left">rcp60</td>
+<td align="right">2071</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21495.293</td>
+<td align="left">rcp60</td>
+<td align="right">2072</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+<td align="right">2073</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">28557.376</td>
+<td align="left">rcp60</td>
+<td align="right">2074</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2075</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21140.192</td>
+<td align="left">rcp60</td>
+<td align="right">2076</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2077</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21266.900</td>
+<td align="left">rcp60</td>
+<td align="right">2078</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">25958.655</td>
+<td align="left">rcp60</td>
+<td align="right">2079</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24633.439</td>
+<td align="left">rcp60</td>
+<td align="right">2080</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34137.027</td>
+<td align="left">rcp60</td>
+<td align="right">2081</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">24836.469</td>
+<td align="left">rcp60</td>
+<td align="right">2082</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">26108.917</td>
+<td align="left">rcp60</td>
+<td align="right">2083</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">22930.368</td>
+<td align="left">rcp60</td>
+<td align="right">2084</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">26082.741</td>
+<td align="left">rcp60</td>
+<td align="right">2085</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">22912.149</td>
+<td align="left">rcp60</td>
+<td align="right">2086</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">21531.352</td>
+<td align="left">rcp60</td>
+<td align="right">2087</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">23875.990</td>
+<td align="left">rcp60</td>
+<td align="right">2088</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33440.707</td>
+<td align="left">rcp60</td>
+<td align="right">2089</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">20804.422</td>
+<td align="left">rcp60</td>
+<td align="right">2090</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">23923.902</td>
+<td align="left">rcp60</td>
+<td align="right">2091</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">25099.779</td>
+<td align="left">rcp60</td>
+<td align="right">2092</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+<td align="right">2093</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">33818.904</td>
+<td align="left">rcp60</td>
+<td align="right">2094</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">34282.047</td>
+<td align="left">rcp60</td>
+<td align="right">2095</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">19965.185</td>
+<td align="left">rcp60</td>
+<td align="right">2096</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">33719.368</td>
+<td align="left">rcp60</td>
+<td align="right">2097</td>
+</tr>
+<tr class="odd">
+<td align="left">GISS-E2-R</td>
+<td align="right">21056.222</td>
+<td align="left">rcp60</td>
+<td align="right">2098</td>
+</tr>
+<tr class="even">
+<td align="left">GISS-E2-R</td>
+<td align="right">20769.708</td>
+<td align="left">rcp60</td>
+<td align="right">2099</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">17050.318</td>
+<td align="left">rcp60</td>
+<td align="right">2010</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">17447.386</td>
+<td align="left">rcp60</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">9838.555</td>
+<td align="left">rcp60</td>
+<td align="right">2012</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+<td align="right">2013</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">37143.285</td>
+<td align="left">rcp60</td>
+<td align="right">2014</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">9215.099</td>
+<td align="left">rcp60</td>
+<td align="right">2015</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24221.158</td>
+<td align="left">rcp60</td>
+<td align="right">2016</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">28455.621</td>
+<td align="left">rcp60</td>
+<td align="right">2017</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34692.362</td>
+<td align="left">rcp60</td>
+<td align="right">2018</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">22381.063</td>
+<td align="left">rcp60</td>
+<td align="right">2019</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2020</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24339.940</td>
+<td align="left">rcp60</td>
+<td align="right">2021</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+<td align="right">2022</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25627.984</td>
+<td align="left">rcp60</td>
+<td align="right">2023</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23593.355</td>
+<td align="left">rcp60</td>
+<td align="right">2024</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">12012.844</td>
+<td align="left">rcp60</td>
+<td align="right">2025</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23902.662</td>
+<td align="left">rcp60</td>
+<td align="right">2026</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25559.226</td>
+<td align="left">rcp60</td>
+<td align="right">2027</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2028</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+<td align="right">2029</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">10062.431</td>
+<td align="left">rcp60</td>
+<td align="right">2030</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+<td align="right">2031</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34746.016</td>
+<td align="left">rcp60</td>
+<td align="right">2032</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34017.791</td>
+<td align="left">rcp60</td>
+<td align="right">2033</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25166.680</td>
+<td align="left">rcp60</td>
+<td align="right">2034</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2035</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36777.740</td>
+<td align="left">rcp60</td>
+<td align="right">2036</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">27693.848</td>
+<td align="left">rcp60</td>
+<td align="right">2037</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+<td align="right">2038</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11846.253</td>
+<td align="left">rcp60</td>
+<td align="right">2039</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+<td align="right">2040</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21888.715</td>
+<td align="left">rcp60</td>
+<td align="right">2041</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11945.956</td>
+<td align="left">rcp60</td>
+<td align="right">2042</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">12734.579</td>
+<td align="left">rcp60</td>
+<td align="right">2043</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21795.423</td>
+<td align="left">rcp60</td>
+<td align="right">2044</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36777.740</td>
+<td align="left">rcp60</td>
+<td align="right">2045</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2046</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+<td align="right">2047</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">31969.086</td>
+<td align="left">rcp60</td>
+<td align="right">2048</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34017.791</td>
+<td align="left">rcp60</td>
+<td align="right">2049</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2050</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36286.393</td>
+<td align="left">rcp60</td>
+<td align="right">2051</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33371.841</td>
+<td align="left">rcp60</td>
+<td align="right">2052</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25067.560</td>
+<td align="left">rcp60</td>
+<td align="right">2053</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11115.756</td>
+<td align="left">rcp60</td>
+<td align="right">2054</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21314.812</td>
+<td align="left">rcp60</td>
+<td align="right">2055</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36805.208</td>
+<td align="left">rcp60</td>
+<td align="right">2056</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">18589.369</td>
+<td align="left">rcp60</td>
+<td align="right">2057</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36196.274</td>
+<td align="left">rcp60</td>
+<td align="right">2058</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36018.509</td>
+<td align="left">rcp60</td>
+<td align="right">2059</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23869.230</td>
+<td align="left">rcp60</td>
+<td align="right">2060</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">36308.667</td>
+<td align="left">rcp60</td>
+<td align="right">2061</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34412.539</td>
+<td align="left">rcp60</td>
+<td align="right">2062</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2063</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35652.087</td>
+<td align="left">rcp60</td>
+<td align="right">2064</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24239.176</td>
+<td align="left">rcp60</td>
+<td align="right">2065</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">27499.287</td>
+<td align="left">rcp60</td>
+<td align="right">2066</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21888.715</td>
+<td align="left">rcp60</td>
+<td align="right">2067</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">32124.203</td>
+<td align="left">rcp60</td>
+<td align="right">2068</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23273.539</td>
+<td align="left">rcp60</td>
+<td align="right">2069</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+<td align="right">2070</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+<td align="right">2071</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34126.102</td>
+<td align="left">rcp60</td>
+<td align="right">2072</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33288.060</td>
+<td align="left">rcp60</td>
+<td align="right">2073</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2074</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35199.651</td>
+<td align="left">rcp60</td>
+<td align="right">2075</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">28320.825</td>
+<td align="left">rcp60</td>
+<td align="right">2076</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2077</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33811.981</td>
+<td align="left">rcp60</td>
+<td align="right">2078</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35355.595</td>
+<td align="left">rcp60</td>
+<td align="right">2079</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">23402.675</td>
+<td align="left">rcp60</td>
+<td align="right">2080</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34307.434</td>
+<td align="left">rcp60</td>
+<td align="right">2081</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2082</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24746.535</td>
+<td align="left">rcp60</td>
+<td align="right">2083</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+<td align="right">2084</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2085</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">25879.784</td>
+<td align="left">rcp60</td>
+<td align="right">2086</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+<td align="right">2087</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2088</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">33798.455</td>
+<td align="left">rcp60</td>
+<td align="right">2089</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34177.526</td>
+<td align="left">rcp60</td>
+<td align="right">2090</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+<td align="right">2091</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2092</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">24720.505</td>
+<td align="left">rcp60</td>
+<td align="right">2093</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">21230.842</td>
+<td align="left">rcp60</td>
+<td align="right">2094</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34166.071</td>
+<td align="left">rcp60</td>
+<td align="right">2095</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">11345.894</td>
+<td align="left">rcp60</td>
+<td align="right">2096</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">35172.857</td>
+<td align="left">rcp60</td>
+<td align="right">2097</td>
+</tr>
+<tr class="odd">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34990.050</td>
+<td align="left">rcp60</td>
+<td align="right">2098</td>
+</tr>
+<tr class="even">
+<td align="left">IPSL-CM5A-LR</td>
+<td align="right">34017.791</td>
+<td align="left">rcp60</td>
+<td align="right">2099</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">11762.282</td>
+<td align="left">rcp60</td>
+<td align="right">2010</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13157.436</td>
+<td align="left">rcp60</td>
+<td align="right">2011</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23804.279</td>
+<td align="left">rcp60</td>
+<td align="right">2012</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">11510.482</td>
+<td align="left">rcp60</td>
+<td align="right">2013</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16055.908</td>
+<td align="left">rcp60</td>
+<td align="right">2014</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26074.345</td>
+<td align="left">rcp60</td>
+<td align="right">2015</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17331.084</td>
+<td align="left">rcp60</td>
+<td align="right">2016</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24152.493</td>
+<td align="left">rcp60</td>
+<td align="right">2017</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26944.271</td>
+<td align="left">rcp60</td>
+<td align="right">2018</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">28387.708</td>
+<td align="left">rcp60</td>
+<td align="right">2019</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">19270.973</td>
+<td align="left">rcp60</td>
+<td align="right">2020</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15310.515</td>
+<td align="left">rcp60</td>
+<td align="right">2021</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">11199.727</td>
+<td align="left">rcp60</td>
+<td align="right">2022</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16109.317</td>
+<td align="left">rcp60</td>
+<td align="right">2023</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">14296.526</td>
+<td align="left">rcp60</td>
+<td align="right">2024</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">9600.301</td>
+<td align="left">rcp60</td>
+<td align="right">2025</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13701.424</td>
+<td align="left">rcp60</td>
+<td align="right">2026</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">19120.824</td>
+<td align="left">rcp60</td>
+<td align="right">2027</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17021.813</td>
+<td align="left">rcp60</td>
+<td align="right">2028</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15873.647</td>
+<td align="left">rcp60</td>
+<td align="right">2029</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33340.668</td>
+<td align="left">rcp60</td>
+<td align="right">2030</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24260.081</td>
+<td align="left">rcp60</td>
+<td align="right">2031</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17615.929</td>
+<td align="left">rcp60</td>
+<td align="right">2032</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">27667.320</td>
+<td align="left">rcp60</td>
+<td align="right">2033</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10322.556</td>
+<td align="left">rcp60</td>
+<td align="right">2034</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">14619.031</td>
+<td align="left">rcp60</td>
+<td align="right">2035</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35551.045</td>
+<td align="left">rcp60</td>
+<td align="right">2036</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23410.734</td>
+<td align="left">rcp60</td>
+<td align="right">2037</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13049.858</td>
+<td align="left">rcp60</td>
+<td align="right">2038</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17830.398</td>
+<td align="left">rcp60</td>
+<td align="right">2039</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10076.683</td>
+<td align="left">rcp60</td>
+<td align="right">2040</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">18571.163</td>
+<td align="left">rcp60</td>
+<td align="right">2041</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">17616.814</td>
+<td align="left">rcp60</td>
+<td align="right">2042</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15730.606</td>
+<td align="left">rcp60</td>
+<td align="right">2043</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13587.549</td>
+<td align="left">rcp60</td>
+<td align="right">2044</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26630.687</td>
+<td align="left">rcp60</td>
+<td align="right">2045</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">12265.926</td>
+<td align="left">rcp60</td>
+<td align="right">2046</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23698.241</td>
+<td align="left">rcp60</td>
+<td align="right">2047</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26340.008</td>
+<td align="left">rcp60</td>
+<td align="right">2048</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">22638.307</td>
+<td align="left">rcp60</td>
+<td align="right">2049</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26728.236</td>
+<td align="left">rcp60</td>
+<td align="right">2050</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">8952.381</td>
+<td align="left">rcp60</td>
+<td align="right">2051</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2052</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">12494.332</td>
+<td align="left">rcp60</td>
+<td align="right">2053</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">9684.735</td>
+<td align="left">rcp60</td>
+<td align="right">2054</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">9464.065</td>
+<td align="left">rcp60</td>
+<td align="right">2055</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">27283.817</td>
+<td align="left">rcp60</td>
+<td align="right">2056</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">28041.458</td>
+<td align="left">rcp60</td>
+<td align="right">2057</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23921.718</td>
+<td align="left">rcp60</td>
+<td align="right">2058</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">22402.148</td>
+<td align="left">rcp60</td>
+<td align="right">2059</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26198.609</td>
+<td align="left">rcp60</td>
+<td align="right">2060</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">13173.713</td>
+<td align="left">rcp60</td>
+<td align="right">2061</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10664.512</td>
+<td align="left">rcp60</td>
+<td align="right">2062</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20515.714</td>
+<td align="left">rcp60</td>
+<td align="right">2063</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24579.106</td>
+<td align="left">rcp60</td>
+<td align="right">2064</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16042.526</td>
+<td align="left">rcp60</td>
+<td align="right">2065</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24171.953</td>
+<td align="left">rcp60</td>
+<td align="right">2066</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">25559.226</td>
+<td align="left">rcp60</td>
+<td align="right">2067</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">16642.352</td>
+<td align="left">rcp60</td>
+<td align="right">2068</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">27012.415</td>
+<td align="left">rcp60</td>
+<td align="right">2069</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">25056.964</td>
+<td align="left">rcp60</td>
+<td align="right">2070</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26799.366</td>
+<td align="left">rcp60</td>
+<td align="right">2071</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35444.211</td>
+<td align="left">rcp60</td>
+<td align="right">2072</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35143.668</td>
+<td align="left">rcp60</td>
+<td align="right">2073</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2074</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33453.359</td>
+<td align="left">rcp60</td>
+<td align="right">2075</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">10325.652</td>
+<td align="left">rcp60</td>
+<td align="right">2076</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35884.318</td>
+<td align="left">rcp60</td>
+<td align="right">2077</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24482.404</td>
+<td align="left">rcp60</td>
+<td align="right">2078</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23263.733</td>
+<td align="left">rcp60</td>
+<td align="right">2079</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">19965.378</td>
+<td align="left">rcp60</td>
+<td align="right">2080</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">26010.542</td>
+<td align="left">rcp60</td>
+<td align="right">2081</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20404.450</td>
+<td align="left">rcp60</td>
+<td align="right">2082</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24957.644</td>
+<td align="left">rcp60</td>
+<td align="right">2083</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23745.392</td>
+<td align="left">rcp60</td>
+<td align="right">2084</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">21428.067</td>
+<td align="left">rcp60</td>
+<td align="right">2085</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">24579.106</td>
+<td align="left">rcp60</td>
+<td align="right">2086</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">15076.026</td>
+<td align="left">rcp60</td>
+<td align="right">2087</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">23923.902</td>
+<td align="left">rcp60</td>
+<td align="right">2088</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20492.838</td>
+<td align="left">rcp60</td>
+<td align="right">2089</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">34123.501</td>
+<td align="left">rcp60</td>
+<td align="right">2090</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">34044.585</td>
+<td align="left">rcp60</td>
+<td align="right">2091</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">35906.593</td>
+<td align="left">rcp60</td>
+<td align="right">2092</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33217.237</td>
+<td align="left">rcp60</td>
+<td align="right">2093</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">12767.298</td>
+<td align="left">rcp60</td>
+<td align="right">2094</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">33879.972</td>
+<td align="left">rcp60</td>
+<td align="right">2095</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20440.508</td>
+<td align="left">rcp60</td>
+<td align="right">2096</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">30079.093</td>
+<td align="left">rcp60</td>
+<td align="right">2097</td>
+</tr>
+<tr class="odd">
+<td align="left">MRI-CGCM3</td>
+<td align="right">25367.967</td>
+<td align="left">rcp60</td>
+<td align="right">2098</td>
+</tr>
+<tr class="even">
+<td align="left">MRI-CGCM3</td>
+<td align="right">20162.411</td>
+<td align="left">rcp60</td>
+<td align="right">2099</td>
+</tr>
+</tbody>
+</table>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">setnames</span>(d2, <span class="kw">c</span>(<span class="st">&quot;Model&quot;</span>, <span class="st">&quot;LightPred&quot;</span>, <span class="st">&quot;Period&quot;</span>, <span class="st">&quot;Year&quot;</span>))
+d2 &lt;-<span class="st"> </span>d2 %&gt;%<span class="st"> </span><span class="kw">group_by</span>(Model) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Rank =</span> <span class="kw">rank</span>(LightPred), <span class="dt">Class =</span> <span class="kw">get_classes1</span>(LightPred), 
+    <span class="dt">Coef =</span> <span class="kw">get_coefficients</span>(Class), <span class="dt">ECDF =</span> <span class="kw">ecdf</span>(LightPred)(LightPred)) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Class =</span> <span class="kw">get_classes2</span>(Class)) %&gt;%<span class="st"> </span>
+<span class="st">    </span><span class="kw">setcolorder</span>(<span class="kw">names</span>(d))
+
+d.all &lt;-<span class="st"> </span><span class="kw">rbind</span>(d, d2)
+
+(g4 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d.all, <span class="kw">aes</span>(<span class="dt">x =</span> Rank, <span class="dt">y =</span> LightPred, <span class="dt">label =</span> Year)) +<span class="st"> </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> qtiles, 
+    <span class="dt">linetype =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">colour =</span> Class), <span class="dt">hjust =</span> <span class="dv">0</span>, 
+    <span class="dt">vjust =</span> <span class="dv">0</span>, <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">show_guide =</span> F) +<span class="st"> </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="dv">1</span>, <span class="dt">y =</span> qtiles, 
+    <span class="dt">label =</span> <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;CRU32</span><span class="ch">\n</span><span class="st">qunatile =&quot;</span>, lb), <span class="kw">paste</span>(<span class="st">&quot;CRU32</span><span class="ch">\n</span><span class="st">quantile =&quot;</span>, ub)), 
+    <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">vjust =</span> -<span class="fl">0.5</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Predicted rank&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Predicted number of strikes&quot;</span>, 
+    <span class="dt">title =</span> <span class="st">&quot;1950-2011 CRU32 and 2010-2099 GCM GBM-predicted summer lightning strikes: ranked and ordered&quot;</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">facet_wrap</span>(~Model, <span class="dt">ncol =</span> <span class="dv">2</span>))</code></pre>
+<p><img src="gbm_lightning_coefficients_files/figure-html/plots_gcm-1.png" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">(g5 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d.all, <span class="kw">aes</span>(<span class="dt">x =</span> Year, <span class="dt">y =</span> LightPred, <span class="dt">label =</span> Rank)) +<span class="st"> </span><span class="kw">geom_line</span>() +<span class="st"> </span>
+<span class="st">    </span><span class="kw">geom_hline</span>(<span class="dt">yintercept =</span> qtiles, <span class="dt">linetype =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">colour =</span> Class), 
+    <span class="dt">hjust =</span> <span class="dv">0</span>, <span class="dt">vjust =</span> <span class="dv">0</span>, <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">show_guide =</span> F) +<span class="st"> </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, <span class="dt">x =</span> <span class="dv">1950</span>, 
+    <span class="dt">y =</span> qtiles, <span class="dt">label =</span> <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;CRU32</span><span class="ch">\n</span><span class="st">qunatile =&quot;</span>, lb), <span class="kw">paste</span>(<span class="st">&quot;CRU32</span><span class="ch">\n</span><span class="st">quantile =&quot;</span>, 
+        ub)), <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">vjust =</span> -<span class="fl">0.5</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">y =</span> <span class="st">&quot;Predicted number of strikes&quot;</span>, 
+    <span class="dt">title =</span> <span class="st">&quot;1950-2011 CRU32 and 2010-2099 GCM GBM-predicted summer lightning strikes: time series&quot;</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">facet_wrap</span>(~Model, <span class="dt">ncol =</span> <span class="dv">2</span>))</code></pre>
+<p><img src="gbm_lightning_coefficients_files/figure-html/plots_gcm-2.png" /></p>
+<pre class="sourceCode r"><code class="sourceCode r">(g6 &lt;-<span class="st"> </span><span class="kw">ggplot</span>(<span class="dt">data =</span> d.all, <span class="kw">aes</span>(<span class="dt">x =</span> LightPred, <span class="dt">label =</span> Year)) +<span class="st"> </span><span class="kw">geom_vline</span>(<span class="dt">xintercept =</span> qtiles, 
+    <span class="dt">linetype =</span> <span class="dv">2</span>) +<span class="st"> </span><span class="kw">stat_ecdf</span>() +<span class="st"> </span><span class="kw">stat_ecdf</span>(<span class="dt">geom =</span> <span class="st">&quot;point&quot;</span>) +<span class="st"> </span><span class="kw">geom_text</span>(<span class="kw">aes</span>(<span class="dt">y =</span> ECDF, 
+    <span class="dt">colour =</span> Class), <span class="dt">hjust =</span> <span class="dv">0</span>, <span class="dt">vjust =</span> <span class="dv">0</span>, <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">show_guide =</span> F) +<span class="st"> </span><span class="kw">annotate</span>(<span class="st">&quot;text&quot;</span>, 
+    <span class="dt">x =</span> qtiles, <span class="dt">y =</span> <span class="dv">0</span>, <span class="dt">label =</span> <span class="kw">c</span>(<span class="kw">paste</span>(<span class="st">&quot;CRU32</span><span class="ch">\n</span><span class="st">qunatile =&quot;</span>, lb), <span class="kw">paste</span>(<span class="st">&quot;CRU32</span><span class="ch">\n</span><span class="st">quantile =&quot;</span>, 
+        ub)), <span class="dt">size =</span> <span class="dv">3</span>, <span class="dt">hjust =</span> -<span class="fl">0.1</span>, <span class="dt">vjust =</span> -<span class="fl">0.25</span>) +<span class="st"> </span><span class="kw">labs</span>(<span class="dt">x =</span> <span class="st">&quot;Predicted number of strikes&quot;</span>, 
+    <span class="dt">y =</span> <span class="st">&quot;CDF&quot;</span>, <span class="dt">title =</span> <span class="st">&quot;1950-2011 CRU32 and 2010-2099 GCM GBM-predicted summer lightning strikes: empirical CDF&quot;</span>) +<span class="st"> </span>
+<span class="st">    </span><span class="kw">facet_wrap</span>(~Model, <span class="dt">ncol =</span> <span class="dv">2</span>))</code></pre>
+<p><img src="gbm_lightning_coefficients_files/figure-html/plots_gcm-3.png" /></p>
+</div>
+<div id="save-outputs" class="section level3">
+<h3>Save outputs</h3>
+</div>
+</div>
+
+<!-- some extra javascript for older browsers -->
+<script type="text/javascript" src="libs/polyfill.js"></script>
+<script>
+  // manage active state of menu based on current page
+  $(document).ready(function () {
+  
+    // active menu
+    href = window.location.pathname
+    href = href.substr(href.lastIndexOf('/') + 1)
+    $('a[href="' + href + '"]').parent().addClass('active');
+    
+    // manage active menu header
+    if (href.startsWith('authoring_'))
+      $('a[href="' + 'authoring' + '"]').parent().addClass('active');
+    else if (href.endsWith('_format.html'))
+      $('a[href="' + 'formats' + '"]').parent().addClass('active');
+    else if (href.startsWith('developer_'))
+      $('a[href="' + 'developer' + '"]').parent().addClass('active');
+	  
+  });
+</script>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+
+</body>
+</html>
