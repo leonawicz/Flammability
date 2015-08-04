@@ -4,9 +4,9 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   07/10/2015        ####
+#### Last updated:   08/04/2015        ####
 
-# @knitr setup1
+# @knitr setup
 # GBM flammability map comparisons
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 dir.create(plotDir <- "/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
@@ -19,6 +19,19 @@ dirs5 <- dirs[c(5,8)]
 noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2")
 
 yrs <- c(1954, 1957, 1968, 1969, 1977, 2004, 2005, 2007)
+
+at.vals <- c(0, 0.25, 0.499, 0.75, 1)
+colkey <- list(at=at.vals, labels=list(labels=c("Low", "Medium", "High", "Severe"), at=at.vals + 0.125))
+
+# Theme settings
+revRasterTheme <- function (pch = 19, cex = 0.7, region=colorRampPalette(brewer.pal(9, "YlOrRd")[-1])(30), ...){
+    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
+    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
+    theme$add.line$lwd = 0.4
+    theme
+}
+
+# @knitr run
 for(yr in yrs){
 
 files3 <- unlist(lapply(dirs3, function(x, year) list.files(x, pattern=paste0("_", year, "\\.tif$"), full=TRUE), year=yr))
@@ -39,24 +52,7 @@ names(s2) <- c("GBM3", "GBM5", "Difference")
 s.noa <- mask(crop(s, noa.shp), noa.shp)
 s2.noa <- mask(crop(s2, noa.shp), noa.shp)
 
-# @knitr plot
-# Setup
-library(grid)
-library("gridBase")
-
-at.vals <- c(0, 0.25, 0.499, 0.75, 1)
-colkey <- list(at=at.vals, labels=list(labels=c("Low", "Medium", "High", "Severe"), at=at.vals + 0.125))
-
-# Theme settings
-revRasterTheme <- function (pch = 19, cex = 0.7, region=colorRampPalette(brewer.pal(9, "YlOrRd")[-1])(30), ...){
-    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
-    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
-    theme$add.line$lwd = 0.4
-    theme
-}
-
-
-# Write PNGs from part one: comparisons
+# Write PNGs
 # Statewide
 w <- h <- 1600
 png(paste0(plotDir, "/gbm.flamm_", yr,"_comparisons_Statewide.png"), height=h, width=w, res=200)
@@ -86,11 +82,12 @@ print(yr)
 # @knitr setup2
 # Minimum threshold analysis
 # RV's X = flammability and Y = lightning probability, with condition min(XY) = c
-# @knitr setup1
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 dir.create(plotDir <- "/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
 
 library(rasterVis)
+library(grid)
+library("gridBase")
 (dirs <- list.files())
 dirs3 <- dirs[4]
 dirs5 <- dirs[8]
