@@ -28,5 +28,5 @@ The `gbm_flam_comparisons.R` script makes select comparisons of flammability map
 
 ### Plots
 
-```{r plot}
+```{r run}
 ```

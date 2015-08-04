@@ -16,10 +16,11 @@ read_chunk("../../code/gbm_flam_maps.R")
 ##
 ## gbm_flam_maps.R
 
-The `gbm_flam_maps.R` script creates gradient boosting machine (GBM) model-based, or boosted regresion model-based, vegetation flammability maps.
+The `gbm_flam_maps.R` script creates gradient boosting machine (GBM) model-based, or boosted regresion model-based, vegetation flammability matrices.
 It loads a given **R** workspace file created by `gbm_flam_prep.R`.
 Other inputs include GBM models built on vegetation-specific, aggregate regional climate data.
-These monthly maps are used as inputs to ALFRESCO in lieu of basic monthly temperature and precipitation maps.
+The matrices are used to fill in spatially explicit flammability maps in a subsequent script, `gbm_flam_maps2.R`.
+These annual maps are used as inputs to ALFRESCO in lieu of basic monthly temperature and precipitation maps.
 
 ## R code
 
@@ -36,15 +37,7 @@ These monthly maps are used as inputs to ALFRESCO in lieu of basic monthly tempe
 ```{r func_predict}
 ```
 
-### Write function
-```{r func_write}
-```
-
-### Run predictions and save flammability maps
+### Run predictions and save flammability matrix workspaces
 
 ```{r run}
-```
-
-### Save PNG plots of flammability maps
-```{r plot}
 ```
