@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -239,7 +244,7 @@ img {
 <li>.RData workspace files containing Fire Return Interval (FRI) and FRP data frames for use in other applications.</li>
 <li>Export of <strong>R</strong> data objects via <strong>R</strong> workspace to a template Shiny app for dynamic, interactive exploratory analysis by the user.</li>
 </ul>
-<p>Files of interest are attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process. This script is called by the SLURM script, <code>CompileData.slurm</code> after the initial post-processing script, <code>AlfrescoCalibration.R</code> has run.</p>
+<p>Files of interest are attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process. This script is called by the SLURM script, <code>CompileData.slurm</code> after the initial post-processing script, <code>AlfrescoCalibration.R</code> has run. This script also sources <code>obs_fire_setup.R</code> during runtime.</p>
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
@@ -258,17 +263,23 @@ if (<span class="kw">length</span>(comArgs &gt;<span class="st"> </span><span cl
 <span class="kw">cat</span>(comArgs)
 <span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(out, <span class="st">&quot;FRP&quot;</span>), <span class="dt">showWarnings =</span> F)
 <span class="kw">sink</span>(<span class="dt">file =</span> <span class="kw">file.path</span>(out, <span class="st">&quot;message.txt&quot;</span>), <span class="dt">append =</span> <span class="ot">TRUE</span>)
-<span class="kw">cat</span>(<span class="st">&quot;Below you will find a link to an R Shiny Alfresco FRP results web application.</span><span class="ch">\n</span><span class="st">&quot;</span>)
+<span class="kw">cat</span>(<span class="st">&quot;Below you will find a link to a preliminary R Shiny Alfresco FRP/FRI results web application.</span><span class="ch">\n</span><span class="st">&quot;</span>)
 
 <span class="kw">library</span>(raster)
 <span class="kw">library</span>(parallel)
-<span class="kw">library</span>(plyr)
+<span class="kw">library</span>(data.table)
+<span class="kw">library</span>(dplyr)
 
 <span class="kw">rasterOptions</span>(<span class="dt">tmpdir =</span> <span class="st">&quot;/big_scratch/shiny&quot;</span>, <span class="dt">chunksize =</span> <span class="fl">1e+11</span>, <span class="dt">maxmemory =</span> <span class="fl">1e+12</span>)
 mainDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(input, <span class="st">&quot;Maps&quot;</span>)
 <span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(out, <span class="st">&quot;FRP&quot;</span>), <span class="dt">showWarnings =</span> F)
 if (!<span class="kw">exists</span>(<span class="st">&quot;pts&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;No coordinates file provided for relative area burned time series extraction.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;buffers&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;No buffer(s) provided for relative area burned time series extraction.&quot;</span>)
+if (!<span class="kw">exists</span>(<span class="st">&quot;baseline.year&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;baseline.year not found&quot;</span>) else baseline.year &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(baseline.year)
+if (period ==<span class="st"> &quot;historical&quot;</span>) yr.start &lt;-<span class="st"> </span><span class="dv">1950</span> else yr.start &lt;-<span class="st"> </span>baseline.year
+if (<span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;baseline.year&#39; and &#39;yr.end&#39;&quot;</span>)
+if (!<span class="kw">exists</span>(<span class="st">&quot;n.sims&quot;</span>)) n.sims &lt;-<span class="st"> </span><span class="dv">32</span>
+n.cores &lt;-<span class="st"> </span><span class="kw">min</span>(n.sims, <span class="dv">32</span>)
 
 pts &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="kw">file.path</span>(input, pts))
 pts &lt;-<span class="st"> </span>pts[<span class="kw">order</span>(pts$ID), ]
@@ -411,8 +422,7 @@ pts &lt;-<span class="st"> </span><span class="kw">wgs2ak</span>(pts)</code></pr
 </div>
 <div id="observational-data-specific-setup" class="section level3">
 <h3>Observational data-specific setup</h3>
-<pre class="sourceCode r"><code class="sourceCode r">if (<span class="kw">exists</span>(<span class="st">&quot;yr.start&quot;</span>) &amp;<span class="st"> </span><span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
-<span class="kw">source</span>(<span class="st">&quot;/big_scratch/shiny/obs_fire_setup.R&quot;</span>)
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">source</span>(<span class="st">&quot;/big_scratch/shiny/obs_fire_setup.R&quot;</span>)
 r.burnable &lt;-<span class="st"> </span><span class="kw">Which</span>(r &gt;<span class="st"> </span><span class="dv">0</span>)</code></pre>
 </div>
 <div id="processing" class="section level3">
@@ -421,11 +431,11 @@ r.burnable &lt;-<span class="st"> </span><span class="kw">Which</span>(r &gt;<sp
 out.emp &lt;-<span class="st"> </span><span class="kw">fireEventsFunEmpirical</span>(<span class="dt">b =</span> result, <span class="dt">pts =</span> pts, <span class="dt">buffer.list =</span> buffers, 
     <span class="dt">fun.list =</span> buffer.functions, <span class="dt">burnable.cells.raster =</span> r.burnable)
 <span class="co"># Process modeled data</span>
-num.reps &lt;-<span class="st"> </span><span class="dv">32</span>  <span class="co"># hardcoded</span>
+n.cores &lt;-<span class="st"> </span><span class="kw">min</span>(n.sims, <span class="dv">32</span>)
 <span class="kw">print</span>(<span class="kw">paste</span>(<span class="st">&quot;Process modeled fire scar data from entire Alfresco run. Time:&quot;</span>))
-<span class="kw">system.time</span>(out.alf &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">min</span>(num.reps, <span class="dv">32</span>), fireEventsFun, <span class="dt">pts =</span> pts, 
-    <span class="dt">buffer.list =</span> buffers, <span class="dt">fun.list =</span> buffer.functions, <span class="dt">burnable.cells.raster =</span> r.burnable, 
-    <span class="dt">mainDir =</span> mainDir, <span class="dt">mc.cores =</span> <span class="kw">min</span>(num.reps, <span class="dv">32</span>)))</code></pre>
+<span class="kw">system.time</span>(out.alf &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class="dv">1</span>:n.sims, fireEventsFun, <span class="dt">pts =</span> pts, <span class="dt">buffer.list =</span> buffers, 
+    <span class="dt">fun.list =</span> buffer.functions, <span class="dt">burnable.cells.raster =</span> r.burnable, <span class="dt">mainDir =</span> mainDir, 
+    <span class="dt">mc.cores =</span> n.cores))</code></pre>
 </div>
 <div id="spatially-explicit-frp-maps" class="section level3">
 <h3>Spatially explicit FRP maps</h3>
@@ -463,10 +473,10 @@ FRPmapsNoBuffer &lt;-<span class="st"> </span>function(i, alf.data, emp.data, od
         <span class="kw">file.copy</span>(pngname, <span class="kw">file.path</span>(<span class="kw">dirname</span>(odir), <span class="kw">basename</span>(pngname)))
 }
 
-<span class="kw">print</span>(<span class="kw">paste</span>(<span class="st">&quot;Create 2-panel (emprical and modeled) 1-km no-buffer FRP maps. Time:&quot;</span>))
+<span class="kw">print</span>(<span class="kw">paste</span>(<span class="st">&quot;Create 2-panel (empirical and modeled) 1-km no-buffer FRP maps. Time:&quot;</span>))
 <span class="kw">print</span>(<span class="kw">system.time</span>(<span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(out.alf), FRPmapsNoBuffer, <span class="dt">alf.data =</span> out.alf, 
     <span class="dt">emp.data =</span> result2, <span class="dt">odir =</span> outDir, <span class="dt">domain =</span> alf.domain, <span class="dt">alf.yrs =</span> alf.yrs, 
-    <span class="dt">emp.yrs =</span> yrs.all, <span class="dt">mc.cores =</span> <span class="kw">min</span>(<span class="kw">length</span>(out.alf), <span class="dv">32</span>))))</code></pre>
+    <span class="dt">emp.yrs =</span> yrs.hist.all, <span class="dt">mc.cores =</span> n.cores)))</code></pre>
 </div>
 <div id="shiny-app-setup" class="section level3">
 <h3>Shiny app setup</h3>
@@ -483,21 +493,21 @@ dfPrepFun &lt;-<span class="st"> </span>function(x, <span class="dt">multiple.re
 
 <span class="co"># Empirical observations and simulation replicates</span>
 reps.emp &lt;-<span class="st"> &quot;Observed&quot;</span>
-reps.alf &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;Rep_&quot;</span>, <span class="kw">c</span>(<span class="kw">paste0</span>(<span class="dv">0</span>, <span class="dv">0</span>:<span class="dv">9</span>), <span class="dv">10</span>:<span class="dv">99</span>))[<span class="dv">1</span>:<span class="kw">length</span>(out.alf)]
+reps.alf &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;Rep_&quot;</span>, <span class="kw">c</span>(<span class="kw">paste0</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>:<span class="dv">9</span>), <span class="kw">paste0</span>(<span class="dv">0</span>, <span class="dv">10</span>:<span class="dv">99</span>), <span class="dv">100</span>:<span class="dv">999</span>))[<span class="dv">1</span>:<span class="kw">length</span>(out.alf)]
 
 <span class="co"># Organize observed data</span>
 x.emp &lt;-<span class="st"> </span><span class="kw">dfPrepFun</span>(out.emp, <span class="dt">multiple.reps =</span> F)
-d.emp &lt;-<span class="st"> </span><span class="kw">rev</span>(<span class="kw">expand.grid</span>(<span class="dt">Value =</span> <span class="ot">NA</span>, <span class="dt">Year =</span> yrs.all, <span class="dt">Location =</span> locs, <span class="dt">Buffer_km =</span> buffers.labels, 
-    <span class="dt">Replicate =</span> reps.emp, <span class="dt">stringsAsFactors =</span> F))
-d.emp$Value &lt;-<span class="st"> </span>x.emp
-d2.emp &lt;-<span class="st"> </span><span class="kw">ddply</span>(d.emp, .(Replicate, Buffer_km, Location), summarize, <span class="dt">FRP =</span> <span class="kw">length</span>(Year)/<span class="kw">sum</span>(Value))
+d.emp &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="kw">rev</span>(<span class="kw">expand.grid</span>(<span class="dt">Value =</span> <span class="ot">NA</span>, <span class="dt">Year =</span> yrs.hist.all, <span class="dt">Location =</span> locs, 
+    <span class="dt">Buffer_km =</span> buffers.labels, <span class="dt">Replicate =</span> reps.emp, <span class="dt">stringsAsFactors =</span> F)))
+d.emp[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Value, x.emp)]
+d2.emp &lt;-<span class="st"> </span>d.emp %&gt;%<span class="st"> </span><span class="kw">group_by</span>(Replicate, Buffer_km, Location) %&gt;%<span class="st"> </span><span class="kw">summarise</span>(<span class="dt">FRP =</span> <span class="kw">length</span>(Year)/<span class="kw">sum</span>(Value))
 
 <span class="co"># Organize modeled data</span>
 x &lt;-<span class="st"> </span><span class="kw">dfPrepFun</span>(out.alf)
-d &lt;-<span class="st"> </span><span class="kw">rev</span>(<span class="kw">expand.grid</span>(<span class="dt">Value =</span> <span class="ot">NA</span>, <span class="dt">Year =</span> alf.yrs, <span class="dt">Location =</span> locs, <span class="dt">Buffer_km =</span> buffers.labels, 
-    <span class="dt">Replicate =</span> reps.alf, <span class="dt">stringsAsFactors =</span> F))
-d$Value &lt;-<span class="st"> </span>x
-d2 &lt;-<span class="st"> </span><span class="kw">ddply</span>(d, .(Replicate, Buffer_km, Location), summarize, <span class="dt">FRP =</span> <span class="kw">length</span>(Year)/<span class="kw">sum</span>(Value))
+d &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="kw">rev</span>(<span class="kw">expand.grid</span>(<span class="dt">Value =</span> <span class="ot">NA</span>, <span class="dt">Year =</span> alf.yrs, <span class="dt">Location =</span> locs, 
+    <span class="dt">Buffer_km =</span> buffers.labels, <span class="dt">Replicate =</span> reps.alf, <span class="dt">stringsAsFactors =</span> F)))
+d[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Value, x)]
+d2 &lt;-<span class="st"> </span>d %&gt;%<span class="st"> </span><span class="kw">group_by</span>(Replicate, Buffer_km, Location) %&gt;%<span class="st"> </span><span class="kw">summarise</span>(<span class="dt">FRP =</span> <span class="kw">length</span>(Year)/<span class="kw">sum</span>(Value))
 
 <span class="co"># Additional objects to transport to app</span>
 buffersize &lt;-<span class="st"> </span><span class="kw">unique</span>(d.emp$Buffer_km)
@@ -512,21 +522,22 @@ frp.dat &lt;-<span class="st"> </span><span class="kw">rbind</span>(d2, d2.emp)
 <span class="kw">rm</span>(d2, d2.emp)
 dummy &lt;-<span class="st"> </span><span class="kw">capture.output</span>(<span class="kw">gc</span>())
 
-rab.dat$Source &lt;-<span class="st"> &quot;Observed&quot;</span>
-rab.dat$Source[rab.dat$Replicate !=<span class="st"> &quot;Observed&quot;</span>] &lt;-<span class="st"> &quot;Modeled&quot;</span>
-frp.dat$Source &lt;-<span class="st"> &quot;Observed&quot;</span>
-frp.dat$Source[frp.dat$Replicate !=<span class="st"> &quot;Observed&quot;</span>] &lt;-<span class="st"> &quot;Modeled&quot;</span>
+rab.dat[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Source, <span class="st">&quot;Observed&quot;</span>)]
+rab.dat[Replicate !=<span class="st"> &quot;Observed&quot;</span>, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Source, <span class="st">&quot;Modeled&quot;</span>)]
+frp.dat[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Source, <span class="st">&quot;Observed&quot;</span>)]
+frp.dat[Replicate !=<span class="st"> &quot;Observed&quot;</span>, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Source, <span class="st">&quot;Modeled&quot;</span>)]
 
-<span class="co"># Make Fire Return Interval data frame</span>
+<span class="co"># Make Fire Return Interval data frame this function could be improved using</span>
+<span class="co"># data tables and dplyr</span>
 friFun &lt;-<span class="st"> </span>function(d) {
-    d &lt;-<span class="st"> </span>d[d$Value !=<span class="st"> </span><span class="dv">0</span>, ]
+    d &lt;-<span class="st"> </span><span class="kw">data.frame</span>(<span class="kw">filter</span>(d, Value !=<span class="st"> </span><span class="dv">0</span>))
     d$fac &lt;-<span class="st"> </span><span class="kw">with</span>(d, <span class="kw">paste</span>(Replicate, Buffer_km, Location))
     fri.list &lt;-<span class="st"> </span><span class="kw">with</span>(d, <span class="kw">tapply</span>(Year, <span class="kw">paste</span>(Replicate, Buffer_km, Location), 
         function(x) <span class="kw">c</span>(<span class="ot">NA</span>, <span class="kw">diff</span>(x))))
     d &lt;-<span class="st"> </span>d[<span class="kw">order</span>(d$fac), ]
     d$FRI &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(<span class="kw">unlist</span>(fri.list))
     d &lt;-<span class="st"> </span><span class="kw">subset</span>(d, !<span class="kw">is.na</span>(d$FRI), -<span class="kw">which</span>(<span class="kw">names</span>(d) %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Year&quot;</span>, <span class="st">&quot;fac&quot;</span>)))
-    d
+    <span class="kw">data.table</span>(d)
 }
 
 fri.dat &lt;-<span class="st"> </span><span class="kw">friFun</span>(rab.dat)
@@ -536,9 +547,9 @@ dom &lt;-<span class="st"> </span>if (<span class="kw">substr</span>(<span class
     <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;statew&quot;</span>) <span class="st">&quot;Statewide&quot;</span>
 <span class="kw">load</span>(<span class="kw">paste0</span>(out, <span class="st">&quot;/fsByVeg_df_&quot;</span>, dom, <span class="st">&quot;.RData&quot;</span>))  <span class="co"># assumed to have run fsByVeg.R</span>
 prefix &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="st">&quot;RAB_FRP&quot;</span>, <span class="kw">paste0</span>(run.name, <span class="st">&quot;_RAB_FRP&quot;</span>))
-ws &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;_Emp_&quot;</span>, yrs.all[<span class="dv">1</span>], 
-    <span class="st">&quot;_&quot;</span>, <span class="kw">tail</span>(yrs.all, <span class="dv">1</span>), <span class="st">&quot;_Alf_&quot;</span>, alf.yrs[<span class="dv">1</span>], <span class="st">&quot;_&quot;</span>, <span class="kw">tail</span>(alf.yrs, <span class="dv">1</span>), <span class="st">&quot;.RData&quot;</span>), 
-    <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;.RData&quot;</span>))
+ws &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;_Emp_&quot;</span>, yrs.hist.all[<span class="dv">1</span>], 
+    <span class="st">&quot;_&quot;</span>, <span class="kw">tail</span>(yrs.hist.all, <span class="dv">1</span>), <span class="st">&quot;_Alf_&quot;</span>, alf.yrs[<span class="dv">1</span>], <span class="st">&quot;_&quot;</span>, <span class="kw">tail</span>(alf.yrs, <span class="dv">1</span>), 
+    <span class="st">&quot;.RData&quot;</span>), <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, prefix, <span class="st">&quot;.RData&quot;</span>))
 <span class="kw">save</span>(d.fs, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, 
     <span class="dt">file =</span> ws)
 <span class="kw">Sys.sleep</span>(<span class="fl">0.1</span>)</code></pre>
@@ -546,9 +557,9 @@ ws &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<sp
 <div id="save-outputs" class="section level3">
 <h3>Save outputs</h3>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Create new app from template and copy data to app</span>
-app.name &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="st">&quot;FRP_results&quot;</span>, <span class="kw">paste0</span>(group.name, <span class="st">&quot;_FRP_results&quot;</span>))
+app.name &lt;-<span class="st"> </span><span class="kw">ifelse</span>(group.name ==<span class="st"> &quot;none&quot;</span>, <span class="st">&quot;alf_results&quot;</span>, <span class="kw">paste0</span>(group.name, <span class="st">&quot;_alf_results&quot;</span>))
 alfDir &lt;-<span class="st"> &quot;/var/www/shiny-server/shiny-apps/alfresco&quot;</span>  <span class="co"># Alfresco apps directory</span>
-templateDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(alfDir, <span class="st">&quot;FRP_template&quot;</span>)  <span class="co"># Alfresco FRP results template app directory</span>
+templateDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(alfDir, <span class="st">&quot;alfout_template&quot;</span>)  <span class="co"># Alfresco FRP results template app directory</span>
 appDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(alfDir, app.name)  <span class="co"># App directory to use this run&#39;s data</span>
 <span class="kw">system</span>(<span class="kw">paste</span>(<span class="st">&quot;ssh eris.snap.uaf.edu mkdir -p&quot;</span>, appDir))  <span class="co"># Make directory</span>
 <span class="kw">system</span>(<span class="kw">paste</span>(<span class="st">&quot;ssh eris.snap.uaf.edu chmod 2775&quot;</span>, appDir))  <span class="co"># Set permissions</span>
@@ -556,7 +567,7 @@ appDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(alfDir, a
     <span class="st">&quot;/&quot;</span>)))  <span class="co"># Copy template app files to new directory</span>
 <span class="kw">system</span>(<span class="kw">paste0</span>(<span class="st">&quot;scp &quot;</span>, ws, <span class="st">&quot; eris.snap.uaf.edu:&quot;</span>, <span class="kw">file.path</span>(appDir, <span class="kw">basename</span>(ws))))  <span class="co"># Copy Alfresco run workspace file to new app directory</span>
 
-<span class="kw">cat</span>(<span class="st">&quot;Alfresco run Fire Return Period results:</span><span class="ch">\n\n</span><span class="st">&quot;</span>)
+<span class="kw">cat</span>(<span class="st">&quot;Alfresco output results:</span><span class="ch">\n\n</span><span class="st">&quot;</span>)
 app.url &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;http://eris.snap.uaf.edu/shiny-apps/alfresco/&quot;</span>, app.name, 
     <span class="st">&quot;/&quot;</span>)
 <span class="kw">cat</span>(app.url)
