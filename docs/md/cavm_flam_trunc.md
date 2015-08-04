@@ -7,6 +7,8 @@
 
 Flammability distributions in each map layer are trimmed at a lower and upper bound.
 Truncations are unique to each vegetation class's flammability distribution.
+Currently this is only done for CAVM vegetation classes - shrub, graminoid, and wetland tundra - hence the script name.
+Non-CAVM, i.e., boreal forest, is ignored by this script.
 Bounds are the critical values pertaining to the 10th and 90th percentiles of the global flammability distribution.
 The global distribution refers to the distribution of flammability values through time (1950 - 2013) and across space for an individual vegetation class.
 
@@ -24,7 +26,7 @@ if (!length(comargs)) q("no") else for (z in 1:length(comargs)) eval(parse(text 
 if (!exists("period")) stop("Argument 'period' not passed at command line.")
 if (!exists("model")) stop("Argument 'model' not passed at command line.")
 if (!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
-if (!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", 
+if (!(model %in% c("CRU32", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", 
     "MRI-CGCM3"))) stop("Invalid data set specified.")
 if (!exists("samples")) samples <- TRUE
 if (!exists("mapset")) stop("Argument 'mapset' not passed at command line.")
@@ -32,10 +34,10 @@ if (substr(mapset, 1, 1) == "3") gbm <- 3 else gbm <- 5
 
 # 10th and 90th percentiles of the flammability distributions across space
 # and through time, by vegetation class
-q.cavm <- c(0.0031, 0.0164)
-q.shrub <- c(0.0054, 0.0126)
-q.gram <- c(0.0083, 0.0209)
-q.wet <- c(0.0042, 0.0087)
+q.cavm <- c(0.1372, 0.1487)
+q.shrub <- c(0.1364, 0.1397)
+q.gram <- c(0.1363, 0.1427)
+q.wet <- c(0.1364, 0.1399)
 
 verDir <- if (samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", 
@@ -64,7 +66,7 @@ f <- function(i, outDir, files, gbm, ...) {
     
     func_trunc <- function(x, q, ind) {
         ind <- intersect(ind, which(!is.na(x[])))
-        x[ind][x[ind] < q[1]] <- q[1]
+        x[ind][x[ind] < q[1]] <- 0  #q[1]
         x[ind][x[ind] > q[2]] <- q[2]
         x
     }

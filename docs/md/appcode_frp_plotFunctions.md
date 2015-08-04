@@ -38,12 +38,14 @@ plotFRPbyBuffer <- function(data, min.buffer, colpal, subject, grp = "", fontsiz
 # plot time series of cumulative or non-cumulative annual relative area
 # burned for a given buffer size
 plotRABbyTime <- function(data, buffersize, year.range, cumulative = F, subject, 
-    grp = "", colpal, fontsize = 16, leg.pos = "top", facet.by = NULL, facet.cols = 1) {
-    d <- subset(data, Buffer_km %in% as.numeric(buffersize) & Year >= year.range[1] & 
+    grp = "", colpal, fontsize = 16, lgd.pos = "top", facet.by = NULL, facet.cols = 1, 
+    ...) {
+    d <- data.table(data)
+    d <- subset(d, Buffer_km %in% as.numeric(buffersize) & Year >= year.range[1] & 
         Year <= year.range[2])
     xlb = "Year"
     if (cumulative) {
-        d <- ddply(d, .(Replicate, Buffer_km, Location), transform, Value = cumsum(Value))
+        d <- d %>% group_by(Replicate, Buffer_km, Location) %>% mutate(Value = cumsum(Value))
         maintitle <- paste(year.range[1], "-", year.range[2], "Cumulative Relative Area Burned ~ Time | Buffer")
         ylb <- "CRAB (%)"
     } else {
@@ -62,12 +64,12 @@ plotRABbyTime <- function(data, buffersize, year.range, cumulative = F, subject,
             size = 1)
     } else {
         if (grp != "") {
-            g <- g + geom_line(data = subset(d, Source == "Modeled"), colour = "gray")
-            g <- g + geom_line(aes_string(group = grp, colour = grp), data = subset(d, 
-                Source == "Observed"), size = 1) + scale_color_manual(values = colpal[-c(1, 
+            g <- g + geom_point(data = subset(d, Source == "Modeled"), colour = "gray")
+            g <- g + geom_point(aes_string(group = grp, colour = grp), data = subset(d, 
+                Source == "Observed"), size = 2.5) + scale_color_manual(values = colpal[-c(1, 
                 2)]) + scale_fill_manual(values = colpal[-c(1, 2)])
-        } else g <- g + geom_line() + geom_line(data = subset(d, Source == "Observed"), 
-            size = 1)
+        } else g <- g + geom_point() + geom_point(data = subset(d, Source == "Observed"), 
+            size = 2.5)
     }
     g <- g + theme_bw(base_size = fontsize) + theme(legend.position = tolower(lgd.pos)) + 
         ggtitle(bquote(paste(.(maintitle) == .(paste(buffersize, "km"))))) + 
@@ -103,7 +105,7 @@ plotFRIboxplot <- function(d, x, y, grp = NULL, Log = FALSE, colpal, show.points
     x.n <- length(unique(d[, x]))
     if (is.character(grp) & n.grp > 1) {
         if (is.null(facet.by)) {
-            x.names <- unique(as.character(d[, x]))
+            x.names <- sort(unique(as.character(d[, x])))
             x.num <- grp.n <- grp.num <- rep(NA, nrow(d))
             for (m in 1:length(x.names)) {
                 ind <- which(as.character(d[, x]) == x.names[m])
@@ -114,7 +116,7 @@ plotFRIboxplot <- function(d, x, y, grp = NULL, Log = FALSE, colpal, show.points
             }
             d$xdodge <- x.num + grp.num
         } else {
-            x.names <- unique(as.character(d[, x]))
+            x.names <- sort(unique(as.character(d[, x])))
             panel.names <- unique(as.character(d[, facet.by]))
             n.panels <- length(panel.names)
             x.num <- grp.n <- grp.num <- rep(NA, nrow(d))

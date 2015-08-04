@@ -35,7 +35,12 @@ if (length(comArgs > 0)) {
 }
 cat(comArgs)
 
-if (exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
+if (!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
+if (period == "historical") yr.start <- 1950 else yr.start <- baseline.year
+if (exists("yr.end")) yrs <- yr.start:yr.end else stop("must provide 'baseline.year' and 'yr.end'")
+yrs <- yr.start:yr.end
+if (!exists("n.sims")) n.sims <- 32
+n.cores <- min(n.sims, 32)
 
 library(raster)
 library(data.table)
@@ -79,20 +84,18 @@ v.names <- c("Alpine", "Forest", "", "", "Shrub", "Graminoid", "Wetland")
 
 ```r
 # Process empirical data
-n.cores <- 32  # hardcoded
 fs.emp <- mclapply(1:nlayers(b.fid), fsByRepEmp, b = b.fid, vid = vid, v.veg = v.veg, 
-    yrs = yrs.all, mc.cores = n.cores)
-fs.emp <- as.data.frame(rbindlist(fs.emp))
+    yrs = yrs.hist.all, mc.cores = n.cores)
+fs.emp <- rbindlist(fs.emp)
 # Process modeled data
-num.reps <- 32  # hardcoded
-fs.alf.list <- mclapply(1:min(num.reps, 32), fsByRep, mainDir = mainDir, vid = vid, 
-    v.veg = v.veg, years = yrs.all, mc.cores = min(num.reps, 32))
-fs.alf <- as.data.frame(rbindlist(fs.alf.list))
-d.fs.veg <- rbind(fs.emp, fs.alf)
-d.fs.veg$Vegetation <- v.names[d.fs.veg$Vegetation]
+fs.alf.list <- mclapply(1:n.sims, fsByRep, mainDir = mainDir, vid = vid, v.veg = v.veg, 
+    years = 2014:2020, mc.cores = n.cores)
+fs.alf <- rbindlist(fs.alf.list)
+d.fs <- rbind(fs.emp, fs.alf)
+d.fs[, `:=`(Vegetation, v.names[Vegetation])]
 dom <- if (substr(tolower(alf.domain), 1, 6) == "noatak") "Noatak" else if (substr(tolower(alf.domain), 
     1, 6) == "statew") "Statewide"
-save(d.fs.veg, file = paste0(out, "/fsByVeg_df_", dom, ".RData"))
+save(d.fs, file = paste0(out, "/fsByVeg_df_", dom, ".RData"))
 
 sink(file = file.path(out, "message.txt"), append = TRUE)
 cat("An R workspace file containing fire event sizes partitioned by vegetation class is attached.\n")

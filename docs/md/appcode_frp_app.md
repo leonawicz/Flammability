@@ -28,23 +28,23 @@ observe({
 })
 
 # Primary plot outputs reactive expressions Plot RAB ~ time
-doPlot_RABbyTime <- function() {
-    print(names(rv))
+doPlot_RABbyTime <- function(...) {
     if (!(is.null(subjects()) | is.null(groups()) | is.null(input$buffersize) | 
         is.null(input$facetcols))) {
         plotRABbyTime(data = rv$rab.dat, buffersize = input$buffersize, subject = subjects(), 
-            grp = groups(), year.range = input$yearsrab, cumulative = F, colpal = cbpalette, 
-            fontsize = 16, leg.pos = "top", facet.by = facetBy(), facet.cols = input$facetcols)
+            grp = groups(), colpal = cbpalette, fontsize = 16, leg.pos = "top", 
+            facet.by = facetBy(), facet.cols = input$facetcols, ...)
     } else NULL
 }
 
-# Plot CRAB ~ time
-doPlot_CRABbyTime <- function() {
-    if (!(is.null(subjects()) | is.null(groups()) | is.null(input$buffersize) | 
-        is.null(input$facetcols))) {
-        plotRABbyTime(data = rv$rab.dat, buffersize = input$buffersize, subject = subjects(), 
-            grp = groups(), year.range = input$yearscrab, cumulative = T, colpal = cbpalette, 
-            fontsize = 16, leg.pos = "top", facet.by = facetBy(), facet.cols = input$facetcols)
+# Plot Regional TAB ~ time
+doPlot_RegTABbyTime <- function(...) {
+    if (!(is.null(reg_subjects()) | is.null(reg_groups()) | is.null(input$reg_vegetation) | 
+        is.null(input$reg_aggveg) | is.null(input$reg_facetcols))) {
+        plotRegionalTABbyTime(data = rv$d.fs, vegetation = input$reg_vegetation, 
+            agg.veg = input$reg_aggveg, subject = reg_subjects(), grp = reg_groups(), 
+            colpal = cbpalette, fontsize = 16, leg.pos = "top", facet.by = reg_facetBy(), 
+            facet.cols = input$reg_facetcols, ...)
     } else NULL
 }
 
@@ -72,11 +72,19 @@ doPlot_FRIboxplot <- function() {
 
 # Primary plot reactive outputs
 output$RAB_tsplot <- renderPlot({
-    doPlot_RABbyTime()
+    doPlot_RABbyTime(year.range = input$yearsrab)
 }, height = 800, width = 1000)
 
 output$CRAB_tsplot <- renderPlot({
-    doPlot_CRABbyTime()
+    doPlot_RABbyTime(year.range = input$yearscrab, cumulative = TRUE)
+}, height = 800, width = 1000)
+
+output$RegTAB_tsplot <- renderPlot({
+    doPlot_RegTABbyTime(year.range = input$yearsrab)
+}, height = 800, width = 1000)
+
+output$RegCTAB_tsplot <- renderPlot({
+    doPlot_RegTABbyTime(year.range = input$yearscrab, cumulative = TRUE)
 }, height = 800, width = 1000)
 
 output$FRP_bufferplot <- renderPlot({
@@ -90,15 +98,29 @@ output$FRI_boxplot <- renderPlot({
 # PDF download buttons for each plot
 output$dl_RAB_tsplotPDF <- downloadHandler(filename = "RABvsTime.pdf", content = function(file) {
     pdf(file = file, width = 10, height = 8, pointsize = 8)
-    doPlot_RABbyTime()
+    doPlot_RABbyTime(year.range = input$yearsrab)
     dev.off()
 })
 
 output$dl_CRAB_tsplotPDF <- downloadHandler(filename = "CRABvsTime.pdf", content = function(file) {
     pdf(file = file, width = 10, height = 8, pointsize = 8)
-    doPlot_CRABbyTime()
+    doPlot_RABbyTime(year.range = input$yearscrab, cumulative = TRUE)
     dev.off()
 })
+
+output$dl_RegTAB_tsplotPDF <- downloadHandler(filename = "RegionalTABvsTime.pdf", 
+    content = function(file) {
+        pdf(file = file, width = 10, height = 8, pointsize = 8)
+        doPlot_RegTABbyTime(year.range = input$yearsrab)
+        dev.off()
+    })
+
+output$dl_RegCTAB_tsplotPDF <- downloadHandler(filename = "RegionalCTABvsTime.pdf", 
+    content = function(file) {
+        pdf(file = file, width = 10, height = 8, pointsize = 8)
+        doPlot_RegTABbyTime(year.range = input$yearscrab, cumulative = TRUE)
+        dev.off()
+    })
 
 output$dl_FRP_bufferplotPDF <- downloadHandler(filename = "FRPvsBufferRadius.pdf", 
     content = function(file) {

@@ -20,7 +20,7 @@ if (!length(comargs)) q("no") else for (z in 1:length(comargs)) eval(parse(text 
 if (!exists("period")) stop("Argument 'period' not passed at command line.")
 if (!exists("model")) stop("Argument 'model' not passed at command line.")
 if (!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
-if (!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", 
+if (!(model %in% c("CRU32", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", 
     "MRI-CGCM3"))) stop("Invalid data set specified.")
 
 library(rgdal)
@@ -63,15 +63,15 @@ ind.names <- c("f.ind", "a.ind", "s.ind", "g.ind", "w.ind")  # order: forest, al
 ```r
 # Prepare and save workspace
 if (period == "historical") {
-    yrs <- 1950:2009
+    yrs <- 1950:2013
     tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, 
-        "cru_TS31")
+        "CRU_TS32")
 } else {
     yrs <- 2010:2099
-    tpDir <- file.path("/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide", 
-        period, model)
+    tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, 
+        model)
 }
-mo.ind <- 6:8
+mo.ind <- 6:8  #1:9
 varid <- c("pr", "tas")
 pat.mo <- paste0(".*._", c(paste0(0, 1:9), 10:12), "_.*.tif$")
 files.precip <- files.temp <- list()
@@ -93,4 +93,6 @@ for (i in mo.ind) {
 keep.obj <- c(ls(pattern = "^m\\.|\\.ind$"), "r.veg", "veg", "ind.names", "land.gray", 
     "yrs")
 save(list = keep.obj, file = paste0(outDir, "/", model, "_", period, "_Jun-AugTP.RData"))
+# save(list=keep.obj, file=paste0(outDir, '/', model, '_', period,
+# '_Jan-SepTP.RData'))
 ```

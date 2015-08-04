@@ -10,6 +10,8 @@
 ## Exploratory plots of marginal and conditional flammability distributions.
 
 Each plot is broken out by vegetation class within the CAVM tundra region as well as each of three component classes, shrub, graminoid, and wetland tundra.
+Currently this is only done for CAVM vegetation classes - shrub, graminoid, and wetland tundra - hence the script name.
+Non-CAVM, i.e., boreal forest, is ignored by this script.
 
 ### Marginal distribution
 

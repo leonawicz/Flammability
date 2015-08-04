@@ -15,6 +15,7 @@ The key features of the script include:
 
 Files of interest are attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process.
 This script is called by the SLURM script, `CompileData.slurm` after the initial post-processing script, `AlfrescoCalibration.R` has run.
+This script also sources `obs_fire_setup.R` during runtime.
 
 ## R code
 
@@ -35,17 +36,23 @@ if (length(comArgs > 0)) {
 cat(comArgs)
 dir.create(outDir <- file.path(out, "FRP"), showWarnings = F)
 sink(file = file.path(out, "message.txt"), append = TRUE)
-cat("Below you will find a link to an R Shiny Alfresco FRP results web application.\n")
+cat("Below you will find a link to a preliminary R Shiny Alfresco FRP/FRI results web application.\n")
 
 library(raster)
 library(parallel)
-library(plyr)
+library(data.table)
+library(dplyr)
 
 rasterOptions(tmpdir = "/big_scratch/shiny", chunksize = 1e+11, maxmemory = 1e+12)
 mainDir <- file.path(input, "Maps")
 dir.create(outDir <- file.path(out, "FRP"), showWarnings = F)
 if (!exists("pts")) stop("No coordinates file provided for relative area burned time series extraction.")
 if (!exists("buffers")) stop("No buffer(s) provided for relative area burned time series extraction.")
+if (!exists("baseline.year")) stop("baseline.year not found") else baseline.year <- as.numeric(baseline.year)
+if (period == "historical") yr.start <- 1950 else yr.start <- baseline.year
+if (exists("yr.end")) yrs <- yr.start:yr.end else stop("must provide 'baseline.year' and 'yr.end'")
+if (!exists("n.sims")) n.sims <- 32
+n.cores <- min(n.sims, 32)
 
 pts <- read.csv(file.path(input, pts))
 pts <- pts[order(pts$ID), ]
@@ -197,7 +204,6 @@ fireEventsFunEmpirical <- function(b, pts, buffer.list = list(NULL), fun.list = 
 
 
 ```r
-if (exists("yr.start") & exists("yr.end")) yrs <- yr.start:yr.end else yrs <- 1950:2013
 source("/big_scratch/shiny/obs_fire_setup.R")
 r.burnable <- Which(r > 0)
 ```
@@ -210,11 +216,11 @@ r.burnable <- Which(r > 0)
 out.emp <- fireEventsFunEmpirical(b = result, pts = pts, buffer.list = buffers, 
     fun.list = buffer.functions, burnable.cells.raster = r.burnable)
 # Process modeled data
-num.reps <- 32  # hardcoded
+n.cores <- min(n.sims, 32)
 print(paste("Process modeled fire scar data from entire Alfresco run. Time:"))
-system.time(out.alf <- mclapply(1:min(num.reps, 32), fireEventsFun, pts = pts, 
-    buffer.list = buffers, fun.list = buffer.functions, burnable.cells.raster = r.burnable, 
-    mainDir = mainDir, mc.cores = min(num.reps, 32)))
+system.time(out.alf <- mclapply(1:n.sims, fireEventsFun, pts = pts, buffer.list = buffers, 
+    fun.list = buffer.functions, burnable.cells.raster = r.burnable, mainDir = mainDir, 
+    mc.cores = n.cores))
 ```
 
 ### Spatially explicit FRP maps
@@ -255,10 +261,10 @@ FRPmapsNoBuffer <- function(i, alf.data, emp.data, odir, domain, alf.yrs, emp.yr
         file.copy(pngname, file.path(dirname(odir), basename(pngname)))
 }
 
-print(paste("Create 2-panel (emprical and modeled) 1-km no-buffer FRP maps. Time:"))
+print(paste("Create 2-panel (empirical and modeled) 1-km no-buffer FRP maps. Time:"))
 print(system.time(mclapply(1:length(out.alf), FRPmapsNoBuffer, alf.data = out.alf, 
     emp.data = result2, odir = outDir, domain = alf.domain, alf.yrs = alf.yrs, 
-    emp.yrs = yrs.all, mc.cores = min(length(out.alf), 32))))
+    emp.yrs = yrs.hist.all, mc.cores = n.cores)))
 ```
 
 ### Shiny app setup
@@ -278,21 +284,21 @@ dfPrepFun <- function(x, multiple.reps = T) {
 
 # Empirical observations and simulation replicates
 reps.emp <- "Observed"
-reps.alf <- paste0("Rep_", c(paste0(0, 0:9), 10:99))[1:length(out.alf)]
+reps.alf <- paste0("Rep_", c(paste0(0, 0, 0:9), paste0(0, 10:99), 100:999))[1:length(out.alf)]
 
 # Organize observed data
 x.emp <- dfPrepFun(out.emp, multiple.reps = F)
-d.emp <- rev(expand.grid(Value = NA, Year = yrs.all, Location = locs, Buffer_km = buffers.labels, 
-    Replicate = reps.emp, stringsAsFactors = F))
-d.emp$Value <- x.emp
-d2.emp <- ddply(d.emp, .(Replicate, Buffer_km, Location), summarize, FRP = length(Year)/sum(Value))
+d.emp <- data.table(rev(expand.grid(Value = NA, Year = yrs.hist.all, Location = locs, 
+    Buffer_km = buffers.labels, Replicate = reps.emp, stringsAsFactors = F)))
+d.emp[, `:=`(Value, x.emp)]
+d2.emp <- d.emp %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP = length(Year)/sum(Value))
 
 # Organize modeled data
 x <- dfPrepFun(out.alf)
-d <- rev(expand.grid(Value = NA, Year = alf.yrs, Location = locs, Buffer_km = buffers.labels, 
-    Replicate = reps.alf, stringsAsFactors = F))
-d$Value <- x
-d2 <- ddply(d, .(Replicate, Buffer_km, Location), summarize, FRP = length(Year)/sum(Value))
+d <- data.table(rev(expand.grid(Value = NA, Year = alf.yrs, Location = locs, 
+    Buffer_km = buffers.labels, Replicate = reps.alf, stringsAsFactors = F)))
+d[, `:=`(Value, x)]
+d2 <- d %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP = length(Year)/sum(Value))
 
 # Additional objects to transport to app
 buffersize <- unique(d.emp$Buffer_km)
@@ -307,21 +313,22 @@ frp.dat <- rbind(d2, d2.emp)
 rm(d2, d2.emp)
 dummy <- capture.output(gc())
 
-rab.dat$Source <- "Observed"
-rab.dat$Source[rab.dat$Replicate != "Observed"] <- "Modeled"
-frp.dat$Source <- "Observed"
-frp.dat$Source[frp.dat$Replicate != "Observed"] <- "Modeled"
+rab.dat[, `:=`(Source, "Observed")]
+rab.dat[Replicate != "Observed", `:=`(Source, "Modeled")]
+frp.dat[, `:=`(Source, "Observed")]
+frp.dat[Replicate != "Observed", `:=`(Source, "Modeled")]
 
-# Make Fire Return Interval data frame
+# Make Fire Return Interval data frame this function could be improved using
+# data tables and dplyr
 friFun <- function(d) {
-    d <- d[d$Value != 0, ]
+    d <- data.frame(filter(d, Value != 0))
     d$fac <- with(d, paste(Replicate, Buffer_km, Location))
     fri.list <- with(d, tapply(Year, paste(Replicate, Buffer_km, Location), 
         function(x) c(NA, diff(x))))
     d <- d[order(d$fac), ]
     d$FRI <- as.numeric(unlist(fri.list))
     d <- subset(d, !is.na(d$FRI), -which(names(d) %in% c("Year", "fac")))
-    d
+    data.table(d)
 }
 
 fri.dat <- friFun(rab.dat)
@@ -331,9 +338,9 @@ dom <- if (substr(tolower(alf.domain), 1, 6) == "noatak") "Noatak" else if (subs
     1, 6) == "statew") "Statewide"
 load(paste0(out, "/fsByVeg_df_", dom, ".RData"))  # assumed to have run fsByVeg.R
 prefix <- ifelse(group.name == "none", "RAB_FRP", paste0(run.name, "_RAB_FRP"))
-ws <- ifelse(group.name == "none", paste0(outDir, "/", prefix, "_Emp_", yrs.all[1], 
-    "_", tail(yrs.all, 1), "_Alf_", alf.yrs[1], "_", tail(alf.yrs, 1), ".RData"), 
-    paste0(outDir, "/", prefix, ".RData"))
+ws <- ifelse(group.name == "none", paste0(outDir, "/", prefix, "_Emp_", yrs.hist.all[1], 
+    "_", tail(yrs.hist.all, 1), "_Alf_", alf.yrs[1], "_", tail(alf.yrs, 1), 
+    ".RData"), paste0(outDir, "/", prefix, ".RData"))
 save(d.fs, buffersize, obs.years.range, mod.years.range, rab.dat, frp.dat, fri.dat, 
     file = ws)
 Sys.sleep(0.1)
@@ -344,9 +351,9 @@ Sys.sleep(0.1)
 
 ```r
 # Create new app from template and copy data to app
-app.name <- ifelse(group.name == "none", "FRP_results", paste0(group.name, "_FRP_results"))
+app.name <- ifelse(group.name == "none", "alf_results", paste0(group.name, "_alf_results"))
 alfDir <- "/var/www/shiny-server/shiny-apps/alfresco"  # Alfresco apps directory
-templateDir <- file.path(alfDir, "FRP_template")  # Alfresco FRP results template app directory
+templateDir <- file.path(alfDir, "alfout_template")  # Alfresco FRP results template app directory
 appDir <- file.path(alfDir, app.name)  # App directory to use this run's data
 system(paste("ssh eris.snap.uaf.edu mkdir -p", appDir))  # Make directory
 system(paste("ssh eris.snap.uaf.edu chmod 2775", appDir))  # Set permissions
@@ -354,7 +361,7 @@ system(paste("ssh eris.snap.uaf.edu cp -r", file.path(templateDir, "*"), paste0(
     "/")))  # Copy template app files to new directory
 system(paste0("scp ", ws, " eris.snap.uaf.edu:", file.path(appDir, basename(ws))))  # Copy Alfresco run workspace file to new app directory
 
-cat("Alfresco run Fire Return Period results:\n\n")
+cat("Alfresco output results:\n\n")
 app.url <- paste0("http://eris.snap.uaf.edu/shiny-apps/alfresco/", app.name, 
     "/")
 cat(app.url)

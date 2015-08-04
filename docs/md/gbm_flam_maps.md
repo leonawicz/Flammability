@@ -5,10 +5,11 @@
 ##
 ## gbm_flam_maps.R
 
-The `gbm_flam_maps.R` script creates gradient boosting machine (GBM) model-based, or boosted regresion model-based, vegetation flammability maps.
+The `gbm_flam_maps.R` script creates gradient boosting machine (GBM) model-based, or boosted regresion model-based, vegetation flammability matrices.
 It loads a given **R** workspace file created by `gbm_flam_prep.R`.
 Other inputs include GBM models built on vegetation-specific, aggregate regional climate data.
-These monthly maps are used as inputs to ALFRESCO in lieu of basic monthly temperature and precipitation maps.
+The matrices are used to fill in spatially explicit flammability maps in a subsequent script, `gbm_flam_maps2.R`.
+These annual maps are used as inputs to ALFRESCO in lieu of basic monthly temperature and precipitation maps.
 
 ## R code
 
@@ -22,7 +23,7 @@ if (!length(comargs)) q("no") else for (z in 1:length(comargs)) eval(parse(text 
 if (!exists("period")) stop("Argument 'period' not passed at command line.")
 if (!exists("model")) stop("Argument 'model' not passed at command line.")
 if (!(period %in% c("historical", "rcp45", "rcp60", "rcp85"))) stop("Invalid period specified.")
-if (!(model %in% c("CRU31", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", 
+if (!(model %in% c("CRU32", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", 
     "MRI-CGCM3"))) stop("Invalid data set specified.")
 if (!exists("allcavm")) allcavm <- FALSE
 if (!exists("samples")) samples <- FALSE
@@ -42,16 +43,17 @@ ncores <- 32
 verDir <- if (samples) "samples_based" else "means_based"
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
 load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
+# load(paste0('gbmFlammability/', model, '_', period, '_Jan-SepTP.RData'))
 suffix <- if (samples) paste0(n, "n") else "Mean"
 
 # Load gbm models
 if (samples) {
-    load("gbm_seasonal_all_models_1Ksamples.RData")
+    load("gbm_monthly_all_100samples.RData")
     tree.numbers <- c(5000, 5000, 5000, 5000, 5000, 5000)  # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
-} else {
-    load("gbm_seasonal_all_models.RData")
-    tree.numbers <- c(3355, 32, 2200, 152, 2478, 1554)  # order: forest, alpine tundra, shrub, graminoid, wetland, cavm
-}
+} else stop("Currently must use samples=TRUE. Also, only month-based GBMs available. No seasonal GBMs.")  #{
+# load('gbm_seasonal_all.RData') tree.numbers <- c(3355, 32, 2200, 152,
+# 2478, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland,
+# cavm }
 gbm.names <- c("gbm.forest", "gbm.alp.tundra", "gbm.shrub", "gbm.gram", "gbm.wetland")
 
 if (allcavm) {
@@ -61,22 +63,19 @@ if (allcavm) {
 } else {
     out <- paste0("5m", suffix)
 }
-dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model, 
-    out), recursive = T, showWarnings = F)
-dir.create(plotDir <- file.path("../plots/gbmFlammability", verDir, period, 
-    model, out), recursive = T, showWarnings = F)
 ```
 
 ### Prep function
 
 ```r
-f <- function(p, yrs = NULL, bins = 1, samples = FALSE) {
-    d.names <- sort(rownames(summary(get(gbm.names[p]))))  # force alphabetical
+f <- function(p, yrs = NULL, bins = 1, standardize = FALSE) {
+    d.names <- rownames(summary(get(gbm.names[p])))
     tmp <- c()
     if (any(grep("Summer", d.names))) {
         obj.names.list <- list(ls(pattern = "^m\\..*.P$", envir = .GlobalEnv), 
             ls(pattern = "^m\\..*.T$", envir = .GlobalEnv))  # alphabetical
-        for (i in 1:nrow(summary(get(gbm.names[p])))) {
+        ord <- order(d.names)
+        for (i in ord) {
             obj.names <- obj.names.list[[i]]
             n <- length(obj.names)
             tmp2 <- 0
@@ -87,7 +86,7 @@ f <- function(p, yrs = NULL, bins = 1, samples = FALSE) {
             tmp2 <- tmp2[get(ind.names[p]), ]
             dims <- dim(tmp2)
             tmp2 <- as.numeric(tmp2)
-            if (samples) 
+            if (standardize) 
                 tmp2 <- (tmp2 - mean(tmp2, na.rm = TRUE))/sd(tmp2, na.rm = TRUE)
             tmp <- cbind(tmp, tmp2)
             rm(tmp2)
@@ -98,7 +97,7 @@ f <- function(p, yrs = NULL, bins = 1, samples = FALSE) {
             tmp2 <- get(paste0("m.", d.names[i]))[get(ind.names[p]), ]
             dims <- dim(tmp2)
             tmp2 <- as.numeric(tmp2)
-            if (samples) 
+            if (standardize) 
                 tmp2 <- (tmp2 - mean(tmp2, na.rm = TRUE))/sd(tmp2, na.rm = TRUE)
             tmp <- cbind(tmp, tmp2)
         }
@@ -134,25 +133,13 @@ getGBMpreds <- function(a, b, nam1, nam2) {
 }
 ```
 
-### Write function
-
-```r
-partifs <- function(i, r, flam, outDir) {
-    r <- setValues(r, flam[, i])
-    names(r) <- paste0("gbm.flamm_", yrs[1] + i - 1)
-    writeRaster(r, paste0(outDir, "/gbm.flamm_", yrs[1] + i - 1, ".tif"), datatype = "FLT4S", 
-        overwrite = T)
-    print(i)
-}
-```
-
-### Run predictions and save flammability maps
+### Run predictions and save flammability matrix workspaces
 
 
 ```r
 preds <- list()
 for (zzz in 1:5) {
-    model.index <- f(zzz, bins = ncores, samples = samples)  # Prep data
+    model.index <- f(zzz, bins = ncores)  # Prep data
     tmp.preds <- mclapply(1:ncores, getGBMpreds, b = model.index, nam1 = gbm.names, 
         nam2 = tmp.names, mc.cores = ncores)  # GBM predictions
     tmp.preds <- rbindlist(tmp.preds)
@@ -164,42 +151,6 @@ for (zzz in 1:5) {
 flam <- matrix(NA, nrow = length(veg), ncol = length(yrs))
 for (i in 1:5) flam[which(get(ind.names[i])), ] <- preds[[i]]
 flam.range <- range(flam, na.rm = T)
-flam <- (flam - flam.range[1])/(flam.range[2] - flam.range[1])
-
-# Write geotiffs
-mclapply(1:length(yrs), partifs, r = r.veg, flam = flam, outDir = outDir, mc.cores = 32)
-```
-
-### Save PNG plots of flammability maps
-
-```r
-# Setup
-at.vals <- c(0, 0.25, 0.5, 0.75, 1)
-colkey <- list(at = at.vals, labels = list(labels = c("Low", "Medium", "High", 
-    "Severe"), at = at.vals + 0.125))
-
-# Theme settings
-revRasterTheme <- function(pch = 19, cex = 0.7, region = brewer.pal(9, "YlOrRd")[-1], 
-    ...) {
-    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
-    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
-    theme$add.line$lwd = 0.4
-    theme
-}
-
-# parallelize levelplot
-parplot <- function(i, outDir, dataDir) {
-    r <- raster(paste0(dataDir, "/gbm.flamm_", yrs[1] + i - 1, ".tif"))
-    png(paste0(outDir, "/gbm.flamm_", yrs[1] + i - 1, ".png"), height = 1600, 
-        width = 1600, res = 200)
-    p <- levelplot(r, maxpixels = ncell(r), main = paste(yrs[1] + i - 1, "flammability"), 
-        par.settings = revRasterTheme, contour = T, margin = F, at = at.vals, 
-        colorkey = colkey)  #col=rev(heat.colors(30)))
-    print(p)
-    dev.off()
-    print(i)
-}
-
-# Write PNGs
-mclapply(1:length(yrs), parplot, outDir = plotDir, dataDir = outDir, mc.cores = 32)
+save(flam, flam.range, yrs, r.veg, file = paste0("gbmFlammability/rawFlamPreds_", 
+    out, "_", model, "_", period, ".RData"))
 ```
