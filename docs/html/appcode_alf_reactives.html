@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -324,37 +329,44 @@ Obs_updateFiles &lt;-<span class="st"> </span><span class="kw">reactive</span>({
     if (<span class="kw">is.null</span>(input$goButton_JSON) ||<span class="st"> </span>input$goButton_JSON ==<span class="st"> </span><span class="dv">0</span>) 
         <span class="kw">return</span>(<span class="ot">NULL</span>)
     <span class="kw">isolate</span>(if (!(<span class="kw">is.null</span>(<span class="kw">user_email_address</span>()) ||<span class="st"> </span><span class="kw">is.null</span>(<span class="kw">all_email_addresses</span>()) ||<span class="st"> </span>
-<span class="st">        </span><span class="kw">user_email_address</span>() ==<span class="st"> &quot;&quot;</span> ||<span class="st"> </span><span class="kw">all_email_addresses</span>() ==<span class="st"> &quot;&quot;</span> ||<span class="st"> </span>!<span class="kw">length</span>(input$frp_pts)) ||<span class="st"> </span>
-<span class="st">        </span><span class="kw">is.null</span>(input$FireSensitivity) ||<span class="st"> </span><span class="kw">is.null</span>(input$IgnitionFactor)) {
+<span class="st">        </span><span class="kw">user_email_address</span>() ==<span class="st"> &quot;&quot;</span> ||<span class="st"> </span><span class="kw">all_email_addresses</span>() ==<span class="st"> &quot;&quot;</span> ||<span class="st"> </span>!<span class="kw">length</span>(input$frp_pts) ||<span class="st"> </span>
+<span class="st">        </span><span class="kw">is.null</span>(input$FireSensitivity) ||<span class="st"> </span><span class="kw">is.null</span>(input$IgnitionFactor) ||<span class="st"> </span><span class="kw">is.na</span>(<span class="kw">as.numeric</span>(input$n_sims)))) {
         
         rand_seed &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input$randseed)
         alf_fs &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input$FireSensitivity)
         alf_ig &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(input$IgnitionFactor)
         alf_yr1 &lt;-<span class="st"> </span><span class="kw">as.integer</span>(input$year_start)
         alf_yr2 &lt;-<span class="st"> </span><span class="kw">as.integer</span>(input$year_end)
+        n.sims &lt;-<span class="st"> </span><span class="kw">as.integer</span>(<span class="kw">as.numeric</span>(input$n_sims))
         c0 &lt;-<span class="st"> </span><span class="kw">is.na</span>(rand_seed)
         c1 &lt;-<span class="st"> </span><span class="kw">is.na</span>(alf_fs)
         c2 &lt;-<span class="st"> </span><span class="kw">is.na</span>(alf_ig)
         c3 &lt;-<span class="st"> </span><span class="kw">is.na</span>(alf_yr1)
         c4 &lt;-<span class="st"> </span><span class="kw">is.na</span>(alf_yr2)
         c5 &lt;-<span class="st"> </span><span class="kw">is.na</span>(<span class="kw">as.numeric</span>(<span class="kw">unlist</span>(<span class="kw">strsplit</span>(input$frp_buffers, <span class="st">&quot;,&quot;</span>))))
-        c6 &lt;-<span class="st"> </span>!(input$climMod %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU31&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, 
+        c6 &lt;-<span class="st"> </span>!(input$climMod %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU32&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, 
             <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, <span class="st">&quot;MRI-CGCM3&quot;</span>) &amp;<span class="st"> </span>input$climPeriod %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, 
-            <span class="st">&quot;RCP 4.5&quot;</span>, <span class="st">&quot;RCP 6.0&quot;</span>, <span class="st">&quot;RCP 8.5&quot;</span>) &amp;<span class="st"> </span>input$mapset %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;3m 50-09 trunc&quot;</span>, 
-            <span class="st">&quot;3m 50-09 trunc + L&quot;</span>, <span class="st">&quot;5m 50-09 trunc&quot;</span>, <span class="st">&quot;5m 50-09 trunc + L&quot;</span>))
-        <span class="co"># c7 &lt;- !is.logical(input$useMultipliers)</span>
-        if (!(<span class="kw">any</span>(<span class="kw">c</span>(c1, c2, c3, c4, c5, c6)))) {
+            <span class="st">&quot;RCP 4.5&quot;</span>, <span class="st">&quot;RCP 6.0&quot;</span>, <span class="st">&quot;RCP 8.5&quot;</span>) &amp;<span class="st"> </span>input$mapset %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;3m trunc + Lcoef&quot;</span>, 
+            <span class="st">&quot;3m trunc + Lmap&quot;</span>, <span class="st">&quot;5m trunc + Lcoef&quot;</span>, <span class="st">&quot;5m trunc + Lmap&quot;</span>))
+        c7 &lt;-<span class="st"> </span><span class="kw">is.na</span>(n.sims) ||<span class="st"> </span>n.sims &lt;<span class="st"> </span><span class="dv">32</span> ||<span class="st"> </span>n.sims &gt;<span class="st"> </span><span class="dv">192</span>
+        if (!(<span class="kw">any</span>(<span class="kw">c</span>(c1, c2, c3, c4, c5, c6, c7)))) {
             
-            period &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot; .&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="kw">tolower</span>(input$climPeriod))
-            mapset &lt;-<span class="st"> </span>switch(input$mapset, <span class="st">`</span><span class="dt">3m 50-09 trunc</span><span class="st">`</span> =<span class="st"> &quot;3m_cavmDistTrunc_loop&quot;</span>, 
-                <span class="st">`</span><span class="dt">3m 50-09 trunc + L</span><span class="st">`</span> =<span class="st"> &quot;3m_cavmDistTrunc_loop_L&quot;</span>, <span class="st">`</span><span class="dt">5m 50-09 trunc</span><span class="st">`</span> =<span class="st"> &quot;5m_cavmDistTrunc_loop&quot;</span>, 
-                <span class="st">`</span><span class="dt">5m 50-09 trunc + L</span><span class="st">`</span> =<span class="st"> &quot;5m_cavmDistTrunc_loop_L&quot;</span>)
-            <span class="co"># if(input$useMultipliers) mapset &lt;- paste0(mapset, &#39;_L&#39;)</span>
+            period &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;[ .]&quot;</span>, <span class="st">&quot;&quot;</span>, <span class="kw">tolower</span>(input$climPeriod))
+            if (period ==<span class="st"> &quot;historical&quot;</span>) 
+                map_yr1 &lt;-<span class="st"> </span><span class="dv">1950</span> else map_yr1 &lt;-<span class="st"> </span>alf_yr1
+            if (period ==<span class="st"> &quot;historical&quot;</span>) 
+                map_yr2 &lt;-<span class="st"> </span>alf_yr2 else map_yr2 &lt;-<span class="st"> </span>alf_yr1
+            mapset &lt;-<span class="st"> </span>switch(input$mapset, <span class="st">`</span><span class="dt">3m trunc + Lcoef</span><span class="st">`</span> =<span class="st"> &quot;3m100n_cavmDistTrunc_loop_L&quot;</span>, 
+                <span class="st">`</span><span class="dt">3m trunc + Lmap</span><span class="st">`</span> =<span class="st"> &quot;3m100n_cavmDistTrunc_loop_Lmap&quot;</span>, <span class="st">`</span><span class="dt">5m trunc + Lcoef</span><span class="st">`</span> =<span class="st"> &quot;5m100n_cavmDistTrunc_loop_L&quot;</span>, 
+                <span class="st">`</span><span class="dt">5m trunc + Lmap</span><span class="st">`</span> =<span class="st"> &quot;5m100n_cavmDistTrunc_loop_Lmap&quot;</span>)
+            if (period !=<span class="st"> &quot;historical&quot;</span>) 
+                mapset &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;_loop&quot;</span>, <span class="st">&quot;&quot;</span>, mapset)
             flamFile &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Alf_Files_20121129/gbmFlamMaps&quot;</span>, 
                 period, input$climMod, mapset, <span class="st">&quot;gbm.flamm.tif&quot;</span>)
             
             for (i in <span class="kw">JSON_current</span>()) {
                 alfJSON &lt;-<span class="st"> </span><span class="kw">fromJSON</span>(i, <span class="dt">simplify =</span> F)
+                alfJSON$Simulation$MaxReps &lt;-<span class="st"> </span>n.sims
                 alfJSON$Simulation$RandSeed &lt;-<span class="st"> </span>rand_seed
                 alfJSON$Simulation$FirstYear &lt;-<span class="st"> </span>alf_yr1
                 alfJSON$Simulation$LastYear &lt;-<span class="st"> </span>alf_yr2
@@ -363,6 +375,9 @@ Obs_updateFiles &lt;-<span class="st"> </span><span class="kw">reactive</span>({
                 
                 alfJSON$Fire$TypeTransitionYears[[<span class="dv">1</span>]] &lt;-<span class="st"> </span>alf_yr1
                 alfJSON$Climate$TransitionYears[[<span class="dv">1</span>]] &lt;-<span class="st"> </span>alf_yr1
+                alfJSON$MapOutput$MapYearStart[[<span class="dv">1</span>]] &lt;-<span class="st"> </span>map_yr2
+                alfJSON$MapOutput$MapYearStart[[<span class="dv">3</span>]] &lt;-<span class="st"> </span>map_yr1
+                alfJSON$MapOutput$MapYearStart[[<span class="dv">5</span>]] &lt;-<span class="st"> </span>map_yr1
                 alfJSON$MapOutput$MapYearStart[[<span class="dv">6</span>]] &lt;-<span class="st"> </span>alf_yr1
                 
                 alfJSON$Climate$Values$Flammability.File &lt;-<span class="st"> </span>flamFile
@@ -381,14 +396,16 @@ Obs_updateFiles &lt;-<span class="st"> </span><span class="kw">reactive</span>({
                 }
             }
             
-            alf.domain &lt;-<span class="st"> </span><span class="kw">substr</span>(input$json_files, <span class="dv">1</span>, <span class="kw">nchar</span>(input$json_files) -<span class="st"> </span>
-<span class="st">                </span><span class="dv">5</span>)
+            alf.domain &lt;-<span class="st"> </span><span class="kw">substr</span>(input$json_files, <span class="dv">4</span>, <span class="dv">5</span>)
+            if (alf.domain ==<span class="st"> &quot;No&quot;</span>) 
+                alf.domain &lt;-<span class="st"> &quot;Noatak&quot;</span> else if (alf.domain ==<span class="st"> &quot;SW&quot;</span>) 
+                alf.domain &lt;-<span class="st"> &quot;Statewide&quot;</span> else <span class="kw">stop</span>(<span class="st">&quot;Unknown spatial domain.&quot;</span>)
             domainDir &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;Runs_&quot;</span>, alf.domain)
             userDir &lt;-<span class="st"> </span><span class="kw">gsub</span>(<span class="st">&quot;@&quot;</span>, <span class="st">&quot;_at_&quot;</span>, <span class="kw">user_email_address</span>())
             <span class="co"># outDir &lt;- paste0(mainDir,&#39;/&#39;,domainDir,&#39;/&#39;,userDir,&#39;/&#39;,format(Sys.time(),</span>
             <span class="co"># &#39;%Y-%m-%d-%H-%M-%S&#39;))</span>
             outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(mainDir, domainDir, userDir, <span class="kw">gsub</span>(<span class="st">&quot;[ -]&quot;</span>, <span class="st">&quot;&quot;</span>, 
-                input$run_name))
+                input$run_name, period, input$climMod))
             relDir &lt;-<span class="st"> </span>outDir  <span class="co"># Still need this?</span>
             
             for (i in <span class="kw">JSON_current</span>()) {
@@ -445,7 +462,8 @@ Obs_updateFiles &lt;-<span class="st"> </span><span class="kw">reactive</span>({
                 includeFRP &lt;-<span class="st"> </span><span class="dv">1</span> else includeFRP &lt;-<span class="st"> </span><span class="dv">0</span>
             arguments &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="kw">c</span>(mainDir, outDir, relDir, <span class="kw">paste</span>(<span class="kw">all_email_addresses</span>(), 
                 <span class="dt">collapse =</span> <span class="st">&quot;,&quot;</span>), alf.domain, input$json_files, postprocOnly, 
-                includeFSE, includeFRP, frp_arguments, alf_yr1), <span class="dt">collapse =</span> <span class="st">&quot; &quot;</span>)
+                includeFSE, includeFRP, frp_arguments, alf_yr1, alf_yr2, n.sims, 
+                period), <span class="dt">collapse =</span> <span class="st">&quot; &quot;</span>)
             sbatch_string &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;ssh&quot;</span>, server, exec, slurm_arguments, <span class="kw">file.path</span>(outDir, 
                 slurmfile), arguments)
             <span class="kw">system</span>(sbatch_string)
