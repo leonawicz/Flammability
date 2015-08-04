@@ -17,11 +17,12 @@ plotFRPbyBuffer <- function(data, min.buffer, colpal, subject, grp="", fontsize=
 
 # @knitr plotRABbyTime
 # plot time series of cumulative or non-cumulative annual relative area burned for a given buffer size
-plotRABbyTime <- function(data, buffersize, year.range, cumulative=F, subject, grp="", colpal, fontsize=16, leg.pos="top", facet.by=NULL, facet.cols=1){
-	d <- subset(data, Buffer_km %in% as.numeric(buffersize) & Year >= year.range[1] & Year <= year.range[2])
+plotRABbyTime <- function(data, buffersize, year.range, cumulative=F, subject, grp="", colpal, fontsize=16, lgd.pos="top", facet.by=NULL, facet.cols=1, ...){
+    d <- data.table(data)
+	d <- subset(d, Buffer_km %in% as.numeric(buffersize) & Year >= year.range[1] & Year <= year.range[2])
 	xlb="Year"
 	if(cumulative){
-		d <- ddply(d, .(Replicate, Buffer_km, Location), transform, Value=cumsum(Value))
+        d %>% group_by(Replicate, Buffer_km, Location) %>% mutate(Value=cumsum(Value)) -> d
 		maintitle <- paste(year.range[1], "-", year.range[2], "Cumulative Relative Area Burned ~ Time | Buffer")
 		ylb <- "CRAB (%)"
 	} else {
@@ -37,12 +38,54 @@ plotRABbyTime <- function(data, buffersize, year.range, cumulative=F, subject, g
 		} else g <- g + geom_step() + geom_step(data=subset(d, Source=="Observed"), size=1)
 	} else {
 		if(grp!=""){
-			g <- g + geom_line(data=subset(d, Source=="Modeled"), colour="gray")
-			g <- g + geom_line(aes_string(group=grp, colour=grp), data=subset(d, Source=="Observed"), size=1) +
+			g <- g + geom_point(data=subset(d, Source=="Modeled"), colour="gray")
+			g <- g + geom_point(aes_string(group=grp, colour=grp), data=subset(d, Source=="Observed"), size=2.5) +
 				scale_color_manual(values=colpal[-c(1,2)]) + scale_fill_manual(values=colpal[-c(1,2)])
-		} else g <- g + geom_line() + geom_line(data=subset(d, Source=="Observed"), size=1)
+		} else g <- g + geom_point() + geom_point(data=subset(d, Source=="Observed"), size=2.5)
 	}
 	g <- g + theme_bw(base_size=fontsize) + theme(legend.position=tolower(lgd.pos)) + ggtitle(bquote(paste(.(maintitle) == .(paste(buffersize,"km"))))) + xlab(xlb) + ylab(ylb)
+	if(!is.null(facet.by)) g <- g + facet_wrap(as.formula(paste("~",facet.by)), ncol=as.numeric(facet.cols))
+	print(g)
+}
+
+# @knitr plotRegionalTABbyTime
+# plot time series of regional cumulative or non-cumulative annual total area burned for a given vegetation class or collection of vegetation classes
+plotRegionalTABbyTime <- function(data, vegetation, agg.veg=F, year.range, cumulative=F, subject, grp="", colpal, fontsize=16, lgd.pos="top", facet.by=NULL, facet.cols=1, ...){
+    d <- data.table(filter(data, Vegetation %in% vegetation & Year >= year.range[1] & Year <= year.range[2]))
+    if(agg.veg) {
+        d[, Vegetation:=NULL]
+        d <- group_by(d, Source, Replicate, Year)
+        given.veg <- ""
+    } else {
+        d <- group_by(d, Source, Replicate, Vegetation, Year)
+        given.veg <- "| Vegetation"
+    }
+	xlb="Year"
+	if(cumulative){
+		d %>% summarise(Value=sum(FS)) %>% mutate(Value=cumsum(Value)) -> d
+		maintitle <- paste(year.range[1], "-", year.range[2], "Regional Cumulative Total Area Burned ~ Time", given.veg)
+		ylb <- expression("CTAB ("~km^2~")")
+	} else {
+        d <- summarise(d, Value=sum(FS))
+		maintitle <- paste(year.range[1], "-", year.range[2], "Regional Total Area Burned ~ Time", given.veg)
+		ylb <- expression("TAB ("~km^2~")")
+	}
+	g <- ggplot(d, aes_string(x="Year", y="Value", group=subject, colour="Source")) + scale_color_manual(values=colpal) + scale_fill_manual(values=colpal)
+	if(cumulative){
+		if(grp!=""){
+			g <- g + geom_step(data=subset(d, Source=="Modeled"), colour="gray")
+			g <- g + geom_step(aes_string(group=grp, colour=grp), data=subset(d, Source=="Observed"), size=1) +
+				scale_color_manual(values=colpal[-c(1,2)]) + scale_fill_manual(values=colpal[-c(1,2)])
+		} else g <- g + geom_step() + geom_step(data=subset(d, Source=="Observed"), size=1)
+	} else {
+		if(grp!=""){
+			g <- g + geom_point(data=subset(d, Source=="Modeled"), colour="gray")
+			g <- g + geom_point(aes_string(group=grp, colour=grp), data=subset(d, Source=="Observed"), size=2.5) +
+				scale_color_manual(values=colpal[-c(1,2)]) + scale_fill_manual(values=colpal[-c(1,2)])
+		} else g <- g + geom_point() + geom_point(data=subset(d, Source=="Observed"), size=2.5)
+	}
+    if(agg.veg | length(vegetation) > 1) ttl <- maintitle else ttl <- bquote(paste(.(maintitle) == .(vegetation)))
+	g <- g + theme_bw(base_size=fontsize) + theme(legend.position=tolower(lgd.pos)) + ggtitle(ttl) + xlab(xlb) + ylab(ylb)
 	if(!is.null(facet.by)) g <- g + facet_wrap(as.formula(paste("~",facet.by)), ncol=as.numeric(facet.cols))
 	print(g)
 }
@@ -62,7 +105,7 @@ plotFRIboxplot <- function(d, x, y, grp=NULL, Log=FALSE, colpal, show.points=TRU
 	x.n <- length(unique(d[,x]))
 	if(is.character(grp) & n.grp>1){
 		if(is.null(facet.by)) {
-			x.names <- unique(as.character(d[,x]))
+			x.names <- sort(unique(as.character(d[,x])))
 			x.num <- grp.n <- grp.num <- rep(NA, nrow(d))
 			for(m in 1:length(x.names)){
 				ind <- which(as.character(d[,x])==x.names[m])
@@ -72,7 +115,7 @@ plotFRIboxplot <- function(d, x, y, grp=NULL, Log=FALSE, colpal, show.points=TRU
 			}
 			d$xdodge <- x.num + grp.num
 		} else {
-			x.names <- unique(as.character(d[,x]))
+			x.names <- sort(unique(as.character(d[,x])))
 			panel.names <- unique(as.character(d[,facet.by]))
 			n.panels <- length(panel.names)
 			x.num <- grp.n <- grp.num <- rep(NA, nrow(d))
