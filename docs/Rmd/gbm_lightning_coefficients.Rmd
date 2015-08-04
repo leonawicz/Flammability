@@ -1,0 +1,62 @@
+---
+output:
+  html_document:
+    toc: false
+    theme: flatly
+    highlight: zenburn
+    keep_md: true
+---
+
+```{r knitr_setup, echo=FALSE}
+opts_chunk$set(cache=FALSE, eval=FALSE, tidy=TRUE, message=FALSE, warning=FALSE)
+read_chunk("../../code/gbm_lightning_coefficients.R")
+```
+
+##
+##
+## gbm_lightning_coefficients.R
+
+The `gbm_lightning_coefficients.R` script assembles GBM lightning strike point model historical fitted values and backcast and forecast predictions.
+Historical and future values are loaded via workspace file.
+
+The script also provides exploratory graphs of the assembled data.
+It presents the discrete classification of annual lightning intensity with several visualizations
+including time series, ranked and ordered values, and empirical CDF.
+
+Plots are made of exclusively CRU 3.2 based fitted values and backcast predictions.
+Similar multi-panel plots are then made comparing each of five CMIP5 GCMs' predicted values with CRU 3.2 as a comparative baseline.
+
+The finalized compiled data table including discrete classified annual lightning intensity coefficients is saved to a new workspace to be sourced by other scripts.
+For example, it is sourced by `FlammabilityMapMultipliers.R` for applying a scalar multiplier to GBM vegetation flammability maps used in ALFRESCO simulations.
+
+## R code
+
+### Setup
+
+```{r setup}
+```
+
+### Support functions
+
+```{r support_functions}
+```
+
+### Quantiles and classification
+
+```{r quantiles}
+```
+
+### CRU 3.2 plots
+
+```{r plots_cru32}
+```
+
+### RCP 6.0 CMIP5 GCM comparisons with CRU 3.2
+
+```{r plots_gcm}
+```
+
+### Save outputs
+
+```{r save}
+```
