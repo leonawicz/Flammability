@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/29/2015        ####
+#### Last updated:   08/04/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -47,8 +47,6 @@ if(allcavm){
 } else {
 	out <- paste0("5m", suffix)
 }
-dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model, out), recursive=T, showWarnings=F)
-dir.create(plotDir <- file.path("../plots/gbmFlammability", verDir, period, model, out), recursive=T, showWarnings=F)
 
 # @knitr func_prep
 f <- function(p, yrs=NULL, bins=1, standardize=FALSE){
@@ -103,14 +101,6 @@ getGBMpreds <- function(a,b, nam1, nam2){
 	data.frame(Predicted=y, ID=x1$ID)
 }
 
-# @knitr func_write
-partifs <- function(i, r, flam, outDir){
-	r <- setValues(r, flam[,i])
-	names(r) <- paste0("gbm.flamm_",yrs[1]+i-1)
-	writeRaster(r, paste0(outDir, "/gbm.flamm_",yrs[1]+i-1,".tif"), datatype="FLT4S", overwrite=T)
-	print(i)
-}
-
 # @knitr run
 preds <- list()
 for(zzz in 1:5){
@@ -125,33 +115,4 @@ for(zzz in 1:5){
 flam <- matrix(NA, nrow=length(veg), ncol=length(yrs))
 for(i in 1:5) flam[which(get(ind.names[i])),] <- preds[[i]]
 flam.range <- range(flam, na.rm=T)
-flam <- (flam - flam.range[1])/(flam.range[2] - flam.range[1])
-
-# Write geotiffs
-mclapply(1:length(yrs), partifs, r=r.veg, flam=flam, outDir=outDir, mc.cores=32)
-
-# @knitr plot
-# Setup
-at.vals <- c(0, 0.25, 0.5, 0.75, 1)
-colkey <- list(at=at.vals, labels=list(labels=c("Low", "Medium", "High", "Severe"), at=at.vals + 0.125))
-
-# Theme settings
-revRasterTheme <- function (pch = 19, cex = 0.7, region=brewer.pal(9, "YlOrRd")[-1], ...){
-    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
-    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
-    theme$add.line$lwd = 0.4
-    theme
-}
-
-# parallelize levelplot
-parplot <- function(i, outDir, dataDir){
-	r <- raster(paste0(dataDir, "/gbm.flamm_",yrs[1]+i-1,".tif"))
-	png(paste0(outDir, "/gbm.flamm_", yrs[1]+i-1,".png"), height=1600, width=1600, res=200)
-	p <- levelplot(r, maxpixels=ncell(r), main=paste(yrs[1]+i-1,"flammability"), par.settings=revRasterTheme, contour=T, margin=F, at=at.vals, colorkey=colkey) #col=rev(heat.colors(30)))
-	print(p)
-	dev.off()
-	print(i)
-}
-
-# Write PNGs
-mclapply(1:length(yrs), parplot, outDir=plotDir, dataDir=outDir, mc.cores=32)
+save(flam, flam.range, yrs, r.veg, file=paste0("gbmFlammability/rawFlamPreds_", out, "_", model, "_", period, ".RData"))
