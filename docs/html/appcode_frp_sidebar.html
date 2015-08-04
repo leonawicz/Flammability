@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -235,25 +240,35 @@ img {
 <h2>sidebar.R</h2>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">column</span>(<span class="dv">4</span>,
     <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp!==&#39;about&#39;&quot;</span>,
-        <span class="kw">wellPanel</span>(
-            <span class="kw">h5</span>(<span class="st">&quot;Select data&quot;</span>),
-            <span class="kw">selectInput</span>(<span class="st">&quot;workspace&quot;</span>, <span class="st">&quot;Alfresco run:&quot;</span>, <span class="dt">choices=</span>wsfiles, <span class="dt">selected=</span>wsfiles[<span class="dv">1</span>], <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)
-        )
+        <span class="kw">selectInput</span>(<span class="st">&quot;workspace&quot;</span>, <span class="st">&quot;Alfresco run:&quot;</span>, <span class="dt">choices=</span>wsfiles, <span class="dt">selected=</span>wsfiles[<span class="dv">1</span>], <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)
     ),
-    <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp!==&#39;fri_boxplot&#39; &amp;&amp; input.tsp!==&#39;about&#39;&quot;</span>,
+    <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp!==&#39;fri_boxplot&#39; &amp;&amp; input.tsp!==&#39;about&#39; &amp;&amp; input.tsp!==&#39;tab_ts&#39; &amp;&amp; input.tsp!==&#39;ctab_ts&#39;&quot;</span>,
         <span class="kw">wellPanel</span>(
             <span class="kw">h5</span>(<span class="st">&quot;Define subjects, groups, and panels&quot;</span>),
             <span class="kw">fluidRow</span>(
-                <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;interact&quot;</span>, <span class="st">&quot;Subject (factor interaction):&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;Replicate&quot;</span>, <span class="st">&quot;Location&quot;</span>), <span class="dt">selected=</span><span class="kw">c</span>(<span class="st">&quot;Replicate&quot;</span>, <span class="st">&quot;Location&quot;</span>), <span class="dt">multiple=</span>T, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
-                <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;grp&quot;</span>, <span class="st">&quot;Group by:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Location&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))
-            ),
-            <span class="kw">fluidRow</span>(
-                <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;facetby&quot;</span>, <span class="st">&quot;Facet by:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Location&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
-                <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;facetcols&quot;</span>, <span class="st">&quot;Columns if faceting:&quot;</span>, <span class="dt">choices=</span><span class="dv">1</span>:<span class="dv">4</span>, <span class="dt">selected=</span><span class="dv">1</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))
+                <span class="co">#column(6, selectInput(&quot;interact&quot;, &quot;Subject (factor interaction):&quot;, choices=c(&quot;Replicate&quot;, &quot;Location&quot;), selected=c(&quot;Replicate&quot;, &quot;Location&quot;), multiple=T)),</span>
+                <span class="kw">column</span>(<span class="dv">4</span>, <span class="kw">selectInput</span>(<span class="st">&quot;grp&quot;</span>, <span class="st">&quot;Group by:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Location&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
+            <span class="co">#),</span>
+            <span class="co">#fluidRow(</span>
+                <span class="kw">column</span>(<span class="dv">4</span>, <span class="kw">selectInput</span>(<span class="st">&quot;facetby&quot;</span>, <span class="st">&quot;Facet by:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Location&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
+                <span class="kw">column</span>(<span class="dv">4</span>, <span class="kw">selectInput</span>(<span class="st">&quot;facetcols&quot;</span>, <span class="st">&quot;Facet cols:&quot;</span>, <span class="dt">choices=</span><span class="dv">1</span>:<span class="dv">4</span>, <span class="dt">selected=</span><span class="dv">1</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))
             )
         )
     ),
-    <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;rab_ts&#39; || input.tsp===&#39;crab_ts&#39;&quot;</span>,
+    <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp==&#39;tab_ts&#39; || input.tsp==&#39;ctab_ts&#39;&quot;</span>,
+        <span class="kw">wellPanel</span>(
+            <span class="kw">h5</span>(<span class="st">&quot;Define subjects, groups, and panels&quot;</span>),
+            <span class="kw">fluidRow</span>(
+                <span class="co">#column(6, selectInput(&quot;reg_interact&quot;, &quot;Subject (factor interaction):&quot;, choices=c(&quot;Replicate&quot;, &quot;Vegetation&quot;), selected=c(&quot;Replicate&quot;, &quot;Vegetation&quot;), multiple=T)),</span>
+                <span class="kw">column</span>(<span class="dv">4</span>, <span class="kw">selectInput</span>(<span class="st">&quot;reg_grp&quot;</span>, <span class="st">&quot;Group by:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Vegetation&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;&quot;</span>)),
+            <span class="co">#),</span>
+            <span class="co">#fluidRow(</span>
+                <span class="kw">column</span>(<span class="dv">4</span>, <span class="kw">selectInput</span>(<span class="st">&quot;reg_facetby&quot;</span>, <span class="st">&quot;Facet by:&quot;</span>, <span class="dt">choices=</span><span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Vegetation&quot;</span>), <span class="dt">selected=</span><span class="st">&quot;&quot;</span>)),
+                <span class="kw">column</span>(<span class="dv">4</span>, <span class="kw">selectInput</span>(<span class="st">&quot;reg_facetcols&quot;</span>, <span class="st">&quot;Facet cols:&quot;</span>, <span class="dt">choices=</span><span class="dv">1</span>:<span class="dv">4</span>, <span class="dt">selected=</span><span class="dv">1</span>))
+            )
+        )
+    ),
+    <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;rab_ts&#39; || input.tsp===&#39;crab_ts&#39; || input.tsp===&#39;tab_ts&#39; || input.tsp===&#39;ctab_ts&#39;&quot;</span>,
         <span class="kw">wellPanel</span>(
             <span class="kw">fluidRow</span>(
                 <span class="kw">column</span>(<span class="dv">9</span>, <span class="kw">h5</span>(<span class="st">&quot;Time series options&quot;</span>)),
@@ -263,16 +278,28 @@ img {
                     ),
                     <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;crab_ts&#39;&quot;</span>,
                         <span class="kw">downloadButton</span>(<span class="st">&quot;dl_CRAB_tsplotPDF&quot;</span>,<span class="st">&quot;Get Plot&quot;</span>)
+                    ),
+                    <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;tab_ts&#39;&quot;</span>,
+                        <span class="kw">downloadButton</span>(<span class="st">&quot;dl_RegTAB_tsplotPDF&quot;</span>,<span class="st">&quot;Get Plot&quot;</span>)
+                    ),
+                    <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;ctab_ts&#39;&quot;</span>,
+                        <span class="kw">downloadButton</span>(<span class="st">&quot;dl_RegCTAB_tsplotPDF&quot;</span>,<span class="st">&quot;Get Plot&quot;</span>)
                     )
                 )
             ),
             <span class="kw">fluidRow</span>(
-                <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;buffersize&quot;</span>, <span class="st">&quot;Buffer radius (km):&quot;</span>, <span class="dt">choices=</span>buffersize, <span class="dt">selected=</span>buffersize[<span class="dv">6</span>], <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))<span class="co">#,</span>
-
+                <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;rab_ts&#39; || input.tsp===&#39;crab_ts&#39;&quot;</span>,
+                    <span class="kw">column</span>(<span class="dv">6</span>, <span class="kw">selectInput</span>(<span class="st">&quot;buffersize&quot;</span>, <span class="st">&quot;Buffer radius (km):&quot;</span>, <span class="dt">choices=</span>buffersize, <span class="dt">selected=</span>buffersize[<span class="dv">6</span>], <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))),
+                <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;tab_ts&#39; || input.tsp===&#39;ctab_ts&#39;&quot;</span>,
+                    <span class="kw">column</span>(<span class="dv">12</span>, <span class="kw">selectInput</span>(<span class="st">&quot;reg_vegetation&quot;</span>, <span class="st">&quot;Select vegetation:&quot;</span>, <span class="dt">choices=</span>vegclasses, <span class="dt">selected=</span>vegclasses, <span class="dt">multiple=</span><span class="ot">TRUE</span>),
+                        <span class="kw">checkboxInput</span>(<span class="st">&quot;reg_aggveg&quot;</span>, <span class="st">&quot;Combine vegetation&quot;</span>, <span class="ot">FALSE</span>)),
+                        <span class="kw">HTML</span>(<span class="st">&#39;&lt;p style=&quot;text-align:justify&quot;&gt;Integrating across vegetation classes removes Vegetation from the data frame.</span>
+<span class="st">                            Therefore, Vegetation cannot remain as a selected option above for Grouping or Faceting.&lt;/p&gt;</span>
+<span class="st">                            &lt;p style=&quot;text-align:justify&quot;&gt;Under certain restrictive conditions such as limited years and spatial extent, some vegetation classes may cause problems for plotting and must be deselected.&lt;/p&gt;&#39;</span>))
             ),
             <span class="kw">fluidRow</span>(
-                <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;rab_ts&#39;&quot;</span>, <span class="kw">sliderInput</span>(<span class="st">&quot;yearsrab&quot;</span>, <span class="st">&quot;Years&quot;</span>, mod.years.range[<span class="dv">1</span>], mod.years.range[<span class="dv">2</span>], <span class="kw">c</span>(<span class="kw">max</span>(mod.years.range[<span class="dv">1</span>], <span class="dv">1901</span>), mod.years.range[<span class="dv">2</span>]), <span class="dt">step=</span><span class="dv">1</span>, <span class="dt">format=</span><span class="st">&quot;#&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
-                <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;crab_ts&#39;&quot;</span>, <span class="kw">sliderInput</span>(<span class="st">&quot;yearscrab&quot;</span>, <span class="st">&quot;Years&quot;</span>, obs.years.range[<span class="dv">1</span>], obs.years.range[<span class="dv">2</span>], obs.years.range, <span class="dt">step=</span><span class="dv">1</span>, <span class="dt">format=</span><span class="st">&quot;#&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))
+                <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;rab_ts&#39; || input.tsp===&#39;tab_ts&#39;&quot;</span>, <span class="kw">sliderInput</span>(<span class="st">&quot;yearsrab&quot;</span>, <span class="st">&quot;Years&quot;</span>, mod.years.range[<span class="dv">1</span>], mod.years.range[<span class="dv">2</span>], <span class="kw">c</span>(<span class="kw">max</span>(mod.years.range[<span class="dv">1</span>], <span class="dv">1901</span>), mod.years.range[<span class="dv">2</span>]), <span class="dt">step=</span><span class="dv">1</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>)),
+                <span class="kw">conditionalPanel</span>(<span class="dt">condition=</span><span class="st">&quot;input.tsp===&#39;crab_ts&#39; || input.tsp===&#39;ctab_ts&#39;&quot;</span>, <span class="kw">sliderInput</span>(<span class="st">&quot;yearscrab&quot;</span>, <span class="st">&quot;Years&quot;</span>, obs.years.range[<span class="dv">1</span>], obs.years.range[<span class="dv">2</span>], obs.years.range, <span class="dt">step=</span><span class="dv">1</span>, <span class="dt">sep=</span><span class="st">&quot;&quot;</span>, <span class="dt">width=</span><span class="st">&quot;100%&quot;</span>))
             )
         )
     ),

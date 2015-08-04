@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -233,53 +238,36 @@ img {
 </div>
 <div id="ui.r" class="section level2">
 <h2>ui.R</h2>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">headerPanel_2</span>(
-    <span class="kw">HTML</span>(
-        <span class="st">&#39;</span>
-<span class="st">        &lt;div id=&quot;stats_header&quot;&gt;</span>
-<span class="st">        Alfresco FRP</span>
-<span class="st">        &lt;a href=&quot;http://snap.uaf.edu&quot; target=&quot;_blank&quot;&gt;</span>
-<span class="st">        &lt;img id=&quot;stats_logo&quot; align=&quot;right&quot; alt=&quot;SNAP Logo&quot; src=&quot;./img/SNAP_acronym_100px.png&quot; /&gt;</span>
-<span class="st">        &lt;/a&gt;</span>
-<span class="st">        &lt;/div&gt;&#39;</span>
-    ), h3, <span class="st">&quot;Alfresco Fire Return Period&quot;</span>
-)
+<pre class="sourceCode r"><code class="sourceCode r">tabPanelAbout &lt;-<span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;about.R&quot;</span>,<span class="dt">local=</span>T)$value
 
-tabPanelAbout &lt;-<span class="st"> </span><span class="kw">source</span>(<span class="st">&quot;about.R&quot;</span>,<span class="dt">local=</span>T)$value
-headerPanel_2 &lt;-<span class="st"> </span>function(title, h, <span class="dt">windowTitle=</span>title) {    
-  <span class="kw">tagList</span>(
-    tags$<span class="kw">head</span>(tags$<span class="kw">title</span>(windowTitle)),
-      <span class="kw">h</span>(title)
-    )
-}
-
-<span class="kw">shinyUI</span>(<span class="kw">fluidPage</span>(
-    <span class="kw">source</span>(<span class="st">&quot;header.R&quot;</span>,<span class="dt">local=</span>T)$value,
+<span class="kw">shinyUI</span>(
+    <span class="kw">tagList</span>(
+    tags$<span class="kw">head</span>(tags$<span class="kw">link</span>(<span class="dt">rel=</span><span class="st">&quot;stylesheet&quot;</span>, <span class="dt">type=</span><span class="st">&quot;text/css&quot;</span>, <span class="dt">href=</span><span class="st">&quot;styles.css&quot;</span>)),
+    <span class="kw">navbarPage</span>(<span class="dt">theme=</span><span class="kw">shinytheme</span>(<span class="st">&quot;cosmo&quot;</span>),
+    <span class="dt">title=</span><span class="kw">HTML</span>(<span class="st">&#39;&lt;div&gt;&lt;a href=&quot;http://snap.uaf.edu&quot; target=&quot;_blank&quot;&gt;&lt;img src=&quot;./img/SNAP_acronym_100px.png&quot; width=&quot;80%&quot;&gt;&lt;/a&gt;&lt;/div&gt;&#39;</span>),
+    <span class="dt">windowTitle=</span><span class="st">&quot;Alf Out Dev&quot;</span>,
+    <span class="dt">collapsible=</span><span class="ot">TRUE</span>,
+    <span class="dt">id=</span><span class="st">&quot;tsp&quot;</span>,
+    
+    <span class="kw">tabPanel</span>(<span class="st">&quot;Site RAB&quot;</span>, <span class="dt">value=</span><span class="st">&quot;rab_ts&quot;</span>),
+    <span class="kw">tabPanel</span>(<span class="st">&quot;Site CRAB&quot;</span>, <span class="dt">value=</span><span class="st">&quot;crab_ts&quot;</span>),
+    <span class="kw">tabPanel</span>(<span class="st">&quot;Region TAB&quot;</span>, <span class="dt">value=</span><span class="st">&quot;tab_ts&quot;</span>),
+    <span class="kw">tabPanel</span>(<span class="st">&quot;Region CTAB&quot;</span>, <span class="dt">value=</span><span class="st">&quot;ctab_ts&quot;</span>),
+    <span class="kw">tabPanel</span>(<span class="st">&quot;Site FRP ~ Buffer&quot;</span>, <span class="dt">value=</span><span class="st">&quot;frp_buffer&quot;</span>),
+    <span class="kw">tabPanel</span>(<span class="st">&quot;Site FRI Boxplots&quot;</span>, <span class="dt">value=</span><span class="st">&quot;fri_boxplot&quot;</span>),
+    <span class="kw">tabPanelAbout</span>(),
     <span class="kw">fluidRow</span>(
         <span class="kw">source</span>(<span class="st">&quot;sidebar.R&quot;</span>,<span class="dt">local=</span>T)$value,
         <span class="kw">column</span>(<span class="dv">8</span>,
-            <span class="kw">tabsetPanel</span>(
-                <span class="kw">tabPanel</span>(<span class="st">&quot;RAB ~ Time&quot;</span>,
-                    <span class="kw">plotOutput</span>(<span class="st">&quot;RAB_tsplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>),
-                    <span class="kw">br</span>(), <span class="dt">value=</span><span class="st">&quot;rab_ts&quot;</span>),
-                <span class="kw">tabPanel</span>(<span class="st">&quot;CRAB ~ Time&quot;</span>,
-                    <span class="kw">plotOutput</span>(<span class="st">&quot;CRAB_tsplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>),
-                    <span class="kw">br</span>(), <span class="dt">value=</span><span class="st">&quot;crab_ts&quot;</span>),
-                <span class="kw">tabPanel</span>(<span class="st">&quot;FRP ~ Buffer Radius&quot;</span>,
-                    <span class="kw">plotOutput</span>(<span class="st">&quot;FRP_bufferplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>),
-                    <span class="kw">br</span>(), <span class="dt">value=</span><span class="st">&quot;frp_buffer&quot;</span>),
-                <span class="kw">tabPanel</span>(<span class="st">&quot;FRI Boxplots&quot;</span>,
-                    <span class="kw">plotOutput</span>(<span class="st">&quot;FRI_boxplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>),
-                    <span class="kw">br</span>(), <span class="dt">value=</span><span class="st">&quot;fri_boxplot&quot;</span>),
-                <span class="kw">tabPanelAbout</span>(),
-                <span class="dt">id=</span><span class="st">&quot;tsp&quot;</span>,
-                <span class="dt">type=</span><span class="st">&quot;pill&quot;</span>,
-                <span class="dt">selected=</span><span class="st">&quot;rab_ts&quot;</span>
-            )
+            <span class="kw">conditionalPanel</span>(<span class="st">&quot;input.tsp==&#39;rab_ts&#39;&quot;</span>, <span class="kw">plotOutput</span>(<span class="st">&quot;RAB_tsplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>), <span class="kw">br</span>()),
+            <span class="kw">conditionalPanel</span>(<span class="st">&quot;input.tsp==&#39;crab_ts&#39;&quot;</span>, <span class="kw">plotOutput</span>(<span class="st">&quot;CRAB_tsplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>), <span class="kw">br</span>()),
+            <span class="kw">conditionalPanel</span>(<span class="st">&quot;input.tsp==&#39;tab_ts&#39;&quot;</span>, <span class="kw">plotOutput</span>(<span class="st">&quot;RegTAB_tsplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>), <span class="kw">br</span>()),
+            <span class="kw">conditionalPanel</span>(<span class="st">&quot;input.tsp==&#39;ctab_ts&#39;&quot;</span>, <span class="kw">plotOutput</span>(<span class="st">&quot;RegCTAB_tsplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>), <span class="kw">br</span>()),
+            <span class="kw">conditionalPanel</span>(<span class="st">&quot;input.tsp==&#39;frp_buffer&#39;&quot;</span>, <span class="kw">plotOutput</span>(<span class="st">&quot;FRP_bufferplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>), <span class="kw">br</span>()),
+            <span class="kw">conditionalPanel</span>(<span class="st">&quot;input.tsp==&#39;fri_boxplot&#39;&quot;</span>, <span class="kw">plotOutput</span>(<span class="st">&quot;FRI_boxplot&quot;</span>,<span class="dt">height=</span><span class="st">&quot;auto&quot;</span>), <span class="kw">br</span>())
         )
-
     )
-))</code></pre>
+)))</code></pre>
 </div>
 
 <!-- some extra javascript for older browsers -->

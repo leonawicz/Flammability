@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -243,15 +248,45 @@ img {
     x
 })
 
+reg_facetBy &lt;-<span class="st"> </span><span class="kw">reactive</span>({
+    x &lt;-<span class="st"> </span><span class="ot">NULL</span>
+    if (!<span class="kw">is.null</span>(input$reg_facetby)) {
+        x &lt;-<span class="st"> </span>input$reg_facetby
+        if (x ==<span class="st"> &quot;&quot;</span>) 
+            x &lt;-<span class="st"> </span><span class="ot">NULL</span>
+    }
+    x
+})
+
 subjects &lt;-<span class="st"> </span><span class="kw">reactive</span>({
-    if (!<span class="kw">length</span>(input$interact)) 
-        x &lt;-<span class="st"> </span><span class="ot">NULL</span> else x &lt;-<span class="st"> </span><span class="kw">sprintf</span>(<span class="st">&quot;interaction(%s)&quot;</span>, <span class="kw">paste0</span>(input$interact, <span class="dt">collapse =</span> <span class="st">&quot;, &quot;</span>))
+    <span class="co"># if(!length(input$interact)) x &lt;- NULL else x &lt;- sprintf(&#39;interaction(%s)&#39;,</span>
+    <span class="co"># paste0(input$interact, collapse = &#39;, &#39;))</span>
+    x &lt;-<span class="st"> </span><span class="kw">sprintf</span>(<span class="st">&quot;interaction(%s)&quot;</span>, <span class="kw">paste0</span>(<span class="kw">c</span>(<span class="st">&quot;Replicate&quot;</span>, <span class="st">&quot;Location&quot;</span>), <span class="dt">collapse =</span> <span class="st">&quot;, &quot;</span>))
+    x
+})
+
+reg_subjects &lt;-<span class="st"> </span><span class="kw">reactive</span>({
+    <span class="co"># if(!length(input$reg_interact)) x &lt;- NULL else x &lt;-</span>
+    <span class="co"># sprintf(&#39;interaction(%s)&#39;, paste0(input$reg_interact, collapse = &#39;, &#39;))</span>
+    if (!<span class="kw">is.null</span>(input$reg_aggveg)) {
+        if (input$reg_aggveg) 
+            x &lt;-<span class="st"> </span><span class="kw">sprintf</span>(<span class="st">&quot;interaction(%s)&quot;</span>, <span class="kw">paste0</span>(<span class="kw">c</span>(<span class="st">&quot;Replicate&quot;</span>), <span class="dt">collapse =</span> <span class="st">&quot;, &quot;</span>))
+        if (!input$reg_aggveg) 
+            x &lt;-<span class="st"> </span><span class="kw">sprintf</span>(<span class="st">&quot;interaction(%s)&quot;</span>, <span class="kw">paste0</span>(<span class="kw">c</span>(<span class="st">&quot;Replicate&quot;</span>, <span class="st">&quot;Vegetation&quot;</span>), 
+                <span class="dt">collapse =</span> <span class="st">&quot;, &quot;</span>))
+    } else x &lt;-<span class="st"> </span><span class="ot">NULL</span>
     x
 })
 
 groups &lt;-<span class="st"> </span><span class="kw">reactive</span>({
     if (!<span class="kw">length</span>(input$grp)) 
         x &lt;-<span class="st"> </span><span class="ot">NULL</span> else x &lt;-<span class="st"> </span>input$grp
+    x
+})
+
+reg_groups &lt;-<span class="st"> </span><span class="kw">reactive</span>({
+    if (!<span class="kw">length</span>(input$reg_grp)) 
+        x &lt;-<span class="st"> </span><span class="ot">NULL</span> else x &lt;-<span class="st"> </span>input$reg_grp
     x
 })
 
