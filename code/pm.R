@@ -6,7 +6,7 @@ proj.location <- matt.proj.path # Use default file location
 docDir <- c("Rmd/include", "md", "html", "Rnw", "pdf", "timeline")
 newProject(proj.name, proj.location, docs.dirs=docDir, overwrite=T) # create a new project
 
-appcode.frp.files <- list.files("Y:/Users/mfleonawicz/FRP_test/shiny/FRP_template", pattern="\\.R$", full=TRUE, recursive=TRUE)
+appcode.frp.files <- list.files("C:/github/shiny-apps/alfoutdev", pattern="\\.R$", full=TRUE, recursive=TRUE)
 appcode.alf.files <- list.files("C:/github/shiny-apps/run_alfresco", pattern="\\.R$", full=TRUE, recursive=TRUE)
 rfile.path <- file.path(proj.location, proj.name, "code") # path to R scripts
 file.copy(appcode.frp.files, paste0(rfile.path, "/appcode_frp_", basename(appcode.frp.files)), overwrite=TRUE)
@@ -39,8 +39,8 @@ proj.menu <- c("Overview", "Data Prep", "GBM Flammability", "ALFRESCO", "Statist
 
 proj.submenu <- list(
 	c("empty"),
-	c("Climate data prep", "clim_resample_2km_1km.R", "clim_1km_clip2ak.R", "tpByVeg_CRU32.R", "tpByVeg_CMIP5.R"),
-	c("GBM Modeling", "baByVeg_historical.R", "gbm.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "gbm_flam_comparisons.R", "cavm_flam_dist.R", "cavm_flam_trunc.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "FlammabilityMapMultipliers.R"),
+	c("Climate data prep", "clim_resample_2km_1km.R", "clim_1km_clip2ak.R", "tpByVeg_CRU32.R", "tpByVeg_CMIP5.R", "tpByVeg_plots.R"),
+	c("GBM Modeling", "baByVeg_historical.R", "gbm_modeling_flammability.R", "gbm_modeling_lightning.R", "gbm_lightning_coefficients.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "gbm_flam_maps2.R", "gbm_flam_comparisons.R", "cavm_flam_dist.R", "cavm_flam_trunc.R", "FlammabilityMapMultipliers.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "alf_gcmRuns_inputPrep.R"),
 	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "fsByVeg.R", "divider", "Supporting scripts", "obs_fire_setup.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
 	c("Fire size distributions", "EDA: fire samples", "EDA: Noatak shrub fire", "EDA: statewide forest fire", "divider", "MLE: setup", "MLE: Noatak shrub fire", "MLE: statewide forest fire"),
 	c("ALFRESCO launcher", "global.R", "ui.R", "server.R", "sidebar.R", "reactives.R", "about.R", "divider",
@@ -50,8 +50,8 @@ proj.submenu <- list(
 
 proj.files <- list(
 	c("index.html"),
-	c("clim_prep.html", "clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "tpByVeg_CRU32.html", "tpByVeg_CMIP5.html"),
-	c("header", "baByVeg_historical.html", "gbm.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "gbm_flam_comparisons.html", "cavm_flam_dist.html", "cavm_flam_trunc.html", "divider", "header", "duplicate_flam_maps.html", "FlammabilityMapMultipliers.html"),
+	c("clim_prep.html", "clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "tpByVeg_CRU32.html", "tpByVeg_CMIP5.html", "tpByVeg_plots.html"),
+	c("header", "baByVeg_historical.html", "gbm_modeling_flammability.html", "gbm_modeling_lightning.html", "gbm_lightning_coefficients.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "gbm_flam_maps2.html", "gbm_flam_comparisons.html", "cavm_flam_dist.html", "cavm_flam_trunc.html", "FlammabilityMapMultipliers.html", "divider", "header", "duplicate_flam_maps.html", "alf_gcmRuns_inputPrep.html"),
 	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "fsByVeg.html", "divider", "header", "obs_fire_setup.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
 	c("header", "fs_eda1.html", "fs_eda2.html", "fs_eda3.html", "divider", "fs_mle1.html", "fs_mle2.html", "fs_mle3.html"),
 	c("header", "appcode_alf_global.html", "appcode_alf_ui.html", "appcode_alf_server.html", "appcode_alf_sidebar.html", "appcode_alf_reactives.html", "appcode_alf_about.html", "divider",
@@ -79,7 +79,7 @@ files.Rmd <- list.files(pattern=".Rmd$", full=T)
 
 # @knitr save
 # write all yaml front-matter-specified outputs to Rmd directory for all Rmd files
-lapply(files.Rmd, render, output_format="all")
+for(i in 1:length(files.Rmd)) render(files.Rmd[i], output_format="all")
 insert_gatc(list.files(pattern=".html$"))
 moveDocs(path.docs=docs.path)
 
