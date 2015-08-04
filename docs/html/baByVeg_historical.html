@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -238,13 +243,25 @@ img {
 <div id="r-code" class="section level2">
 <h2>R code</h2>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(raster)
+<span class="kw">library</span>(data.table)
+<span class="kw">library</span>(dplyr)
 <span class="kw">setwd</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data&quot;</span>)
+outDir &lt;-<span class="st"> &quot;../workspaces/gbmFlammability&quot;</span>
+shp &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;../data/shapefiles/noa_basin2/Noa_basin2&quot;</span>)
+
+noatak =<span class="st"> </span><span class="ot">TRUE</span>
+noatak =<span class="st"> </span><span class="ot">FALSE</span>
+
 b &lt;-<span class="st"> </span><span class="kw">brick</span>(<span class="st">&quot;historicalFireObs/firescarbrick_annual_observed_Statewide_lightning_1950_2013.tif&quot;</span>)
 r.veg &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="st">&quot;alf2005.cavm.merged.030212.tif&quot;</span>)
+if (noatak) {
+    r.veg &lt;-<span class="st"> </span><span class="kw">mask</span>(<span class="kw">crop</span>(r.veg, shp), shp)
+    b &lt;-<span class="st"> </span><span class="kw">mask</span>(<span class="kw">crop</span>(b, shp), shp)
+}
 v &lt;-<span class="st"> </span>r.veg[]
 ind.list &lt;-<span class="st"> </span><span class="kw">lapply</span>(<span class="dv">1</span>:<span class="dv">7</span>, function(i, x) <span class="kw">which</span>(x ==<span class="st"> </span>i), <span class="dt">x =</span> v)
-<span class="kw">names</span>(ind.list) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="kw">c</span>(<span class="st">&quot;alp.tundra&quot;</span>, <span class="st">&quot;mariana&quot;</span>, <span class="st">&quot;glauca&quot;</span>, <span class="st">&quot;decid&quot;</span>, <span class="st">&quot;shrub&quot;</span>, 
-    <span class="st">&quot;gram&quot;</span>, <span class="st">&quot;wetland&quot;</span>), <span class="st">&quot;.ha&quot;</span>)
+<span class="kw">names</span>(ind.list) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;alp.tundra&quot;</span>, <span class="st">&quot;mariana&quot;</span>, <span class="st">&quot;glauca&quot;</span>, <span class="st">&quot;decid&quot;</span>, <span class="st">&quot;shrub&quot;</span>, <span class="st">&quot;gram&quot;</span>, 
+    <span class="st">&quot;wetland&quot;</span>)
 yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
 
 getVegFire &lt;-<span class="st"> </span>function(b, v) {
@@ -252,18 +269,34 @@ getVegFire &lt;-<span class="st"> </span>function(b, v) {
         fire.ind &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">subset</span>(b, i)[] ==<span class="st"> </span><span class="dv">1</span>)
         x &lt;-<span class="st"> </span><span class="kw">sapply</span>(v, function(i, x) <span class="kw">length</span>(<span class="kw">intersect</span>(x, i)), <span class="dt">x =</span> fire.ind)
         if (i ==<span class="st"> </span><span class="dv">1</span>) 
-            ha &lt;-<span class="st"> </span>x else ha &lt;-<span class="st"> </span><span class="kw">rbind</span>(ha, x)
+            ba &lt;-<span class="st"> </span>x else ba &lt;-<span class="st"> </span><span class="kw">rbind</span>(ba, x)
         <span class="kw">print</span>(<span class="kw">nlayers</span>(b) -<span class="st"> </span>i)
     }
-    <span class="kw">rownames</span>(ha) &lt;-<span class="st"> </span><span class="ot">NULL</span>
-    <span class="kw">data.frame</span>(<span class="dt">Year =</span> yrs, ha)
+    <span class="kw">rownames</span>(ba) &lt;-<span class="st"> </span><span class="ot">NULL</span>
+    <span class="kw">data.frame</span>(<span class="dt">Year =</span> yrs, ba)
 }
 
-d.ha &lt;-<span class="st"> </span><span class="kw">getVegFire</span>(b, ind.list)
+d.ba &lt;-<span class="st"> </span><span class="kw">getVegFire</span>(b, ind.list)
 
-<span class="kw">head</span>(d.ha)
-<span class="kw">apply</span>(d.ha[, -<span class="dv">1</span>], <span class="dv">2</span>, sum)
-<span class="kw">apply</span>(d.ha[, -<span class="dv">1</span>], <span class="dv">1</span>, sum)</code></pre>
+<span class="kw">head</span>(d.ba)
+<span class="kw">apply</span>(d.ba[, -<span class="dv">1</span>], <span class="dv">2</span>, sum)
+<span class="kw">apply</span>(d.ba[, -<span class="dv">1</span>], <span class="dv">1</span>, sum)
+
+d.ba.pct &lt;-<span class="st"> </span>d.ba %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">total =</span> alp.tundra +<span class="st"> </span>mariana +<span class="st"> </span>glauca +<span class="st"> </span>decid +<span class="st"> </span>
+<span class="st">    </span>shrub +<span class="st"> </span>gram +<span class="st"> </span>wetland) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">alp.tundra =</span> alp.tundra/total, <span class="dt">marianaBApct =</span> mariana/total, 
+    <span class="dt">glaucaBApct =</span> glauca/total, <span class="dt">decidBApct =</span> decid/total, <span class="dt">shrubBApct =</span> shrub/total, 
+    <span class="dt">gramBApct =</span> gram/total, <span class="dt">wetlandBApct =</span> wetland/total) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">3</span>)
+
+if (noatak) {
+    d.ba.noatak &lt;-<span class="st"> </span>d.ba
+    d.ba.pct.noatak &lt;-<span class="st"> </span>d.ba.pct
+}
+if (!noatak) {
+    d.ba.sw &lt;-<span class="st"> </span>d.ba
+    d.ba.pct.sw &lt;-<span class="st"> </span>d.ba.pct
+}
+
+<span class="kw">save</span>(d.ba.pct.sw, d.ba.pct.noatak, <span class="dt">file =</span> <span class="kw">file.path</span>(outDir, <span class="st">&quot;baByVeg_historical_1950_2013.RData&quot;</span>))</code></pre>
 </div>
 
 <!-- some extra javascript for older browsers -->

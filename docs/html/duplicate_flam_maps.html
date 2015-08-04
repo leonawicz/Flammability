@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -243,10 +248,10 @@ if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span cl
 if (!<span class="kw">exists</span>(<span class="st">&quot;period&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;period&#39; not passed at command line.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;model&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;model&#39; not passed at command line.&quot;</span>)
 if (!(period %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, <span class="st">&quot;rcp45&quot;</span>, <span class="st">&quot;rcp60&quot;</span>, <span class="st">&quot;rcp85&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid period specified.&quot;</span>)
-if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU31&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
+if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU32&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
     <span class="st">&quot;MRI-CGCM3&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid data set specified.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;samples&quot;</span>)) samples &lt;-<span class="st"> </span><span class="ot">TRUE</span>
-if (!<span class="kw">exists</span>(<span class="st">&quot;mapset&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;mapset&#39; not passed at command line.&quot;</span>)  <span class="co"># Currently must be &#39;3models_tif&#39; or &#39;5models_tif&#39;</span>
+if (!<span class="kw">exists</span>(<span class="st">&quot;mapset&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;mapset&#39; not passed at command line.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;out&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;out&#39; not passed at command line.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;n&quot;</span>)) n &lt;-<span class="st"> </span><span class="dv">40</span>
 if (!<span class="kw">exists</span>(<span class="st">&quot;yearloop&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;yearloop&#39; not passed at command line.&quot;</span>)

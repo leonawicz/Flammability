@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -233,7 +238,7 @@ img {
 </div>
 <div id="gbm_flam_maps.r" class="section level2">
 <h2>gbm_flam_maps.R</h2>
-<p>The <code>gbm_flam_maps.R</code> script creates gradient boosting machine (GBM) model-based, or boosted regresion model-based, vegetation flammability maps. It loads a given <strong>R</strong> workspace file created by <code>gbm_flam_prep.R</code>. Other inputs include GBM models built on vegetation-specific, aggregate regional climate data. These monthly maps are used as inputs to ALFRESCO in lieu of basic monthly temperature and precipitation maps.</p>
+<p>The <code>gbm_flam_maps.R</code> script creates gradient boosting machine (GBM) model-based, or boosted regresion model-based, vegetation flammability matrices. It loads a given <strong>R</strong> workspace file created by <code>gbm_flam_prep.R</code>. Other inputs include GBM models built on vegetation-specific, aggregate regional climate data. The matrices are used to fill in spatially explicit flammability maps in a subsequent script, <code>gbm_flam_maps2.R</code>. These annual maps are used as inputs to ALFRESCO in lieu of basic monthly temperature and precipitation maps.</p>
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
@@ -245,7 +250,7 @@ if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span cl
 if (!<span class="kw">exists</span>(<span class="st">&quot;period&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;period&#39; not passed at command line.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;model&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;model&#39; not passed at command line.&quot;</span>)
 if (!(period %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, <span class="st">&quot;rcp45&quot;</span>, <span class="st">&quot;rcp60&quot;</span>, <span class="st">&quot;rcp85&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid period specified.&quot;</span>)
-if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU31&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
+if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU32&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
     <span class="st">&quot;MRI-CGCM3&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid data set specified.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;allcavm&quot;</span>)) allcavm &lt;-<span class="st"> </span><span class="ot">FALSE</span>
 if (!<span class="kw">exists</span>(<span class="st">&quot;samples&quot;</span>)) samples &lt;-<span class="st"> </span><span class="ot">FALSE</span>
@@ -265,16 +270,17 @@ ncores &lt;-<span class="st"> </span><span class="dv">32</span>
 verDir &lt;-<span class="st"> </span>if (samples) <span class="st">&quot;samples_based&quot;</span> else <span class="st">&quot;means_based&quot;</span>
 <span class="kw">setwd</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces&quot;</span>)
 <span class="kw">load</span>(<span class="kw">paste0</span>(<span class="st">&quot;gbmFlammability/&quot;</span>, model, <span class="st">&quot;_&quot;</span>, period, <span class="st">&quot;_Jun-AugTP.RData&quot;</span>))
+<span class="co"># load(paste0(&#39;gbmFlammability/&#39;, model, &#39;_&#39;, period, &#39;_Jan-SepTP.RData&#39;))</span>
 suffix &lt;-<span class="st"> </span>if (samples) <span class="kw">paste0</span>(n, <span class="st">&quot;n&quot;</span>) else <span class="st">&quot;Mean&quot;</span>
 
 <span class="co"># Load gbm models</span>
 if (samples) {
-    <span class="kw">load</span>(<span class="st">&quot;gbm_seasonal_all_models_1Ksamples.RData&quot;</span>)
+    <span class="kw">load</span>(<span class="st">&quot;gbm_monthly_all_100samples.RData&quot;</span>)
     tree.numbers &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">5000</span>, <span class="dv">5000</span>, <span class="dv">5000</span>, <span class="dv">5000</span>, <span class="dv">5000</span>, <span class="dv">5000</span>)  <span class="co"># order: forest, alpine tundra, shrub, graminoid, wetland, cavm</span>
-} else {
-    <span class="kw">load</span>(<span class="st">&quot;gbm_seasonal_all_models.RData&quot;</span>)
-    tree.numbers &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">3355</span>, <span class="dv">32</span>, <span class="dv">2200</span>, <span class="dv">152</span>, <span class="dv">2478</span>, <span class="dv">1554</span>)  <span class="co"># order: forest, alpine tundra, shrub, graminoid, wetland, cavm</span>
-}
+} else <span class="kw">stop</span>(<span class="st">&quot;Currently must use samples=TRUE. Also, only month-based GBMs available. No seasonal GBMs.&quot;</span>)  <span class="co">#{</span>
+<span class="co"># load(&#39;gbm_seasonal_all.RData&#39;) tree.numbers &lt;- c(3355, 32, 2200, 152,</span>
+<span class="co"># 2478, 1554) # order: forest, alpine tundra, shrub, graminoid, wetland,</span>
+<span class="co"># cavm }</span>
 gbm.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;gbm.forest&quot;</span>, <span class="st">&quot;gbm.alp.tundra&quot;</span>, <span class="st">&quot;gbm.shrub&quot;</span>, <span class="st">&quot;gbm.gram&quot;</span>, <span class="st">&quot;gbm.wetland&quot;</span>)
 
 if (allcavm) {
@@ -283,21 +289,18 @@ if (allcavm) {
     tree.numbers &lt;-<span class="st"> </span>tree.numbers[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">6</span>, <span class="dv">6</span>, <span class="dv">6</span>)]  <span class="co"># order: forest, alpine tundra, shrub, graminoid, wetland</span>
 } else {
     out &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;5m&quot;</span>, suffix)
-}
-<span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;../data/gbmFlammability&quot;</span>, verDir, period, model, 
-    out), <span class="dt">recursive =</span> T, <span class="dt">showWarnings =</span> F)
-<span class="kw">dir.create</span>(plotDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;../plots/gbmFlammability&quot;</span>, verDir, period, 
-    model, out), <span class="dt">recursive =</span> T, <span class="dt">showWarnings =</span> F)</code></pre>
+}</code></pre>
 </div>
 <div id="prep-function" class="section level3">
 <h3>Prep function</h3>
-<pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(p, <span class="dt">yrs =</span> <span class="ot">NULL</span>, <span class="dt">bins =</span> <span class="dv">1</span>, <span class="dt">samples =</span> <span class="ot">FALSE</span>) {
-    d.names &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">rownames</span>(<span class="kw">summary</span>(<span class="kw">get</span>(gbm.names[p]))))  <span class="co"># force alphabetical</span>
+<pre class="sourceCode r"><code class="sourceCode r">f &lt;-<span class="st"> </span>function(p, <span class="dt">yrs =</span> <span class="ot">NULL</span>, <span class="dt">bins =</span> <span class="dv">1</span>, <span class="dt">standardize =</span> <span class="ot">FALSE</span>) {
+    d.names &lt;-<span class="st"> </span><span class="kw">rownames</span>(<span class="kw">summary</span>(<span class="kw">get</span>(gbm.names[p])))
     tmp &lt;-<span class="st"> </span><span class="kw">c</span>()
     if (<span class="kw">any</span>(<span class="kw">grep</span>(<span class="st">&quot;Summer&quot;</span>, d.names))) {
         obj.names.list &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^m</span><span class="ch">\\</span><span class="st">..*.P$&quot;</span>, <span class="dt">envir =</span> .GlobalEnv), 
             <span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^m</span><span class="ch">\\</span><span class="st">..*.T$&quot;</span>, <span class="dt">envir =</span> .GlobalEnv))  <span class="co"># alphabetical</span>
-        for (i in <span class="dv">1</span>:<span class="kw">nrow</span>(<span class="kw">summary</span>(<span class="kw">get</span>(gbm.names[p])))) {
+        ord &lt;-<span class="st"> </span><span class="kw">order</span>(d.names)
+        for (i in ord) {
             obj.names &lt;-<span class="st"> </span>obj.names.list[[i]]
             n &lt;-<span class="st"> </span><span class="kw">length</span>(obj.names)
             tmp2 &lt;-<span class="st"> </span><span class="dv">0</span>
@@ -308,7 +311,7 @@ if (allcavm) {
             tmp2 &lt;-<span class="st"> </span>tmp2[<span class="kw">get</span>(ind.names[p]), ]
             dims &lt;-<span class="st"> </span><span class="kw">dim</span>(tmp2)
             tmp2 &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(tmp2)
-            if (samples) 
+            if (standardize) 
                 tmp2 &lt;-<span class="st"> </span>(tmp2 -<span class="st"> </span><span class="kw">mean</span>(tmp2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))/<span class="kw">sd</span>(tmp2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)
             tmp &lt;-<span class="st"> </span><span class="kw">cbind</span>(tmp, tmp2)
             <span class="kw">rm</span>(tmp2)
@@ -319,7 +322,7 @@ if (allcavm) {
             tmp2 &lt;-<span class="st"> </span><span class="kw">get</span>(<span class="kw">paste0</span>(<span class="st">&quot;m.&quot;</span>, d.names[i]))[<span class="kw">get</span>(ind.names[p]), ]
             dims &lt;-<span class="st"> </span><span class="kw">dim</span>(tmp2)
             tmp2 &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(tmp2)
-            if (samples) 
+            if (standardize) 
                 tmp2 &lt;-<span class="st"> </span>(tmp2 -<span class="st"> </span><span class="kw">mean</span>(tmp2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>))/<span class="kw">sd</span>(tmp2, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)
             tmp &lt;-<span class="st"> </span><span class="kw">cbind</span>(tmp, tmp2)
         }
@@ -352,21 +355,11 @@ if (allcavm) {
     <span class="kw">data.frame</span>(<span class="dt">Predicted =</span> y, <span class="dt">ID =</span> x1$ID)
 }</code></pre>
 </div>
-<div id="write-function" class="section level3">
-<h3>Write function</h3>
-<pre class="sourceCode r"><code class="sourceCode r">partifs &lt;-<span class="st"> </span>function(i, r, flam, outDir) {
-    r &lt;-<span class="st"> </span><span class="kw">setValues</span>(r, flam[, i])
-    <span class="kw">names</span>(r) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;gbm.flamm_&quot;</span>, yrs[<span class="dv">1</span>] +<span class="st"> </span>i -<span class="st"> </span><span class="dv">1</span>)
-    <span class="kw">writeRaster</span>(r, <span class="kw">paste0</span>(outDir, <span class="st">&quot;/gbm.flamm_&quot;</span>, yrs[<span class="dv">1</span>] +<span class="st"> </span>i -<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;.tif&quot;</span>), <span class="dt">datatype =</span> <span class="st">&quot;FLT4S&quot;</span>, 
-        <span class="dt">overwrite =</span> T)
-    <span class="kw">print</span>(i)
-}</code></pre>
-</div>
-<div id="run-predictions-and-save-flammability-maps" class="section level3">
-<h3>Run predictions and save flammability maps</h3>
+<div id="run-predictions-and-save-flammability-matrix-workspaces" class="section level3">
+<h3>Run predictions and save flammability matrix workspaces</h3>
 <pre class="sourceCode r"><code class="sourceCode r">preds &lt;-<span class="st"> </span><span class="kw">list</span>()
 for (zzz in <span class="dv">1</span>:<span class="dv">5</span>) {
-    model.index &lt;-<span class="st"> </span><span class="kw">f</span>(zzz, <span class="dt">bins =</span> ncores, <span class="dt">samples =</span> samples)  <span class="co"># Prep data</span>
+    model.index &lt;-<span class="st"> </span><span class="kw">f</span>(zzz, <span class="dt">bins =</span> ncores)  <span class="co"># Prep data</span>
     tmp.preds &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class="dv">1</span>:ncores, getGBMpreds, <span class="dt">b =</span> model.index, <span class="dt">nam1 =</span> gbm.names, 
         <span class="dt">nam2 =</span> tmp.names, <span class="dt">mc.cores =</span> ncores)  <span class="co"># GBM predictions</span>
     tmp.preds &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(tmp.preds)
@@ -378,42 +371,8 @@ for (zzz in <span class="dv">1</span>:<span class="dv">5</span>) {
 flam &lt;-<span class="st"> </span><span class="kw">matrix</span>(<span class="ot">NA</span>, <span class="dt">nrow =</span> <span class="kw">length</span>(veg), <span class="dt">ncol =</span> <span class="kw">length</span>(yrs))
 for (i in <span class="dv">1</span>:<span class="dv">5</span>) flam[<span class="kw">which</span>(<span class="kw">get</span>(ind.names[i])), ] &lt;-<span class="st"> </span>preds[[i]]
 flam.range &lt;-<span class="st"> </span><span class="kw">range</span>(flam, <span class="dt">na.rm =</span> T)
-flam &lt;-<span class="st"> </span>(flam -<span class="st"> </span>flam.range[<span class="dv">1</span>])/(flam.range[<span class="dv">2</span>] -<span class="st"> </span>flam.range[<span class="dv">1</span>])
-
-<span class="co"># Write geotiffs</span>
-<span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(yrs), partifs, <span class="dt">r =</span> r.veg, <span class="dt">flam =</span> flam, <span class="dt">outDir =</span> outDir, <span class="dt">mc.cores =</span> <span class="dv">32</span>)</code></pre>
-</div>
-<div id="save-png-plots-of-flammability-maps" class="section level3">
-<h3>Save PNG plots of flammability maps</h3>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Setup</span>
-at.vals &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="dv">1</span>)
-colkey &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">at =</span> at.vals, <span class="dt">labels =</span> <span class="kw">list</span>(<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;Low&quot;</span>, <span class="st">&quot;Medium&quot;</span>, <span class="st">&quot;High&quot;</span>, 
-    <span class="st">&quot;Severe&quot;</span>), <span class="dt">at =</span> at.vals +<span class="st"> </span><span class="fl">0.125</span>))
-
-<span class="co"># Theme settings</span>
-revRasterTheme &lt;-<span class="st"> </span>function(<span class="dt">pch =</span> <span class="dv">19</span>, <span class="dt">cex =</span> <span class="fl">0.7</span>, <span class="dt">region =</span> <span class="kw">brewer.pal</span>(<span class="dv">9</span>, <span class="st">&quot;YlOrRd&quot;</span>)[-<span class="dv">1</span>], 
-    ...) {
-    theme &lt;-<span class="st"> </span><span class="kw">custom.theme.2</span>(<span class="dt">pch =</span> pch, <span class="dt">cex =</span> cex, <span class="dt">region =</span> region, ...)
-    theme$strip.background$col &lt;-<span class="st"> </span>theme$strip.shingle$col &lt;-<span class="st"> </span>theme$strip.border$col &lt;-<span class="st"> &quot;transparent&quot;</span>
-    theme$add.line$lwd =<span class="st"> </span><span class="fl">0.4</span>
-    theme
-}
-
-<span class="co"># parallelize levelplot</span>
-parplot &lt;-<span class="st"> </span>function(i, outDir, dataDir) {
-    r &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">paste0</span>(dataDir, <span class="st">&quot;/gbm.flamm_&quot;</span>, yrs[<span class="dv">1</span>] +<span class="st"> </span>i -<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;.tif&quot;</span>))
-    <span class="kw">png</span>(<span class="kw">paste0</span>(outDir, <span class="st">&quot;/gbm.flamm_&quot;</span>, yrs[<span class="dv">1</span>] +<span class="st"> </span>i -<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;.png&quot;</span>), <span class="dt">height =</span> <span class="dv">1600</span>, 
-        <span class="dt">width =</span> <span class="dv">1600</span>, <span class="dt">res =</span> <span class="dv">200</span>)
-    p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(r, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(r), <span class="dt">main =</span> <span class="kw">paste</span>(yrs[<span class="dv">1</span>] +<span class="st"> </span>i -<span class="st"> </span><span class="dv">1</span>, <span class="st">&quot;flammability&quot;</span>), 
-        <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F, <span class="dt">at =</span> at.vals, 
-        <span class="dt">colorkey =</span> colkey)  <span class="co">#col=rev(heat.colors(30)))</span>
-    <span class="kw">print</span>(p)
-    <span class="kw">dev.off</span>()
-    <span class="kw">print</span>(i)
-}
-
-<span class="co"># Write PNGs</span>
-<span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">length</span>(yrs), parplot, <span class="dt">outDir =</span> plotDir, <span class="dt">dataDir =</span> outDir, <span class="dt">mc.cores =</span> <span class="dv">32</span>)</code></pre>
+<span class="kw">save</span>(flam, flam.range, yrs, r.veg, <span class="dt">file =</span> <span class="kw">paste0</span>(<span class="st">&quot;gbmFlammability/rawFlamPreds_&quot;</span>, 
+    out, <span class="st">&quot;_&quot;</span>, model, <span class="st">&quot;_&quot;</span>, period, <span class="st">&quot;.RData&quot;</span>))</code></pre>
 </div>
 </div>
 

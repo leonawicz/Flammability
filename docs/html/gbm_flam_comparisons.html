@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -242,12 +247,19 @@ img {
 <h2>R code</h2>
 <div id="setup" class="section level3">
 <h3>Setup</h3>
-</div>
-<div id="plots" class="section level3">
-<h3>Plots</h3>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Setup</span>
-<span class="kw">library</span>(grid)
-<span class="kw">library</span>(<span class="st">&quot;gridBase&quot;</span>)
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co"># GBM flammability map comparisons</span>
+<span class="kw">setwd</span>(<span class="st">&quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32&quot;</span>)
+<span class="kw">dir.create</span>(plotDir &lt;-<span class="st"> &quot;/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons&quot;</span>, 
+    <span class="dt">showWarnings =</span> <span class="ot">FALSE</span>)
+
+<span class="kw">library</span>(rasterVis)
+(dirs &lt;-<span class="st"> </span><span class="kw">list.files</span>())
+dirs3 &lt;-<span class="st"> </span>dirs[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">4</span>)]
+dirs5 &lt;-<span class="st"> </span>dirs[<span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">8</span>)]
+
+noa.shp &lt;-<span class="st"> </span><span class="kw">shapefile</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2&quot;</span>)
+
+yrs &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1954</span>, <span class="dv">1957</span>, <span class="dv">1968</span>, <span class="dv">1969</span>, <span class="dv">1977</span>, <span class="dv">2004</span>, <span class="dv">2005</span>, <span class="dv">2007</span>)
 
 at.vals &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="fl">0.499</span>, <span class="fl">0.75</span>, <span class="dv">1</span>)
 colkey &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">at =</span> at.vals, <span class="dt">labels =</span> <span class="kw">list</span>(<span class="dt">labels =</span> <span class="kw">c</span>(<span class="st">&quot;Low&quot;</span>, <span class="st">&quot;Medium&quot;</span>, <span class="st">&quot;High&quot;</span>, 
@@ -260,73 +272,67 @@ revRasterTheme &lt;-<span class="st"> </span>function(<span class="dt">pch =</sp
     theme$strip.background$col &lt;-<span class="st"> </span>theme$strip.shingle$col &lt;-<span class="st"> </span>theme$strip.border$col &lt;-<span class="st"> &quot;transparent&quot;</span>
     theme$add.line$lwd =<span class="st"> </span><span class="fl">0.4</span>
     theme
-}
-
-
-<span class="co"># Write PNGs from part one: comparisons Statewide</span>
-w &lt;-<span class="st"> </span>h &lt;-<span class="st"> </span><span class="dv">1600</span>
-<span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/gbm.flamm_&quot;</span>, yr, <span class="st">&quot;_comparisons_Statewide.png&quot;</span>), <span class="dt">height =</span> h, 
-    <span class="dt">width =</span> w, <span class="dt">res =</span> <span class="dv">200</span>)
-p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s)/<span class="dv">10</span>, <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;flammability map comparisons&quot;</span>), 
-    <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
-<span class="kw">print</span>(p)
-<span class="kw">dev.off</span>()
-
-<span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/GBM3vsGBM5_&quot;</span>, yr, <span class="st">&quot;_Statewide.png&quot;</span>), <span class="dt">height =</span> h, <span class="dt">width =</span> w *<span class="st"> </span>
-<span class="st">    </span><span class="fl">1.5</span>, <span class="dt">res =</span> <span class="dv">200</span>)
-p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s2, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s)/<span class="dv">10</span>, <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;3- vs. 5-GBM flammability maps&quot;</span>), 
-    <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
-<span class="kw">print</span>(p)
-<span class="kw">dev.off</span>()
-
-<span class="co"># Noatak</span>
-<span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/gbm.flamm_&quot;</span>, yr, <span class="st">&quot;_comparisons_Noatak.png&quot;</span>), <span class="dt">height =</span> h, 
-    <span class="dt">width =</span> w *<span class="st"> </span><span class="fl">1.5</span>, <span class="dt">res =</span> <span class="dv">200</span>)
-p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s.noa, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s.noa), <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;flammability map comparisons&quot;</span>), 
-    <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
-<span class="kw">print</span>(p)
-<span class="kw">dev.off</span>()
-
-<span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/GBM3vsGBM5_&quot;</span>, yr, <span class="st">&quot;_Noatak.png&quot;</span>), <span class="dt">height =</span> h *<span class="st"> </span><span class="fl">1.5</span>, <span class="dt">width =</span> w, 
-    <span class="dt">res =</span> <span class="dv">200</span>)
-p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s2.noa, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s2.noa), <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;3- vs. 5-GBM flammability maps&quot;</span>), 
-    <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
-<span class="kw">print</span>(p)
-<span class="kw">dev.off</span>()
-
-
-<span class="co"># Write PNGs from part two: thresholds</span>
-<span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/flam_spacetime_threshDist_&quot;</span>, threshold, <span class="st">&quot;_&quot;</span>, domain, <span class="st">&quot;.png&quot;</span>), 
-    <span class="dt">height =</span> <span class="dv">2400</span>, <span class="dt">width =</span> <span class="dv">2400</span>, <span class="dt">res =</span> <span class="dv">200</span>)
-p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s), <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;1950-2009&quot;</span>, threshold, 
-    <span class="st">&quot;flammability threshold distributions&quot;</span>), <span class="dt">par.settings =</span> revRasterTheme, 
-    <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
-<span class="kw">grid.newpage</span>()
-<span class="kw">pushViewport</span>(<span class="kw">viewport</span>(<span class="dt">layout =</span> <span class="kw">grid.layout</span>(<span class="dv">2</span>, <span class="dv">2</span>, <span class="dt">widths =</span> <span class="kw">unit</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="st">&quot;null&quot;</span>), 
-    <span class="dt">heights =</span> <span class="kw">unit</span>(<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="st">&quot;null&quot;</span>))))
-
-vp &lt;-<span class="st"> </span><span class="kw">pushViewport</span>(<span class="kw">viewport</span>(<span class="dt">layout.pos.row =</span> <span class="dv">1</span>, <span class="dt">layout.pos.col =</span> <span class="dv">1</span>))
-<span class="kw">par</span>(<span class="dt">omi =</span> <span class="kw">gridOMI</span>())
-<span class="co"># base graphics</span>
-<span class="kw">hist</span>(pval3, <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;GBM-3 % area &lt;=&quot;</span>, threshold), <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;&quot;</span>, 
-    <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>, <span class="dt">freq =</span> <span class="ot">FALSE</span>)
-<span class="kw">popViewport</span>()
-
-vp &lt;-<span class="st"> </span><span class="kw">pushViewport</span>(<span class="kw">viewport</span>(<span class="dt">layout.pos.row =</span> <span class="dv">1</span>, <span class="dt">layout.pos.col =</span> <span class="dv">2</span>))
-<span class="kw">par</span>(<span class="dt">omi =</span> <span class="kw">gridOMI</span>())
-<span class="kw">par</span>(<span class="dt">new =</span> <span class="ot">TRUE</span>)
-<span class="co"># base graphics</span>
-<span class="kw">hist</span>(pval5, <span class="dt">main =</span> <span class="kw">paste</span>(<span class="st">&quot;GBM-5 % area &lt;=&quot;</span>, threshold), <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">xlab =</span> <span class="st">&quot;&quot;</span>, 
-    <span class="dt">ylab =</span> <span class="st">&quot;&quot;</span>, <span class="dt">freq =</span> <span class="ot">FALSE</span>)
-<span class="kw">popViewport</span>()
-
-<span class="co"># lattice plot</span>
-vp &lt;-<span class="st"> </span><span class="kw">pushViewport</span>(<span class="kw">viewport</span>(<span class="dt">layout.pos.row =</span> <span class="dv">2</span>, <span class="dt">layout.pos.col =</span> <span class="dv">1</span>:<span class="dv">2</span>))
-<span class="kw">print</span>(p, <span class="dt">vp =</span> vp, <span class="dt">newpage =</span> <span class="ot">FALSE</span>)
-<span class="kw">popViewport</span>()
-
-<span class="kw">popViewport</span>()
-<span class="kw">dev.off</span>()</code></pre>
+}</code></pre>
+</div>
+<div id="plots" class="section level3">
+<h3>Plots</h3>
+<pre class="sourceCode r"><code class="sourceCode r">for (yr in yrs) {
+    
+    files3 &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">lapply</span>(dirs3, function(x, year) <span class="kw">list.files</span>(x, <span class="dt">pattern =</span> <span class="kw">paste0</span>(<span class="st">&quot;_&quot;</span>, 
+        year, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">.tif$&quot;</span>), <span class="dt">full =</span> <span class="ot">TRUE</span>), <span class="dt">year =</span> yr))
+    files5 &lt;-<span class="st"> </span><span class="kw">unlist</span>(<span class="kw">lapply</span>(dirs5, function(x, year) <span class="kw">list.files</span>(x, <span class="dt">pattern =</span> <span class="kw">paste0</span>(<span class="st">&quot;_&quot;</span>, 
+        year, <span class="st">&quot;</span><span class="ch">\\</span><span class="st">.tif$&quot;</span>), <span class="dt">full =</span> <span class="ot">TRUE</span>), <span class="dt">year =</span> yr))
+    s &lt;-<span class="st"> </span><span class="kw">stack</span>(<span class="kw">c</span>(files3, files5))
+    <span class="kw">names</span>(s) &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="kw">rep</span>(<span class="kw">c</span>(<span class="st">&quot;GBM3&quot;</span>, <span class="st">&quot;GBM5&quot;</span>), <span class="dt">each =</span> <span class="kw">length</span>(dirs3)), <span class="kw">paste0</span>(<span class="st">&quot;_Flammability&quot;</span>, 
+        <span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;_TL&quot;</span>)))
+    s &lt;-<span class="st"> </span><span class="kw">brick</span>(s)
+    
+    <span class="co"># Check for difference between GBM 3-model and GBM 5-model versions in CAVM</span>
+    <span class="co"># region</span>
+    pat &lt;-<span class="st"> </span><span class="kw">paste0</span>(yr, <span class="st">&quot;.tif&quot;</span>)
+    r1 &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">list.files</span>(dirs[<span class="dv">4</span>], <span class="dt">pattern =</span> pat, <span class="dt">full =</span> T))
+    r2 &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">list.files</span>(dirs[<span class="dv">8</span>], <span class="dt">pattern =</span> pat, <span class="dt">full =</span> T))
+    r1b &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">list.files</span>(dirs[<span class="dv">1</span>], <span class="dt">pattern =</span> pat, <span class="dt">full =</span> T))
+    r2b &lt;-<span class="st"> </span><span class="kw">raster</span>(<span class="kw">list.files</span>(dirs[<span class="dv">5</span>], <span class="dt">pattern =</span> pat, <span class="dt">full =</span> T))
+    s2 &lt;-<span class="st"> </span><span class="kw">stack</span>(r1b, r2b, r1b -<span class="st"> </span>r2b)
+    <span class="kw">names</span>(s2) &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;GBM3&quot;</span>, <span class="st">&quot;GBM5&quot;</span>, <span class="st">&quot;Difference&quot;</span>)
+    
+    s.noa &lt;-<span class="st"> </span><span class="kw">mask</span>(<span class="kw">crop</span>(s, noa.shp), noa.shp)
+    s2.noa &lt;-<span class="st"> </span><span class="kw">mask</span>(<span class="kw">crop</span>(s2, noa.shp), noa.shp)
+    
+    <span class="co"># Write PNGs Statewide</span>
+    w &lt;-<span class="st"> </span>h &lt;-<span class="st"> </span><span class="dv">1600</span>
+    <span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/gbm.flamm_&quot;</span>, yr, <span class="st">&quot;_comparisons_Statewide.png&quot;</span>), <span class="dt">height =</span> h, 
+        <span class="dt">width =</span> w, <span class="dt">res =</span> <span class="dv">200</span>)
+    p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s)/<span class="dv">10</span>, <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;flammability map comparisons&quot;</span>), 
+        <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
+    <span class="kw">print</span>(p)
+    <span class="kw">dev.off</span>()
+    
+    <span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/GBM3vsGBM5_&quot;</span>, yr, <span class="st">&quot;_Statewide.png&quot;</span>), <span class="dt">height =</span> h, <span class="dt">width =</span> w *<span class="st"> </span>
+<span class="st">        </span><span class="fl">1.5</span>, <span class="dt">res =</span> <span class="dv">200</span>)
+    p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s2, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s)/<span class="dv">10</span>, <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;3- vs. 5-GBM flammability maps&quot;</span>), 
+        <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
+    <span class="kw">print</span>(p)
+    <span class="kw">dev.off</span>()
+    
+    <span class="co"># Noatak</span>
+    <span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/gbm.flamm_&quot;</span>, yr, <span class="st">&quot;_comparisons_Noatak.png&quot;</span>), <span class="dt">height =</span> h, 
+        <span class="dt">width =</span> w *<span class="st"> </span><span class="fl">1.5</span>, <span class="dt">res =</span> <span class="dv">200</span>)
+    p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s.noa, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s.noa), <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;flammability map comparisons&quot;</span>), 
+        <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
+    <span class="kw">print</span>(p)
+    <span class="kw">dev.off</span>()
+    
+    <span class="kw">png</span>(<span class="kw">paste0</span>(plotDir, <span class="st">&quot;/GBM3vsGBM5_&quot;</span>, yr, <span class="st">&quot;_Noatak.png&quot;</span>), <span class="dt">height =</span> h *<span class="st"> </span><span class="fl">1.5</span>, 
+        <span class="dt">width =</span> w, <span class="dt">res =</span> <span class="dv">200</span>)
+    p &lt;-<span class="st"> </span><span class="kw">levelplot</span>(s2.noa, <span class="dt">maxpixels =</span> <span class="kw">ncell</span>(s2.noa), <span class="dt">main =</span> <span class="kw">paste</span>(yr, <span class="st">&quot;3- vs. 5-GBM flammability maps&quot;</span>), 
+        <span class="dt">par.settings =</span> revRasterTheme, <span class="dt">contour =</span> T, <span class="dt">margin =</span> F)  <span class="co">#, at=at.vals, colorkey=colkey)</span>
+    <span class="kw">print</span>(p)
+    <span class="kw">dev.off</span>()
+    
+    <span class="kw">print</span>(yr)
+}  <span class="co"># end yrs loop</span></code></pre>
 </div>
 </div>
 

@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -253,7 +258,12 @@ if (<span class="kw">length</span>(comArgs &gt;<span class="st"> </span><span cl
 }
 <span class="kw">cat</span>(comArgs)
 
-if (<span class="kw">exists</span>(<span class="st">&quot;yr.start&quot;</span>) &amp;<span class="st"> </span><span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
+if (!<span class="kw">exists</span>(<span class="st">&quot;baseline.year&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;baseline.year not found&quot;</span>) else baseline.year &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(baseline.year)
+if (period ==<span class="st"> &quot;historical&quot;</span>) yr.start &lt;-<span class="st"> </span><span class="dv">1950</span> else yr.start &lt;-<span class="st"> </span>baseline.year
+if (<span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;baseline.year&#39; and &#39;yr.end&#39;&quot;</span>)
+yrs &lt;-<span class="st"> </span>yr.start:yr.end
+if (!<span class="kw">exists</span>(<span class="st">&quot;n.sims&quot;</span>)) n.sims &lt;-<span class="st"> </span><span class="dv">32</span>
+n.cores &lt;-<span class="st"> </span><span class="kw">min</span>(n.sims, <span class="dv">32</span>)
 
 <span class="kw">library</span>(raster)
 <span class="kw">library</span>(data.table)
@@ -286,20 +296,18 @@ v.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st"
 <div id="run-and-save-results" class="section level1">
 <h1>Run and save results</h1>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Process empirical data</span>
-n.cores &lt;-<span class="st"> </span><span class="dv">32</span>  <span class="co"># hardcoded</span>
 fs.emp &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">nlayers</span>(b.fid), fsByRepEmp, <span class="dt">b =</span> b.fid, <span class="dt">vid =</span> vid, <span class="dt">v.veg =</span> v.veg, 
-    <span class="dt">yrs =</span> yrs.all, <span class="dt">mc.cores =</span> n.cores)
-fs.emp &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">rbindlist</span>(fs.emp))
+    <span class="dt">yrs =</span> yrs.hist.all, <span class="dt">mc.cores =</span> n.cores)
+fs.emp &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(fs.emp)
 <span class="co"># Process modeled data</span>
-num.reps &lt;-<span class="st"> </span><span class="dv">32</span>  <span class="co"># hardcoded</span>
-fs.alf.list &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class="dv">1</span>:<span class="kw">min</span>(num.reps, <span class="dv">32</span>), fsByRep, <span class="dt">mainDir =</span> mainDir, <span class="dt">vid =</span> vid, 
-    <span class="dt">v.veg =</span> v.veg, <span class="dt">years =</span> yrs.all, <span class="dt">mc.cores =</span> <span class="kw">min</span>(num.reps, <span class="dv">32</span>))
-fs.alf &lt;-<span class="st"> </span><span class="kw">as.data.frame</span>(<span class="kw">rbindlist</span>(fs.alf.list))
-d.fs.veg &lt;-<span class="st"> </span><span class="kw">rbind</span>(fs.emp, fs.alf)
-d.fs.veg$Vegetation &lt;-<span class="st"> </span>v.names[d.fs.veg$Vegetation]
+fs.alf.list &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class="dv">1</span>:n.sims, fsByRep, <span class="dt">mainDir =</span> mainDir, <span class="dt">vid =</span> vid, <span class="dt">v.veg =</span> v.veg, 
+    <span class="dt">years =</span> <span class="dv">2014</span>:<span class="dv">2020</span>, <span class="dt">mc.cores =</span> n.cores)
+fs.alf &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(fs.alf.list)
+d.fs &lt;-<span class="st"> </span><span class="kw">rbind</span>(fs.emp, fs.alf)
+d.fs[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Vegetation, v.names[Vegetation])]
 dom &lt;-<span class="st"> </span>if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) <span class="st">&quot;Noatak&quot;</span> else if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), 
     <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;statew&quot;</span>) <span class="st">&quot;Statewide&quot;</span>
-<span class="kw">save</span>(d.fs.veg, <span class="dt">file =</span> <span class="kw">paste0</span>(out, <span class="st">&quot;/fsByVeg_df_&quot;</span>, dom, <span class="st">&quot;.RData&quot;</span>))
+<span class="kw">save</span>(d.fs, <span class="dt">file =</span> <span class="kw">paste0</span>(out, <span class="st">&quot;/fsByVeg_df_&quot;</span>, dom, <span class="st">&quot;.RData&quot;</span>))
 
 <span class="kw">sink</span>(<span class="dt">file =</span> <span class="kw">file.path</span>(out, <span class="st">&quot;message.txt&quot;</span>), <span class="dt">append =</span> <span class="ot">TRUE</span>)
 <span class="kw">cat</span>(<span class="st">&quot;An R workspace file containing fire event sizes partitioned by vegetation class is attached.</span><span class="ch">\n</span><span class="st">&quot;</span>)

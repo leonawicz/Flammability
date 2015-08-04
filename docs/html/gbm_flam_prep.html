@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -245,7 +250,7 @@ if (!<span class="kw">length</span>(comargs)) <span class="kw">q</span>(<span cl
 if (!<span class="kw">exists</span>(<span class="st">&quot;period&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;period&#39; not passed at command line.&quot;</span>)
 if (!<span class="kw">exists</span>(<span class="st">&quot;model&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;Argument &#39;model&#39; not passed at command line.&quot;</span>)
 if (!(period %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, <span class="st">&quot;rcp45&quot;</span>, <span class="st">&quot;rcp60&quot;</span>, <span class="st">&quot;rcp85&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid period specified.&quot;</span>)
-if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU31&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
+if (!(model %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;CRU32&quot;</span>, <span class="st">&quot;CCSM4&quot;</span>, <span class="st">&quot;GFDL-CM3&quot;</span>, <span class="st">&quot;GISS-E2-R&quot;</span>, <span class="st">&quot;IPSL-CM5A-LR&quot;</span>, 
     <span class="st">&quot;MRI-CGCM3&quot;</span>))) <span class="kw">stop</span>(<span class="st">&quot;Invalid data set specified.&quot;</span>)
 
 <span class="kw">library</span>(rgdal)
@@ -282,15 +287,15 @@ ind.names &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="s
 <h3>Prepare and save</h3>
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Prepare and save workspace</span>
 if (period ==<span class="st"> &quot;historical&quot;</span>) {
-    yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2009</span>
+    yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
     tpDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, period, 
-        <span class="st">&quot;cru_TS31&quot;</span>)
+        <span class="st">&quot;CRU_TS32&quot;</span>)
 } else {
     yrs &lt;-<span class="st"> </span><span class="dv">2010</span>:<span class="dv">2099</span>
-    tpDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/CMIP5_Climate_1km_AKstatewide&quot;</span>, 
-        period, model)
+    tpDir &lt;-<span class="st"> </span><span class="kw">file.path</span>(<span class="st">&quot;/big_scratch/mfleonawicz/Climate_1km_AKstatewide&quot;</span>, period, 
+        model)
 }
-mo.ind &lt;-<span class="st"> </span><span class="dv">6</span>:<span class="dv">8</span>
+mo.ind &lt;-<span class="st"> </span><span class="dv">6</span>:<span class="dv">8</span>  <span class="co">#1:9</span>
 varid &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;pr&quot;</span>, <span class="st">&quot;tas&quot;</span>)
 pat.mo &lt;-<span class="st"> </span><span class="kw">paste0</span>(<span class="st">&quot;.*._&quot;</span>, <span class="kw">c</span>(<span class="kw">paste0</span>(<span class="dv">0</span>, <span class="dv">1</span>:<span class="dv">9</span>), <span class="dv">10</span>:<span class="dv">12</span>), <span class="st">&quot;_.*.tif$&quot;</span>)
 files.precip &lt;-<span class="st"> </span>files.temp &lt;-<span class="st"> </span><span class="kw">list</span>()
@@ -311,7 +316,9 @@ for (i in mo.ind) {
 
 keep.obj &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">ls</span>(<span class="dt">pattern =</span> <span class="st">&quot;^m</span><span class="ch">\\</span><span class="st">.|</span><span class="ch">\\</span><span class="st">.ind$&quot;</span>), <span class="st">&quot;r.veg&quot;</span>, <span class="st">&quot;veg&quot;</span>, <span class="st">&quot;ind.names&quot;</span>, <span class="st">&quot;land.gray&quot;</span>, 
     <span class="st">&quot;yrs&quot;</span>)
-<span class="kw">save</span>(<span class="dt">list =</span> keep.obj, <span class="dt">file =</span> <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, model, <span class="st">&quot;_&quot;</span>, period, <span class="st">&quot;_Jun-AugTP.RData&quot;</span>))</code></pre>
+<span class="kw">save</span>(<span class="dt">list =</span> keep.obj, <span class="dt">file =</span> <span class="kw">paste0</span>(outDir, <span class="st">&quot;/&quot;</span>, model, <span class="st">&quot;_&quot;</span>, period, <span class="st">&quot;_Jun-AugTP.RData&quot;</span>))
+<span class="co"># save(list=keep.obj, file=paste0(outDir, &#39;/&#39;, model, &#39;_&#39;, period,</span>
+<span class="co"># &#39;_Jan-SepTP.RData&#39;))</span></code></pre>
 </div>
 </div>
 
