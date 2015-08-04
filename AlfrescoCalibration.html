@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -241,7 +246,7 @@ img {
 <li>Distribution of maximum fire size</li>
 </ul>
 <p>The script also saves key <strong>R</strong> workspace files.</p>
-<p>Most files of interest are attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process. This script is called by the SLURM script, <code>CompileData.slurm</code>, which is in turn first called by <code>RunAlfresco.slurm</code>. First calling <code>RunAlfresco.slurm</code> to launch ALFRESCO is done via web GUI interface, using an <strong>R</strong> Shiny web application, <code>run_alfresco</code>, where various parameters of an ALFRESCO run are set by the user.</p>
+<p>Most files of interest are attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process. This script is called by the SLURM script, <code>CompileData.slurm</code>, which is in turn first called by <code>RunAlfresco.slurm</code>. First calling <code>RunAlfresco.slurm</code> to launch ALFRESCO is done via web GUI interface, using an <strong>R</strong> Shiny web application, <code>run_alfresco</code>, where various parameters of an ALFRESCO run are set by the user. This script also sources <code>obs_fire_setup.R</code> during runtime.</p>
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
@@ -255,15 +260,19 @@ if (<span class="kw">length</span>(comArgs &gt;<span class="st"> </span><span cl
     if (<span class="kw">length</span>(arg.char &gt;<span class="st"> </span><span class="dv">0</span>)) 
         arg.mat[arg.char, <span class="dv">2</span>] &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;&#39;&quot;</span>, arg.mat[arg.char, <span class="dv">2</span>], <span class="st">&quot;&#39;&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)
     <span class="kw">eval</span>(<span class="kw">parse</span>(<span class="dt">text =</span> <span class="kw">apply</span>(arg.mat, <span class="dv">1</span>, paste, <span class="dt">collapse =</span> <span class="st">&quot;=&quot;</span>)))
+    <span class="kw">print</span>(arg.mat)
+    <span class="kw">print</span>(<span class="kw">ls</span>())
 }
 
 if (<span class="kw">exists</span>(<span class="st">&quot;main&quot;</span>)) <span class="kw">dir.create</span>(mainDir &lt;-<span class="st"> </span>main, <span class="dt">showWarnings =</span> F) else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;main&#39; directory&quot;</span>)
 if (<span class="kw">exists</span>(<span class="st">&quot;input&quot;</span>)) <span class="kw">dir.create</span>(mainDir &lt;-<span class="st"> </span>input, <span class="dt">showWarnings =</span> F) else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;input&#39; directory&quot;</span>)
 if (<span class="kw">exists</span>(<span class="st">&quot;out&quot;</span>)) <span class="kw">dir.create</span>(outDir &lt;-<span class="st"> </span>out, <span class="dt">showWarnings =</span> F) else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;out&#39; directory&quot;</span>)
-if (<span class="kw">exists</span>(<span class="st">&quot;yr.start&quot;</span>) &amp;<span class="st"> </span><span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else yrs &lt;-<span class="st"> </span><span class="dv">1950</span>:<span class="dv">2013</span>
 if (!<span class="kw">exists</span>(<span class="st">&quot;baseline.year&quot;</span>)) <span class="kw">stop</span>(<span class="st">&quot;baseline.year not found&quot;</span>) else baseline.year &lt;-<span class="st"> </span><span class="kw">as.numeric</span>(baseline.year)
+if (period ==<span class="st"> &quot;historical&quot;</span>) yr.start &lt;-<span class="st"> </span><span class="dv">1950</span> else yr.start &lt;-<span class="st"> </span>baseline.year
+if (<span class="kw">exists</span>(<span class="st">&quot;yr.end&quot;</span>)) yrs &lt;-<span class="st"> </span>yr.start:yr.end else <span class="kw">stop</span>(<span class="st">&quot;must provide &#39;baseline.year&#39; and &#39;yr.end&#39;&quot;</span>)
 if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;statew&quot;</span>) alf.domain &lt;-<span class="st"> &quot;Statewide&quot;</span> else if (<span class="kw">substr</span>(<span class="kw">tolower</span>(alf.domain), 
-    <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) alf.domain &lt;-<span class="st"> </span><span class="kw">substr</span>(alf.domain, <span class="dv">1</span>, <span class="dv">6</span>)</code></pre>
+    <span class="dv">1</span>, <span class="dv">6</span>) ==<span class="st"> &quot;noatak&quot;</span>) alf.domain &lt;-<span class="st"> </span><span class="kw">substr</span>(alf.domain, <span class="dv">1</span>, <span class="dv">6</span>)
+if (!<span class="kw">exists</span>(<span class="st">&quot;n.sims&quot;</span>)) n.sims &lt;-<span class="st"> </span><span class="dv">32</span></code></pre>
 </div>
 
 <!-- some extra javascript for older browsers -->

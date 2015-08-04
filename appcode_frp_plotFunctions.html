@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -261,12 +266,14 @@ plotFRPbyBuffer &lt;-<span class="st"> </span>function(data, min.buffer, colpal,
 <pre class="sourceCode r"><code class="sourceCode r"><span class="co"># plot time series of cumulative or non-cumulative annual relative area</span>
 <span class="co"># burned for a given buffer size</span>
 plotRABbyTime &lt;-<span class="st"> </span>function(data, buffersize, year.range, <span class="dt">cumulative =</span> F, subject, 
-    <span class="dt">grp =</span> <span class="st">&quot;&quot;</span>, colpal, <span class="dt">fontsize =</span> <span class="dv">16</span>, <span class="dt">leg.pos =</span> <span class="st">&quot;top&quot;</span>, <span class="dt">facet.by =</span> <span class="ot">NULL</span>, <span class="dt">facet.cols =</span> <span class="dv">1</span>) {
-    d &lt;-<span class="st"> </span><span class="kw">subset</span>(data, Buffer_km %in%<span class="st"> </span><span class="kw">as.numeric</span>(buffersize) &amp;<span class="st"> </span>Year &gt;=<span class="st"> </span>year.range[<span class="dv">1</span>] &amp;<span class="st"> </span>
+    <span class="dt">grp =</span> <span class="st">&quot;&quot;</span>, colpal, <span class="dt">fontsize =</span> <span class="dv">16</span>, <span class="dt">lgd.pos =</span> <span class="st">&quot;top&quot;</span>, <span class="dt">facet.by =</span> <span class="ot">NULL</span>, <span class="dt">facet.cols =</span> <span class="dv">1</span>, 
+    ...) {
+    d &lt;-<span class="st"> </span><span class="kw">data.table</span>(data)
+    d &lt;-<span class="st"> </span><span class="kw">subset</span>(d, Buffer_km %in%<span class="st"> </span><span class="kw">as.numeric</span>(buffersize) &amp;<span class="st"> </span>Year &gt;=<span class="st"> </span>year.range[<span class="dv">1</span>] &amp;<span class="st"> </span>
 <span class="st">        </span>Year &lt;=<span class="st"> </span>year.range[<span class="dv">2</span>])
     xlb =<span class="st"> &quot;Year&quot;</span>
     if (cumulative) {
-        d &lt;-<span class="st"> </span><span class="kw">ddply</span>(d, .(Replicate, Buffer_km, Location), transform, <span class="dt">Value =</span> <span class="kw">cumsum</span>(Value))
+        d &lt;-<span class="st"> </span>d %&gt;%<span class="st"> </span><span class="kw">group_by</span>(Replicate, Buffer_km, Location) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Value =</span> <span class="kw">cumsum</span>(Value))
         maintitle &lt;-<span class="st"> </span><span class="kw">paste</span>(year.range[<span class="dv">1</span>], <span class="st">&quot;-&quot;</span>, year.range[<span class="dv">2</span>], <span class="st">&quot;Cumulative Relative Area Burned ~ Time | Buffer&quot;</span>)
         ylb &lt;-<span class="st"> &quot;CRAB (%)&quot;</span>
     } else {
@@ -285,12 +292,12 @@ plotRABbyTime &lt;-<span class="st"> </span>function(data, buffersize, year.rang
             <span class="dt">size =</span> <span class="dv">1</span>)
     } else {
         if (grp !=<span class="st"> &quot;&quot;</span>) {
-            g &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_line</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Source ==<span class="st"> &quot;Modeled&quot;</span>), <span class="dt">colour =</span> <span class="st">&quot;gray&quot;</span>)
-            g &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_line</span>(<span class="kw">aes_string</span>(<span class="dt">group =</span> grp, <span class="dt">colour =</span> grp), <span class="dt">data =</span> <span class="kw">subset</span>(d, 
-                Source ==<span class="st"> &quot;Observed&quot;</span>), <span class="dt">size =</span> <span class="dv">1</span>) +<span class="st"> </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> colpal[-<span class="kw">c</span>(<span class="dv">1</span>, 
+            g &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Source ==<span class="st"> &quot;Modeled&quot;</span>), <span class="dt">colour =</span> <span class="st">&quot;gray&quot;</span>)
+            g &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_point</span>(<span class="kw">aes_string</span>(<span class="dt">group =</span> grp, <span class="dt">colour =</span> grp), <span class="dt">data =</span> <span class="kw">subset</span>(d, 
+                Source ==<span class="st"> &quot;Observed&quot;</span>), <span class="dt">size =</span> <span class="fl">2.5</span>) +<span class="st"> </span><span class="kw">scale_color_manual</span>(<span class="dt">values =</span> colpal[-<span class="kw">c</span>(<span class="dv">1</span>, 
                 <span class="dv">2</span>)]) +<span class="st"> </span><span class="kw">scale_fill_manual</span>(<span class="dt">values =</span> colpal[-<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">2</span>)])
-        } else g &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_line</span>() +<span class="st"> </span><span class="kw">geom_line</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Source ==<span class="st"> &quot;Observed&quot;</span>), 
-            <span class="dt">size =</span> <span class="dv">1</span>)
+        } else g &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">geom_point</span>() +<span class="st"> </span><span class="kw">geom_point</span>(<span class="dt">data =</span> <span class="kw">subset</span>(d, Source ==<span class="st"> &quot;Observed&quot;</span>), 
+            <span class="dt">size =</span> <span class="fl">2.5</span>)
     }
     g &lt;-<span class="st"> </span>g +<span class="st"> </span><span class="kw">theme_bw</span>(<span class="dt">base_size =</span> fontsize) +<span class="st"> </span><span class="kw">theme</span>(<span class="dt">legend.position =</span> <span class="kw">tolower</span>(lgd.pos)) +<span class="st"> </span>
 <span class="st">        </span><span class="kw">ggtitle</span>(<span class="kw">bquote</span>(<span class="kw">paste</span>(.(maintitle) ==<span class="st"> </span>.(<span class="kw">paste</span>(buffersize, <span class="st">&quot;km&quot;</span>))))) +<span class="st"> </span>
@@ -323,7 +330,7 @@ plotFRIboxplot &lt;-<span class="st"> </span>function(d, x, y, <span class="dt">
     x.n &lt;-<span class="st"> </span><span class="kw">length</span>(<span class="kw">unique</span>(d[, x]))
     if (<span class="kw">is.character</span>(grp) &amp;<span class="st"> </span>n.grp &gt;<span class="st"> </span><span class="dv">1</span>) {
         if (<span class="kw">is.null</span>(facet.by)) {
-            x.names &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">as.character</span>(d[, x]))
+            x.names &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">unique</span>(<span class="kw">as.character</span>(d[, x])))
             x.num &lt;-<span class="st"> </span>grp.n &lt;-<span class="st"> </span>grp.num &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">nrow</span>(d))
             for (m in <span class="dv">1</span>:<span class="kw">length</span>(x.names)) {
                 ind &lt;-<span class="st"> </span><span class="kw">which</span>(<span class="kw">as.character</span>(d[, x]) ==<span class="st"> </span>x.names[m])
@@ -334,7 +341,7 @@ plotFRIboxplot &lt;-<span class="st"> </span>function(d, x, y, <span class="dt">
             }
             d$xdodge &lt;-<span class="st"> </span>x.num +<span class="st"> </span>grp.num
         } else {
-            x.names &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">as.character</span>(d[, x]))
+            x.names &lt;-<span class="st"> </span><span class="kw">sort</span>(<span class="kw">unique</span>(<span class="kw">as.character</span>(d[, x])))
             panel.names &lt;-<span class="st"> </span><span class="kw">unique</span>(<span class="kw">as.character</span>(d[, facet.by]))
             n.panels &lt;-<span class="st"> </span><span class="kw">length</span>(panel.names)
             x.num &lt;-<span class="st"> </span>grp.n &lt;-<span class="st"> </span>grp.num &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="ot">NA</span>, <span class="kw">nrow</span>(d))

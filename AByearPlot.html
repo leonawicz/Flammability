@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -237,33 +242,37 @@ img {
 <p>This plot is called in <code>AlfrescoCalibration.R</code> and currently is hardcoded to plot a 1950 - 2011 time series.</p>
 <div id="r-code" class="section level3">
 <h3>R code</h3>
-<pre class="sourceCode r"><code class="sourceCode r">AByearPlot &lt;-<span class="st"> </span>function(ALF.FS, d.obs.fs, years, domain, domain.name, baseline) {
-    abByYear.tmp &lt;-<span class="st"> </span><span class="kw">tapply</span>(d.obs.fs$FS, d.obs.fs$Year, sum)
-    abByYear &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(years))
-    abByYear[<span class="kw">match</span>(<span class="kw">names</span>(abByYear.tmp), years)] &lt;-<span class="st"> </span>abByYear.tmp
-    
-    domain &lt;-<span class="st"> &quot;abByYear&quot;</span>  <span class="co"># temporary test</span>
-    domain &lt;-<span class="st"> </span><span class="kw">get</span>(domain)
-    
+<pre class="sourceCode r"><code class="sourceCode r">AByearPlot &lt;-<span class="st"> </span>function(ALF.FS, d.obs.fs, years, domain, domain.name, baseline, 
+    period) {
+    if (period ==<span class="st"> &quot;historical&quot;</span>) {
+        abByYear.tmp &lt;-<span class="st"> </span><span class="kw">tapply</span>(d.obs.fs$FS, d.obs.fs$Year, sum)
+        abByYear &lt;-<span class="st"> </span><span class="kw">rep</span>(<span class="dv">0</span>, <span class="kw">length</span>(years))
+        abByYear[<span class="kw">match</span>(<span class="kw">names</span>(abByYear.tmp), years)] &lt;-<span class="st"> </span>abByYear.tmp
+        domain &lt;-<span class="st"> </span>abByYear
+    } else domain &lt;-<span class="st"> </span><span class="ot">NULL</span>
     ylm &lt;-<span class="st"> </span><span class="kw">range</span>(<span class="kw">c</span>(domain, <span class="kw">c</span>(ALF.FS[years -<span class="st"> </span>baseline +<span class="st"> </span><span class="dv">1</span>, ])))
-    <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="kw">paste</span>(<span class="st">&quot;ABYear_&quot;</span>, domain.name, <span class="st">&quot;_&quot;</span>, years[<span class="dv">1</span>], <span class="st">&quot;to&quot;</span>, 
-        years[<span class="kw">length</span>(years)], <span class="st">&quot;.png&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), <span class="dt">res =</span> <span class="dv">75</span>, <span class="dt">width =</span> <span class="dv">1600</span>, <span class="dt">height =</span> <span class="dv">800</span>)
+    <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="kw">paste0</span>(<span class="st">&quot;ABYear_&quot;</span>, domain.name, <span class="st">&quot;_&quot;</span>, years[<span class="dv">1</span>], <span class="st">&quot;to&quot;</span>, 
+        years[<span class="kw">length</span>(years)], <span class="st">&quot;.png&quot;</span>)), <span class="dt">res =</span> <span class="dv">75</span>, <span class="dt">width =</span> <span class="kw">round</span>(<span class="dv">1600</span> *<span class="st"> </span>(<span class="kw">length</span>(years)/<span class="kw">length</span>(<span class="dv">1950</span>:<span class="dv">2013</span>))), 
+        <span class="dt">height =</span> <span class="dv">800</span>)
     <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">4</span>, <span class="dv">2</span>) +<span class="st"> </span><span class="fl">0.1</span>, <span class="dt">mfrow =</span> <span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))
-    <span class="kw">plot</span>(<span class="dv">0</span>, <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> <span class="kw">range</span>(years), <span class="dt">ylim =</span> ylm, <span class="dt">ylab =</span> <span class="kw">expression</span>(<span class="kw">paste</span>(<span class="kw">plain</span>(<span class="st">&quot;Area Burn   &quot;</span>), 
-        (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>), <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>)), <span class="dt">xlab =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">main =</span> <span class="kw">paste</span>(domain.name, <span class="st">&quot; AB/Yr&quot;</span>, 
-        <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), <span class="dt">cex.main =</span> <span class="fl">1.5</span>, <span class="dt">cex.axis =</span> <span class="fl">1.5</span>, <span class="dt">cex.lab =</span> <span class="fl">1.5</span>)
+    <span class="kw">plot</span>(<span class="dv">0</span>, <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">xlim =</span> <span class="kw">range</span>(years), <span class="dt">ylim =</span> ylm, <span class="dt">ylab =</span> <span class="kw">expression</span>(<span class="kw">paste0</span>(<span class="kw">plain</span>(<span class="st">&quot;Area Burn   &quot;</span>), 
+        (<span class="st">&quot;km&quot;</span>^<span class="dv">2</span>))), <span class="dt">xlab =</span> <span class="st">&quot;Year&quot;</span>, <span class="dt">main =</span> <span class="kw">paste</span>(domain.name, <span class="st">&quot; AB/Yr&quot;</span>, <span class="dt">sep =</span> <span class="st">&quot;&quot;</span>), 
+        <span class="dt">cex.main =</span> <span class="fl">1.5</span>, <span class="dt">cex.axis =</span> <span class="fl">1.5</span>, <span class="dt">cex.lab =</span> <span class="fl">1.5</span>)
     <span class="kw">boxplot</span>(<span class="kw">as.data.frame</span>(<span class="kw">t</span>(ALF.FS[years -<span class="st"> </span>baseline +<span class="st"> </span><span class="dv">1</span>, ])), <span class="dt">add =</span> <span class="ot">TRUE</span>, <span class="dt">at =</span> years, 
         <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>, <span class="dt">names =</span> <span class="ot">FALSE</span>, <span class="dt">axes =</span> F)
     <span class="kw">axis</span>(<span class="dv">1</span>, years, <span class="dt">labels =</span> F)
-    <span class="kw">points</span>(years, domain, <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">bg =</span> <span class="st">&quot;#CD6600&quot;</span>, <span class="dt">cex =</span> <span class="fl">1.3</span>)
-    <span class="kw">segments</span>(<span class="dt">x0 =</span> years, <span class="dt">y0 =</span> domain, <span class="dt">y1 =</span> <span class="kw">apply</span>(ALF.FS[years -<span class="st"> </span>baseline +<span class="st"> </span><span class="dv">1</span>, 
-        ], <span class="dv">1</span>, median), <span class="dt">col =</span> <span class="st">&quot;#CD660085&quot;</span>)
+    if (period ==<span class="st"> &quot;historical&quot;</span>) {
+        <span class="kw">points</span>(years, domain, <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">bg =</span> <span class="st">&quot;#FF0000&quot;</span>, <span class="dt">cex =</span> <span class="fl">1.3</span>)
+        <span class="kw">segments</span>(<span class="dt">x0 =</span> years, <span class="dt">y0 =</span> domain, <span class="dt">y1 =</span> <span class="kw">apply</span>(ALF.FS[years -<span class="st"> </span>baseline +<span class="st"> </span>
+<span class="st">            </span><span class="dv">1</span>, ], <span class="dv">1</span>, median), <span class="dt">col =</span> <span class="st">&quot;#FF000085&quot;</span>)
+    }
     d &lt;-<span class="st"> </span><span class="kw">diff</span>(<span class="kw">par</span>()$yaxp)[<span class="dv">1</span>]/<span class="dv">70</span>
-    p &lt;-<span class="st"> </span><span class="kw">par</span>()$yaxp[<span class="dv">2</span>]
+    p &lt;-<span class="st"> </span><span class="fl">0.95</span> *<span class="st"> </span>ylm[<span class="dv">2</span>]
     <span class="kw">legend</span>(years[<span class="dv">4</span>] -<span class="st"> </span><span class="fl">0.5</span>, p, <span class="dt">yjust =</span> <span class="fl">0.5</span>, <span class="st">&quot;ALFRESCO&quot;</span>, <span class="dt">pch =</span> <span class="ot">NA</span>, <span class="dt">col =</span> <span class="ot">NA</span>, <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, 
         <span class="dt">cex =</span> <span class="fl">1.3</span>)
-    <span class="kw">legend</span>(years[<span class="dv">10</span>], p, <span class="dt">yjust =</span> <span class="fl">0.5</span>, <span class="st">&quot;Historical&quot;</span>, <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">pt.bg =</span> <span class="st">&quot;#CD6600&quot;</span>, 
-        <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">cex =</span> <span class="fl">1.3</span>)
+    if (period ==<span class="st"> &quot;historical&quot;</span>) 
+        <span class="kw">legend</span>(years[<span class="dv">10</span>], p, <span class="dt">yjust =</span> <span class="fl">0.5</span>, <span class="st">&quot;Historical&quot;</span>, <span class="dt">pch =</span> <span class="dv">21</span>, <span class="dt">pt.bg =</span> <span class="st">&quot;#FF0000&quot;</span>, 
+            <span class="dt">bty =</span> <span class="st">&quot;n&quot;</span>, <span class="dt">cex =</span> <span class="fl">1.3</span>)
     <span class="kw">rect</span>(years[<span class="dv">2</span>], p -<span class="st"> </span>d, years[<span class="dv">3</span>], p +<span class="st"> </span>d, <span class="dt">col =</span> <span class="st">&quot;gray&quot;</span>)
     <span class="kw">rect</span>(years[<span class="dv">2</span>] +<span class="st"> </span><span class="fl">0.45</span>, p -<span class="st"> </span>d, years[<span class="dv">3</span>] -<span class="st"> </span><span class="fl">0.45</span>, p +<span class="st"> </span>d, <span class="dt">col =</span> <span class="dv">1</span>)
     <span class="kw">segments</span>(<span class="dt">x0 =</span> years[<span class="kw">c</span>(<span class="dv">1</span>, <span class="dv">3</span>)], <span class="dt">x1 =</span> years[<span class="kw">c</span>(<span class="dv">2</span>, <span class="dv">4</span>)], <span class="dt">y0 =</span> <span class="kw">par</span>()$yaxp[<span class="dv">2</span>], <span class="dt">lty =</span> <span class="dv">2</span>)

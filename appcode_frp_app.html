@@ -137,6 +137,7 @@ img {
               <li><a href="clim_1km_clip2ak.html">clim_1km_clip2ak.R</a></li>
               <li><a href="tpByVeg_CRU32.html">tpByVeg_CRU32.R</a></li>
               <li><a href="tpByVeg_CMIP5.html">tpByVeg_CMIP5.R</a></li>
+              <li><a href="tpByVeg_plots.html">tpByVeg_plots.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -144,18 +145,22 @@ img {
             <ul class="dropdown-menu">
               <li class="dropdown-header">GBM Modeling</li>
               <li><a href="baByVeg_historical.html">baByVeg_historical.R</a></li>
-              <li><a href="gbm.html">gbm.R</a></li>
+              <li><a href="gbm_modeling_flammability.html">gbm_modeling_flammability.R</a></li>
+              <li><a href="gbm_modeling_lightning.html">gbm_modeling_lightning.R</a></li>
+              <li><a href="gbm_lightning_coefficients.html">gbm_lightning_coefficients.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">Flammability maps</li>
               <li><a href="gbm_flam_prep.html">gbm_flam_prep.R</a></li>
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
+              <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
               <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
               <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
               <li><a href="duplicate_flam_maps.html">duplicate_flam_maps.R</a></li>
-              <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
+              <li><a href="alf_gcmRuns_inputPrep.html">alf_gcmRuns_inputPrep.R</a></li>
             </ul>
 
           <li class="dropdown">
@@ -254,23 +259,23 @@ updateData &lt;-<span class="st"> </span><span class="kw">reactive</span>({
 })
 
 <span class="co"># Primary plot outputs reactive expressions Plot RAB ~ time</span>
-doPlot_RABbyTime &lt;-<span class="st"> </span>function() {
-    <span class="kw">print</span>(<span class="kw">names</span>(rv))
+doPlot_RABbyTime &lt;-<span class="st"> </span>function(...) {
     if (!(<span class="kw">is.null</span>(<span class="kw">subjects</span>()) |<span class="st"> </span><span class="kw">is.null</span>(<span class="kw">groups</span>()) |<span class="st"> </span><span class="kw">is.null</span>(input$buffersize) |<span class="st"> </span>
 <span class="st">        </span><span class="kw">is.null</span>(input$facetcols))) {
         <span class="kw">plotRABbyTime</span>(<span class="dt">data =</span> rv$rab.dat, <span class="dt">buffersize =</span> input$buffersize, <span class="dt">subject =</span> <span class="kw">subjects</span>(), 
-            <span class="dt">grp =</span> <span class="kw">groups</span>(), <span class="dt">year.range =</span> input$yearsrab, <span class="dt">cumulative =</span> F, <span class="dt">colpal =</span> cbpalette, 
-            <span class="dt">fontsize =</span> <span class="dv">16</span>, <span class="dt">leg.pos =</span> <span class="st">&quot;top&quot;</span>, <span class="dt">facet.by =</span> <span class="kw">facetBy</span>(), <span class="dt">facet.cols =</span> input$facetcols)
+            <span class="dt">grp =</span> <span class="kw">groups</span>(), <span class="dt">colpal =</span> cbpalette, <span class="dt">fontsize =</span> <span class="dv">16</span>, <span class="dt">leg.pos =</span> <span class="st">&quot;top&quot;</span>, 
+            <span class="dt">facet.by =</span> <span class="kw">facetBy</span>(), <span class="dt">facet.cols =</span> input$facetcols, ...)
     } else <span class="ot">NULL</span>
 }
 
-<span class="co"># Plot CRAB ~ time</span>
-doPlot_CRABbyTime &lt;-<span class="st"> </span>function() {
-    if (!(<span class="kw">is.null</span>(<span class="kw">subjects</span>()) |<span class="st"> </span><span class="kw">is.null</span>(<span class="kw">groups</span>()) |<span class="st"> </span><span class="kw">is.null</span>(input$buffersize) |<span class="st"> </span>
-<span class="st">        </span><span class="kw">is.null</span>(input$facetcols))) {
-        <span class="kw">plotRABbyTime</span>(<span class="dt">data =</span> rv$rab.dat, <span class="dt">buffersize =</span> input$buffersize, <span class="dt">subject =</span> <span class="kw">subjects</span>(), 
-            <span class="dt">grp =</span> <span class="kw">groups</span>(), <span class="dt">year.range =</span> input$yearscrab, <span class="dt">cumulative =</span> T, <span class="dt">colpal =</span> cbpalette, 
-            <span class="dt">fontsize =</span> <span class="dv">16</span>, <span class="dt">leg.pos =</span> <span class="st">&quot;top&quot;</span>, <span class="dt">facet.by =</span> <span class="kw">facetBy</span>(), <span class="dt">facet.cols =</span> input$facetcols)
+<span class="co"># Plot Regional TAB ~ time</span>
+doPlot_RegTABbyTime &lt;-<span class="st"> </span>function(...) {
+    if (!(<span class="kw">is.null</span>(<span class="kw">reg_subjects</span>()) |<span class="st"> </span><span class="kw">is.null</span>(<span class="kw">reg_groups</span>()) |<span class="st"> </span><span class="kw">is.null</span>(input$reg_vegetation) |<span class="st"> </span>
+<span class="st">        </span><span class="kw">is.null</span>(input$reg_aggveg) |<span class="st"> </span><span class="kw">is.null</span>(input$reg_facetcols))) {
+        <span class="kw">plotRegionalTABbyTime</span>(<span class="dt">data =</span> rv$d.fs, <span class="dt">vegetation =</span> input$reg_vegetation, 
+            <span class="dt">agg.veg =</span> input$reg_aggveg, <span class="dt">subject =</span> <span class="kw">reg_subjects</span>(), <span class="dt">grp =</span> <span class="kw">reg_groups</span>(), 
+            <span class="dt">colpal =</span> cbpalette, <span class="dt">fontsize =</span> <span class="dv">16</span>, <span class="dt">leg.pos =</span> <span class="st">&quot;top&quot;</span>, <span class="dt">facet.by =</span> <span class="kw">reg_facetBy</span>(), 
+            <span class="dt">facet.cols =</span> input$reg_facetcols, ...)
     } else <span class="ot">NULL</span>
 }
 
@@ -298,11 +303,19 @@ doPlot_FRIboxplot &lt;-<span class="st"> </span>function() {
 
 <span class="co"># Primary plot reactive outputs</span>
 output$RAB_tsplot &lt;-<span class="st"> </span><span class="kw">renderPlot</span>({
-    <span class="kw">doPlot_RABbyTime</span>()
+    <span class="kw">doPlot_RABbyTime</span>(<span class="dt">year.range =</span> input$yearsrab)
 }, <span class="dt">height =</span> <span class="dv">800</span>, <span class="dt">width =</span> <span class="dv">1000</span>)
 
 output$CRAB_tsplot &lt;-<span class="st"> </span><span class="kw">renderPlot</span>({
-    <span class="kw">doPlot_CRABbyTime</span>()
+    <span class="kw">doPlot_RABbyTime</span>(<span class="dt">year.range =</span> input$yearscrab, <span class="dt">cumulative =</span> <span class="ot">TRUE</span>)
+}, <span class="dt">height =</span> <span class="dv">800</span>, <span class="dt">width =</span> <span class="dv">1000</span>)
+
+output$RegTAB_tsplot &lt;-<span class="st"> </span><span class="kw">renderPlot</span>({
+    <span class="kw">doPlot_RegTABbyTime</span>(<span class="dt">year.range =</span> input$yearsrab)
+}, <span class="dt">height =</span> <span class="dv">800</span>, <span class="dt">width =</span> <span class="dv">1000</span>)
+
+output$RegCTAB_tsplot &lt;-<span class="st"> </span><span class="kw">renderPlot</span>({
+    <span class="kw">doPlot_RegTABbyTime</span>(<span class="dt">year.range =</span> input$yearscrab, <span class="dt">cumulative =</span> <span class="ot">TRUE</span>)
 }, <span class="dt">height =</span> <span class="dv">800</span>, <span class="dt">width =</span> <span class="dv">1000</span>)
 
 output$FRP_bufferplot &lt;-<span class="st"> </span><span class="kw">renderPlot</span>({
@@ -316,15 +329,29 @@ output$FRI_boxplot &lt;-<span class="st"> </span><span class="kw">renderPlot</sp
 <span class="co"># PDF download buttons for each plot</span>
 output$dl_RAB_tsplotPDF &lt;-<span class="st"> </span><span class="kw">downloadHandler</span>(<span class="dt">filename =</span> <span class="st">&quot;RABvsTime.pdf&quot;</span>, <span class="dt">content =</span> function(file) {
     <span class="kw">pdf</span>(<span class="dt">file =</span> file, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">8</span>, <span class="dt">pointsize =</span> <span class="dv">8</span>)
-    <span class="kw">doPlot_RABbyTime</span>()
+    <span class="kw">doPlot_RABbyTime</span>(<span class="dt">year.range =</span> input$yearsrab)
     <span class="kw">dev.off</span>()
 })
 
 output$dl_CRAB_tsplotPDF &lt;-<span class="st"> </span><span class="kw">downloadHandler</span>(<span class="dt">filename =</span> <span class="st">&quot;CRABvsTime.pdf&quot;</span>, <span class="dt">content =</span> function(file) {
     <span class="kw">pdf</span>(<span class="dt">file =</span> file, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">8</span>, <span class="dt">pointsize =</span> <span class="dv">8</span>)
-    <span class="kw">doPlot_CRABbyTime</span>()
+    <span class="kw">doPlot_RABbyTime</span>(<span class="dt">year.range =</span> input$yearscrab, <span class="dt">cumulative =</span> <span class="ot">TRUE</span>)
     <span class="kw">dev.off</span>()
 })
+
+output$dl_RegTAB_tsplotPDF &lt;-<span class="st"> </span><span class="kw">downloadHandler</span>(<span class="dt">filename =</span> <span class="st">&quot;RegionalTABvsTime.pdf&quot;</span>, 
+    <span class="dt">content =</span> function(file) {
+        <span class="kw">pdf</span>(<span class="dt">file =</span> file, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">8</span>, <span class="dt">pointsize =</span> <span class="dv">8</span>)
+        <span class="kw">doPlot_RegTABbyTime</span>(<span class="dt">year.range =</span> input$yearsrab)
+        <span class="kw">dev.off</span>()
+    })
+
+output$dl_RegCTAB_tsplotPDF &lt;-<span class="st"> </span><span class="kw">downloadHandler</span>(<span class="dt">filename =</span> <span class="st">&quot;RegionalCTABvsTime.pdf&quot;</span>, 
+    <span class="dt">content =</span> function(file) {
+        <span class="kw">pdf</span>(<span class="dt">file =</span> file, <span class="dt">width =</span> <span class="dv">10</span>, <span class="dt">height =</span> <span class="dv">8</span>, <span class="dt">pointsize =</span> <span class="dv">8</span>)
+        <span class="kw">doPlot_RegTABbyTime</span>(<span class="dt">year.range =</span> input$yearscrab, <span class="dt">cumulative =</span> <span class="ot">TRUE</span>)
+        <span class="kw">dev.off</span>()
+    })
 
 output$dl_FRP_bufferplotPDF &lt;-<span class="st"> </span><span class="kw">downloadHandler</span>(<span class="dt">filename =</span> <span class="st">&quot;FRPvsBufferRadius.pdf&quot;</span>, 
     <span class="dt">content =</span> function(file) {
