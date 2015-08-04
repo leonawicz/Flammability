@@ -1,10 +1,19 @@
-
+# @knitr prep_files
 library(raster)
 library(parallel)
-r.template <- raster("/big_scratch/mfleonawicz/Alf_Files_20121129/Spinup300Year_32Reps/Age_0_1900.tif")
-dir.create(outDir <- "/big_scratch/shiny/Final_Noatak_5m/gcmRunInputs", showWarnings=F, recursive=T)
-files <- list.files("/big_scratch/shiny/Runs_Noatak/paul.duffy_at_neptuneinc.org/m5TL_30750s_00185i_historical_CRU32/Maps", pattern="2013\\.tif", full=T)
+
+domain <- "Noatak"
+#domain <- "Statewide"
+run.name <- "m3TL_33150s_00178i_historical_CRU32"
+#run.name <- "m5TL_30750s_00185i_historical_CRU32"
+#run.name <- "m3TL_45000s_00175i_historical_CRU32"
+gbm <- paste0(substr(run.name, 2, 2), substr(run.name, 1, 1))
+inDir <- paste0("/big_scratch/shiny/Runs_", domain, "/paul.duffy_at_neptuneinc.org/", run.name, "/Maps")
+dir.create(outDir <- paste0("/big_scratch/shiny/Final_", domain, "_", gbm, "/gcmRunInputs"), showWarnings=F, recursive=T)
+files <- list.files(inDir, pattern="2013\\.tif", full=T)
 files <- files[-which(substr(basename(files), 1, 8)=="FireScar")]
+
+r.template <- raster("/big_scratch/mfleonawicz/Alf_Files_20121129/Spinup300Year_32Reps/Age_0_1900.tif")
 
 par_copy <- function(i, r.template, outDir){
     r <- raster(files[i])
