@@ -26,6 +26,7 @@ The key features of the script include:
 
 Files of interest are attached to an email which is sent from the Atlas cluster to intended recipients as part of the broader SLURM process.
 This script is called by the SLURM script, `CompileData.slurm` after the initial post-processing script, `AlfrescoCalibration.R` has run.
+This script also sources `obs_fire_setup.R` during runtime.
 
 ## R code
 

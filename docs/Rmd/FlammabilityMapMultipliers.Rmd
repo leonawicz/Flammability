@@ -16,10 +16,25 @@ read_chunk("../../code/FlammabilityMapMultipliers.R")
 ##
 ## FlammabilityMapMultipliers.R
 
-The `FlammabilityMapMultipliers.R` script multiplies each flammability map in a series by a scalar coeeficient to stretch or compress inter-annual variability in flammability.
-For CRU 3.1 historical flammability maps, observation-based coefficients are applied for the years 1950 - 2011.
-A small set of discrete coefficient values are used.
-Historical CRU-based and projected GCM-based flammability maps outside the 1950 - 2011 period are multiplied by randomized coefficients from the same set.
+The `FlammabilityMapMultipliers.R` script multiplies each flammability map in a series by either a scalar lightning intensity coefficient
+or a spatially explicit lightning intensity map to stretch or compress inter-annual variability in flammability.
+Lightning coefficients are stored in a data table loaded by workspace, originally assembled by `gbm_lightning_coefficients.R`.
+The three coefficients, 0.05, 0.50, and 0.95, represent low, medium, and high lightning intensity with respect to the inter-annual signal of the gbm lightning point model predictions.
+Point model refers to a spatially aggregated model, specifically one using mean climate variables as covariates and having a spatially aggregated total or average lightning response.
+
+For CRU 3.2 historical flammability maps, observation-based coefficients are applied for the years 2003 - 2011.
+Years 1950 - 2002 use backcast predictions of annual lightning intensity and a small forecast for years 2012 - 2013.
+For GCM-based flammability maps, forecast lightning coefficients are used for years 2014 - 2099.
+
+In the case of spatially explicit lightning maps, maps are similarly available for 2003 - 2011
+and are similarly classified into one of three levels of annual intensity corresponding to the scalar coefficients.
+Scalar coefficients are either used directly as multipliers
+or they are used to make a random map draw from the subset of three of the nine maps similarly classified as low, medium, or high intensity.
+In this manner, a lightning map is associated with each year in the backcast and forecast periods and years 2003 - 2011 use their own respective maps,
+analogous to the direct application of scalar coefficients.
+
+Backcasts and forecasts can go as far as there is CRU 3.2 (back to 1901) or GCM (forward through 2099) data available.
+Beyond this, simple random sampling of the coefficient set or the map set must be used, though relative sampling probabilites can differ by coefficient or map group in accordance with their proportions during known periods.
 
 ## R code
 
