@@ -14,7 +14,7 @@ get_classes1 <- function(x, y=qtiles) cut(x, breaks=c(0, y, 99999), labels=F)
 get_coefficients <- function(x) sapply(x, function(y) switch(y, '1'=0.05, '2'=0.5, '3'=0.95))
 get_classes2 <- function(x) factor(x, labels=c("Low", "Medium", "High"))
 
-# knitr quantiles
+# @knitr quantiles
 lb <- 0.2
 ub <- 0.8
 qtiles <- quantile(pred.light.hist, c(lb,ub))
@@ -55,7 +55,7 @@ png(file.path(plotDir, "gbm_pred_1950_2011_CDF.png"), width=3200, height=1600, r
 g3
 dev.off()
 
-# @knitr plots_gcm
+# @knitr plots_gcm_prep
 d2 <- data.table(lightning.preds)
 d2 <- data.table(melt(d2, measure.vars=names(d2)))
 d2[, Period:="rcp60"]
@@ -67,6 +67,7 @@ d2 %>% group_by(Model) %>%
 
 d.all <- rbind(d, d2)
 
+# @knitr plots_gcm
 (g4 <- ggplot(data=d.all, aes(x=Rank, y=LightPred, label=Year)) +
     geom_hline(yintercept=qtiles, linetype=2) + geom_point() +
     geom_text(aes(colour=Class), hjust=0, vjust=0, size=3, show_guide=F) +
@@ -88,7 +89,7 @@ d.all <- rbind(d, d2)
     labs(x="Predicted number of strikes", y="CDF", title="1950-2011 CRU32 and 2010-2099 GCM GBM-predicted summer lightning strikes: empirical CDF") +
     facet_wrap(~ Model, ncol=2))
     
-# @knitr notrun1
+# @knitr notrun2
 png(file.path(plotDir, "gbm_pred_1950_2099_RankbyModel.png"), width=3200, height=1600, res=200)
 g4
 dev.off()
@@ -101,5 +102,5 @@ png(file.path(plotDir, "gbm_pred_1950_2099_CDFbyModel.png"), width=3200, height=
 g6
 dev.off()
 
-# @knit save
-save(d.all, file="gbmFlammability/gbm_lightning_coefficients.RData")
+# @knitr notrun3
+save(d.all, file="./gbmFlammability/gbm_lightning_coefficients.RData")
