@@ -25,26 +25,26 @@ qtiles <- quantile(pred.light.hist, bounds)
 bins.cru <- get_classes1(pred.light.hist)
 coef.cru <- get_coefficients(pred.light.hist)
 bins.cru <- get_classes2(bins.cru)
-d <- data.table(Period="historical", Model="CRU32", Year=1950:2011, LightPred=pred.light.hist, Rank=rank(pred.light.hist), Class=bins.cru, Coef=coef.cru, ECDF=ecdf(pred.light.hist)(pred.light.hist))
+d <- data.table(Period="historical", Model="CRU32", Year=1950:2013, LightPred=pred.light.hist, Rank=rank(pred.light.hist), Class=bins.cru, Coef=coef.cru, ECDF=ecdf(pred.light.hist)(pred.light.hist))
 
 # @knitr plots_cru32
 (g1 <- ggplot(data=d, aes(x=Rank, y=LightPred, label=Year)) +
     geom_hline(yintercept=qtiles, linetype=2) + geom_point() +
     geom_text(aes(colour=Class), hjust=0, vjust=0, size=3, show_guide=F) +
     annotate("text", x=1, y=qtiles, label=paste("qunatile =", bounds), size=3, vjust=-0.5) +
-    labs(x="Predicted rank", y="Predicted number of strikes", title="1950-2011 GBM-predicted summer lightning strikes: ranked and ordered"))
+    labs(x="Predicted rank", y="Predicted number of strikes", title="1950-2013 GBM-predicted summer lightning strikes: ranked and ordered"))
     
 (g2 <- ggplot(data=d, aes(x=Year, y=LightPred, label=Rank)) +
     geom_line() + geom_hline(yintercept=qtiles, linetype=2) + geom_point() +
     geom_text(aes(colour=Class), hjust=0, vjust=0, size=3, show_guide=F) +
     annotate("text", x=1950, y=qtiles, label=paste("qunatile =", bounds), size=3, vjust=-0.5) +
-    labs(x="Year", y="Predicted number of strikes", title="1950-2011 GBM-predicted summer lightning strikes: time series"))
+    labs(x="Year", y="Predicted number of strikes", title="1950-2013 GBM-predicted summer lightning strikes: time series"))
     
 (g3 <- ggplot(data=d, aes(x=LightPred, label=Year)) +
     geom_vline(xintercept=qtiles, linetype=2) + stat_ecdf() + stat_ecdf(geom="point") +
     geom_text(aes(y=ECDF, colour=Class), hjust=0, vjust=0, size=3, show_guide=F) +
     annotate("text", x=qtiles, y=0, label=paste("qunatile =", bounds), size=3, hjust=-0.1) +
-    labs(x="Predicted number of strikes", y="CDF", title="1950-2011 GBM-predicted summer lightning strikes: empirical CDF"))
+    labs(x="Predicted number of strikes", y="CDF", title="1950-2013 GBM-predicted summer lightning strikes: empirical CDF"))
 
 # @knitr notrun1
 png(file.path(plotDir, "gbm_pred_1950_2011_Rank.png"), width=3200, height=1600, res=200)
