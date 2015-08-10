@@ -77,7 +77,7 @@ alf.fs <- as.matrix(read.table(file.path(mainDir,"FireSize.txt"),skip=1))[,2:(n.
 CABvsTimePlot(yrs, baseline.year=baseline.year, d.obs.fs=d.fs.veg, period=period) 
 AByearPlot(alf.fs, d.obs.fs=d.fs.veg, yrs, domain="total.ab.ha", domain.name="total", baseline=baseline.year, period=period)
 fireSizePlot(yrs, d.obs.fs=d.fs.veg, period=period)
-CABvsFSPlot(yrs, d.obs.fs=d.fs.veg, period=period)
+CABvsFSPlot(yrs, d.obs.fs=d.fs.veg, period=period, max.years=length(1950:2013))
 
 save.image(file.path(outDir, "postProcess.RData"))
 

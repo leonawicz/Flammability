@@ -1,5 +1,6 @@
 # @knitr CABvsFSPlot
-CABvsFSPlot <- function(years, d.obs.fs, period){
+CABvsFSPlot <- function(years, d.obs.fs, period, max.years=length(1950:2013)){
+    if(length(years) > max.years) years <- years[1:max.years]
 	png(file.path(outDir,"CABvsFireSize.png"),res=120,width=1000,height=800)
 	par(mar=c(5,5,3,2)+0.1)
 	sort.tmp <- vector("list", length(fire.reps))
