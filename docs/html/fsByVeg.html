@@ -154,8 +154,8 @@ img {
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
-              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
-              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="flam_dist.html">flam_dist.R</a></li>
+              <li><a href="flam_trunc.html">flam_trunc.R</a></li>
               <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
@@ -301,7 +301,7 @@ fs.emp &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span clas
 fs.emp &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(fs.emp)
 <span class="co"># Process modeled data</span>
 fs.alf.list &lt;-<span class="st"> </span><span class="kw">mclapply</span>(<span class="dv">1</span>:n.sims, fsByRep, <span class="dt">mainDir =</span> mainDir, <span class="dt">vid =</span> vid, <span class="dt">v.veg =</span> v.veg, 
-    <span class="dt">years =</span> <span class="dv">2014</span>:<span class="dv">2020</span>, <span class="dt">mc.cores =</span> n.cores)
+    <span class="dt">years =</span> yrs, <span class="dt">mc.cores =</span> n.cores)
 fs.alf &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(fs.alf.list)
 d.fs &lt;-<span class="st"> </span><span class="kw">rbind</span>(fs.emp, fs.alf)
 d.fs[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Vegetation, v.names[Vegetation])]

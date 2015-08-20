@@ -127,8 +127,8 @@ img {
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
-              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
-              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="flam_dist.html">flam_dist.R</a></li>
+              <li><a href="flam_trunc.html">flam_trunc.R</a></li>
               <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
@@ -211,17 +211,17 @@ img {
 </div>
 <div id="exploratory-plots-of-marginal-and-conditional-flammability-distributions." class="section level2">
 <h2>Exploratory plots of marginal and conditional flammability distributions.</h2>
-<p>Each plot is broken out by vegetation class within the CAVM tundra region as well as each of three component classes, shrub, graminoid, and wetland tundra. Currently this is only done for CAVM vegetation classes - shrub, graminoid, and wetland tundra - hence the script name. Non-CAVM, i.e., boreal forest, is ignored by this script.</p>
+<p>Each plot is broken out by vegetation class, alpine tundra, boreal forest, combined CAVM tundra, and each of three CAVM component classes, shrub, graminoid, and wetland tundra.</p>
 <div id="marginal-distribution" class="section level3">
 <h3>Marginal distribution</h3>
 <p>The first plot shows a density function proportional to joint probability distribution for flammability in time and space, marginalized with repsect to time. The time period is 1950 - 2013. The second plot is the same, but truncated to a maximum of 0.16 flammability.</p>
-<p><img src="cavm_flam_dist_files/figure-html/plot01a-1.png" /></p>
-<p><img src="cavm_flam_dist_files/figure-html/plot01b-1.png" /></p>
+<p><img src="flam_dist_files/figure-html/plot01a-1.png" /></p>
+<p><img src="flam_dist_files/figure-html/plot01b-1.png" /></p>
 </div>
 <div id="conditional-distribution" class="section level3">
 <h3>Conditional distribution</h3>
-<p>This plot shows multiple overlapping spatial flammability distributions conditioned on each year, also truncated at 0.16.</p>
-<p><img src="cavm_flam_dist_files/figure-html/plot02-1.png" /></p>
+<p>This plot shows multiple overlapping spatial flammability distributions conditioned on each year, also truncated to [0.12, 0.27].</p>
+<p><img src="flam_dist_files/figure-html/plot02-1.png" /></p>
 <p>The table below provides distribution quantiles by vegetation class.</p>
 <table>
 <caption>Critical values associated with flammability by vegetation class</caption>
@@ -277,6 +277,26 @@ img {
 <td align="right">0.1382</td>
 <td align="right">0.1399</td>
 <td align="right">0.1421</td>
+</tr>
+<tr class="odd">
+<td align="left">alptun</td>
+<td align="right">0.1370</td>
+<td align="right">0.1373</td>
+<td align="right">0.1378</td>
+<td align="right">0.1385</td>
+<td align="right">0.1396</td>
+<td align="right">0.1410</td>
+<td align="right">0.1422</td>
+</tr>
+<tr class="even">
+<td align="left">forest</td>
+<td align="right">0.1509</td>
+<td align="right">0.1566</td>
+<td align="right">0.1703</td>
+<td align="right">0.1913</td>
+<td align="right">0.2199</td>
+<td align="right">0.2694</td>
+<td align="right">0.3243</td>
 </tr>
 </tbody>
 </table>

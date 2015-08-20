@@ -154,8 +154,8 @@ img {
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
-              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
-              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="flam_dist.html">flam_dist.R</a></li>
+              <li><a href="flam_trunc.html">flam_trunc.R</a></li>
               <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
@@ -243,7 +243,9 @@ img {
 </div>
 <div id="r-code" class="section level2">
 <h2>R code</h2>
-<pre class="sourceCode r"><code class="sourceCode r">CABvsFSPlot &lt;-<span class="st"> </span>function(years, d.obs.fs, period) {
+<pre class="sourceCode r"><code class="sourceCode r">CABvsFSPlot &lt;-<span class="st"> </span>function(years, d.obs.fs, period, <span class="dt">max.years =</span> <span class="kw">length</span>(<span class="dv">1950</span>:<span class="dv">2013</span>)) {
+    if (<span class="kw">length</span>(years) &gt;<span class="st"> </span>max.years) 
+        years &lt;-<span class="st"> </span>years[<span class="dv">1</span>:max.years]
     <span class="kw">png</span>(<span class="kw">file.path</span>(outDir, <span class="st">&quot;CABvsFireSize.png&quot;</span>), <span class="dt">res =</span> <span class="dv">120</span>, <span class="dt">width =</span> <span class="dv">1000</span>, <span class="dt">height =</span> <span class="dv">800</span>)
     <span class="kw">par</span>(<span class="dt">mar =</span> <span class="kw">c</span>(<span class="dv">5</span>, <span class="dv">5</span>, <span class="dv">3</span>, <span class="dv">2</span>) +<span class="st"> </span><span class="fl">0.1</span>)
     sort.tmp &lt;-<span class="st"> </span><span class="kw">vector</span>(<span class="st">&quot;list&quot;</span>, <span class="kw">length</span>(fire.reps))

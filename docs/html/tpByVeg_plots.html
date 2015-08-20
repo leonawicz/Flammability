@@ -154,8 +154,8 @@ img {
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
-              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
-              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="flam_dist.html">flam_dist.R</a></li>
+              <li><a href="flam_trunc.html">flam_trunc.R</a></li>
               <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
@@ -260,30 +260,6 @@ dlist[[<span class="dv">2</span>]] &lt;-<span class="st"> </span>d
 d &lt;-<span class="st"> </span><span class="kw">rbindlist</span>(dlist)
 <span class="kw">rm</span>(dlist)
 d[, <span class="st">`</span><span class="dt">:=</span><span class="st">`</span>(Month, <span class="kw">factor</span>(Month, <span class="dt">levels =</span> month.abb))]</code></pre>
-<pre><code>##             Scenario     Model Year Month           Var Vegetation   Val
-##        1: historical     CRU32 1950   Jan Precipitation     tundra  46.0
-##        2: historical     CRU32 1950   Jan Precipitation     tundra 111.0
-##        3: historical     CRU32 1950   Jan Precipitation     tundra 123.0
-##        4: historical     CRU32 1950   Jan Precipitation     tundra  32.0
-##        5: historical     CRU32 1950   Jan Precipitation     tundra 111.0
-##       ---                                                               
-## 16967996:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland  -7.1
-## 16967997:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland -14.1
-## 16967998:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland  -1.8
-## 16967999:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland  -4.6
-## 16968000:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland -12.2
-##           Obs
-##        1:   1
-##        2:   2
-##        3:   3
-##        4:   4
-##        5:   5
-##       ---    
-## 16967996:  96
-## 16967997:  97
-## 16967998:  98
-## 16967999:  99
-## 16968000: 100</code></pre>
 </div>
 <div id="plot-group-1" class="section level3">
 <h3>Plot group 1</h3>
