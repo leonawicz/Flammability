@@ -89,7 +89,7 @@ fs.emp <- mclapply(1:nlayers(b.fid), fsByRepEmp, b = b.fid, vid = vid, v.veg = v
 fs.emp <- rbindlist(fs.emp)
 # Process modeled data
 fs.alf.list <- mclapply(1:n.sims, fsByRep, mainDir = mainDir, vid = vid, v.veg = v.veg, 
-    years = 2014:2020, mc.cores = n.cores)
+    years = yrs, mc.cores = n.cores)
 fs.alf <- rbindlist(fs.alf.list)
 d.fs <- rbind(fs.emp, fs.alf)
 d.fs[, `:=`(Vegetation, v.names[Vegetation])]

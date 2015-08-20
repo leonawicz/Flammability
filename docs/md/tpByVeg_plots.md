@@ -33,33 +33,6 @@ rm(dlist)
 d[, `:=`(Month, factor(Month, levels = month.abb))]
 ```
 
-```
-##             Scenario     Model Year Month           Var Vegetation   Val
-##        1: historical     CRU32 1950   Jan Precipitation     tundra  46.0
-##        2: historical     CRU32 1950   Jan Precipitation     tundra 111.0
-##        3: historical     CRU32 1950   Jan Precipitation     tundra 123.0
-##        4: historical     CRU32 1950   Jan Precipitation     tundra  32.0
-##        5: historical     CRU32 1950   Jan Precipitation     tundra 111.0
-##       ---                                                               
-## 16967996:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland  -7.1
-## 16967997:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland -14.1
-## 16967998:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland  -1.8
-## 16967999:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland  -4.6
-## 16968000:      rcp85 MRI-CGCM3 2099   Dec   Temperature    wetland -12.2
-##           Obs
-##        1:   1
-##        2:   2
-##        3:   3
-##        4:   4
-##        5:   5
-##       ---    
-## 16967996:  96
-## 16967997:  97
-## 16967998:  98
-## 16967999:  99
-## 16968000: 100
-```
-
 ### Plot group 1
 
 

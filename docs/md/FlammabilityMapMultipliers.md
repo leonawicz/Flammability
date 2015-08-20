@@ -80,18 +80,19 @@ if (lightning) {
     ind <- which(d.sub$Year %in% d.coef$Year)
     if (length(ind)) 
         light.yrs[ind] <- d.sub$Year[ind]
-    d.coef$Prob <- sapply(d.coef$Class, function(x) switch(x, `1` = 13/62, `2` = 36/62, 
-        `3` = 13/62))
+    d.coef$Prob <- sapply(d.coef$Class, function(x) switch(x, `1` = 14/64, `2` = 36/64, 
+        `3` = 14/64))
     a <- sample(d.coef$Year, length(yrs), prob = d.coef$Prob, replace = T)
-    if (period == "historical" & all(1950:2011 %in% yrs)) 
-        a[yrs >= 1950 & yrs <= 2011] <- light.yrs
+    if (period == "historical" & all(1950:2013 %in% yrs)) 
+        a[yrs >= 1950 & yrs <= 2013] <- light.yrs
     if (period != "historical") 
         a <- light.yrs
 } else {
-    a <- sample(c(0.05, 0.5, 0.95), length(yrs), prob = c(13/62, 36/62, 13/62), 
-        replace = T)
-    if (period == "historical" & all(1950:2011 %in% yrs)) 
-        a[yrs >= 1950 & yrs <= 2011] <- d.sub$Coef
+    # a <- sample(c(0.05, 0.5, 0.95), length(yrs), prob=c(13/62, 36/62, 13/62),
+    # replace=T)
+    a <- runif(length(yrs), 0.01, 1)
+    if (period == "historical" & all(1950:2013 %in% yrs)) 
+        a[yrs >= 1950 & yrs <= 2013] <- d.sub$Coef
     if (period != "historical") 
         a <- d.sub$Coef
 }

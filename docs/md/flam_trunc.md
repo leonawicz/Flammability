@@ -6,14 +6,11 @@
 ## Truncation of flammability distributions
 
 Flammability distributions in each map layer are trimmed at a lower and upper bound.
-Truncations are unique to each vegetation class's flammability distribution.
-Currently this is only done for CAVM vegetation classes - shrub, graminoid, and wetland tundra - hence the script name.
-Non-CAVM, i.e., boreal forest, is ignored by this script.
+Truncations are unique to each vegetation class' flammability distribution.
 Bounds are the critical values pertaining to the 10th and 90th percentiles of the global flammability distribution.
 The global distribution refers to the distribution of flammability values through time (1950 - 2013) and across space for an individual vegetation class.
 
-Lower and upper bounds for each vegetation class can be seen in the code below and are based on explorations of the distributions carried out in the `cavm_flam_dist.R` script.
-Distribution trimming only applies to CAVM tundra classes and not to alpine tundra or forest vegetation, which are outside of the CAVM region.
+Lower and upper bounds for each vegetation class can be seen in the code below and are based on explorations of the distributions carried out in the `flam_dist.R` script.
 The distribution of the aggregate CAVM tundra class, which combines shrub, graminoid, and wetland tundra, is also trimmed with respect to its global 10th and 90th percentiles.
 
 ### R code
@@ -38,6 +35,8 @@ q.cavm <- c(0.1372, 0.1487)
 q.shrub <- c(0.1364, 0.1397)
 q.gram <- c(0.1363, 0.1427)
 q.wet <- c(0.1364, 0.1399)
+q.alp <- c(0.1373, 0.141)
+q.for <- c(0.1566, 0.2694)
 
 verDir <- if (samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", 
@@ -58,6 +57,8 @@ ind.cavm <- which(r.veg[] >= 5)
 ind.shrub <- which(r.veg[] == 5)
 ind.gram <- which(r.veg[] == 6)
 ind.wet <- which(r.veg[] == 7)
+ind.alp <- which(r.veg[] == 1)
+ind.for <- which(r.veg[] == 2 | r.veg[] == 3 | r.veg[] == 4)
 ```
 
 
