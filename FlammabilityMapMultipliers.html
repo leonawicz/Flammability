@@ -154,8 +154,8 @@ img {
               <li><a href="gbm_flam_maps.html">gbm_flam_maps.R</a></li>
               <li><a href="gbm_flam_maps2.html">gbm_flam_maps2.R</a></li>
               <li><a href="gbm_flam_comparisons.html">gbm_flam_comparisons.R</a></li>
-              <li><a href="cavm_flam_dist.html">cavm_flam_dist.R</a></li>
-              <li><a href="cavm_flam_trunc.html">cavm_flam_trunc.R</a></li>
+              <li><a href="flam_dist.html">flam_dist.R</a></li>
+              <li><a href="flam_trunc.html">flam_trunc.R</a></li>
               <li><a href="FlammabilityMapMultipliers.html">FlammabilityMapMultipliers.R</a></li>
               <li class="divider"></li>
               <li class="dropdown-header">ALFRESCO prep</li>
@@ -296,18 +296,19 @@ if (lightning) {
     ind &lt;-<span class="st"> </span><span class="kw">which</span>(d.sub$Year %in%<span class="st"> </span>d.coef$Year)
     if (<span class="kw">length</span>(ind)) 
         light.yrs[ind] &lt;-<span class="st"> </span>d.sub$Year[ind]
-    d.coef$Prob &lt;-<span class="st"> </span><span class="kw">sapply</span>(d.coef$Class, function(x) switch(x, <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> </span><span class="dv">13</span>/<span class="dv">62</span>, <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> </span><span class="dv">36</span>/<span class="dv">62</span>, 
-        <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> </span><span class="dv">13</span>/<span class="dv">62</span>))
+    d.coef$Prob &lt;-<span class="st"> </span><span class="kw">sapply</span>(d.coef$Class, function(x) switch(x, <span class="st">`</span><span class="dt">1</span><span class="st">`</span> =<span class="st"> </span><span class="dv">14</span>/<span class="dv">64</span>, <span class="st">`</span><span class="dt">2</span><span class="st">`</span> =<span class="st"> </span><span class="dv">36</span>/<span class="dv">64</span>, 
+        <span class="st">`</span><span class="dt">3</span><span class="st">`</span> =<span class="st"> </span><span class="dv">14</span>/<span class="dv">64</span>))
     a &lt;-<span class="st"> </span><span class="kw">sample</span>(d.coef$Year, <span class="kw">length</span>(yrs), <span class="dt">prob =</span> d.coef$Prob, <span class="dt">replace =</span> T)
-    if (period ==<span class="st"> &quot;historical&quot;</span> &amp;<span class="st"> </span><span class="kw">all</span>(<span class="dv">1950</span>:<span class="dv">2011</span> %in%<span class="st"> </span>yrs)) 
-        a[yrs &gt;=<span class="st"> </span><span class="dv">1950</span> &amp;<span class="st"> </span>yrs &lt;=<span class="st"> </span><span class="dv">2011</span>] &lt;-<span class="st"> </span>light.yrs
+    if (period ==<span class="st"> &quot;historical&quot;</span> &amp;<span class="st"> </span><span class="kw">all</span>(<span class="dv">1950</span>:<span class="dv">2013</span> %in%<span class="st"> </span>yrs)) 
+        a[yrs &gt;=<span class="st"> </span><span class="dv">1950</span> &amp;<span class="st"> </span>yrs &lt;=<span class="st"> </span><span class="dv">2013</span>] &lt;-<span class="st"> </span>light.yrs
     if (period !=<span class="st"> &quot;historical&quot;</span>) 
         a &lt;-<span class="st"> </span>light.yrs
 } else {
-    a &lt;-<span class="st"> </span><span class="kw">sample</span>(<span class="kw">c</span>(<span class="fl">0.05</span>, <span class="fl">0.5</span>, <span class="fl">0.95</span>), <span class="kw">length</span>(yrs), <span class="dt">prob =</span> <span class="kw">c</span>(<span class="dv">13</span>/<span class="dv">62</span>, <span class="dv">36</span>/<span class="dv">62</span>, <span class="dv">13</span>/<span class="dv">62</span>), 
-        <span class="dt">replace =</span> T)
-    if (period ==<span class="st"> &quot;historical&quot;</span> &amp;<span class="st"> </span><span class="kw">all</span>(<span class="dv">1950</span>:<span class="dv">2011</span> %in%<span class="st"> </span>yrs)) 
-        a[yrs &gt;=<span class="st"> </span><span class="dv">1950</span> &amp;<span class="st"> </span>yrs &lt;=<span class="st"> </span><span class="dv">2011</span>] &lt;-<span class="st"> </span>d.sub$Coef
+    <span class="co"># a &lt;- sample(c(0.05, 0.5, 0.95), length(yrs), prob=c(13/62, 36/62, 13/62),</span>
+    <span class="co"># replace=T)</span>
+    a &lt;-<span class="st"> </span><span class="kw">runif</span>(<span class="kw">length</span>(yrs), <span class="fl">0.01</span>, <span class="dv">1</span>)
+    if (period ==<span class="st"> &quot;historical&quot;</span> &amp;<span class="st"> </span><span class="kw">all</span>(<span class="dv">1950</span>:<span class="dv">2013</span> %in%<span class="st"> </span>yrs)) 
+        a[yrs &gt;=<span class="st"> </span><span class="dv">1950</span> &amp;<span class="st"> </span>yrs &lt;=<span class="st"> </span><span class="dv">2013</span>] &lt;-<span class="st"> </span>d.sub$Coef
     if (period !=<span class="st"> &quot;historical&quot;</span>) 
         a &lt;-<span class="st"> </span>d.sub$Coef
 }</code></pre>
