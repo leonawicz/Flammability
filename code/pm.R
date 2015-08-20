@@ -40,7 +40,7 @@ proj.menu <- c("Overview", "Data Prep", "GBM Flammability", "ALFRESCO", "Statist
 proj.submenu <- list(
 	c("empty"),
 	c("Climate data prep", "clim_resample_2km_1km.R", "clim_1km_clip2ak.R", "tpByVeg_CRU32.R", "tpByVeg_CMIP5.R", "tpByVeg_plots.R"),
-	c("GBM Modeling", "baByVeg_historical.R", "gbm_modeling_flammability.R", "gbm_modeling_lightning.R", "gbm_lightning_coefficients.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "gbm_flam_maps2.R", "gbm_flam_comparisons.R", "cavm_flam_dist.R", "cavm_flam_trunc.R", "FlammabilityMapMultipliers.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "alf_gcmRuns_inputPrep.R"),
+	c("GBM Modeling", "baByVeg_historical.R", "gbm_modeling_flammability.R", "gbm_modeling_lightning.R", "gbm_lightning_coefficients.R", "divider", "Flammability maps", "gbm_flam_prep.R", "gbm_flam_maps.R", "gbm_flam_maps2.R", "gbm_flam_comparisons.R", "flam_dist.R", "flam_trunc.R", "FlammabilityMapMultipliers.R", "divider", "ALFRESCO prep", "duplicate_flam_maps.R", "alf_gcmRuns_inputPrep.R"),
 	c("Main scripts", "AlfrescoCalibration.R", "AlfrescoFRP.R", "fsByVeg.R", "divider", "Supporting scripts", "obs_fire_setup.R", "divider", "Functions", "histPrep.R", "fireSizePlot.R", "AByearPlot.R", "CABvsFSPlot.R", "CABvsTimePlot.R"),
 	c("Fire size distributions", "EDA: fire samples", "EDA: Noatak shrub fire", "EDA: statewide forest fire", "divider", "MLE: setup", "MLE: Noatak shrub fire", "MLE: statewide forest fire"),
 	c("ALFRESCO launcher", "global.R", "ui.R", "server.R", "sidebar.R", "reactives.R", "about.R", "divider",
@@ -51,7 +51,7 @@ proj.submenu <- list(
 proj.files <- list(
 	c("index.html"),
 	c("clim_prep.html", "clim_resample_2km_1km.html", "clim_1km_clip2ak.html", "tpByVeg_CRU32.html", "tpByVeg_CMIP5.html", "tpByVeg_plots.html"),
-	c("header", "baByVeg_historical.html", "gbm_modeling_flammability.html", "gbm_modeling_lightning.html", "gbm_lightning_coefficients.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "gbm_flam_maps2.html", "gbm_flam_comparisons.html", "cavm_flam_dist.html", "cavm_flam_trunc.html", "FlammabilityMapMultipliers.html", "divider", "header", "duplicate_flam_maps.html", "alf_gcmRuns_inputPrep.html"),
+	c("header", "baByVeg_historical.html", "gbm_modeling_flammability.html", "gbm_modeling_lightning.html", "gbm_lightning_coefficients.html", "divider", "header", "gbm_flam_prep.html", "gbm_flam_maps.html", "gbm_flam_maps2.html", "gbm_flam_comparisons.html", "flam_dist.html", "flam_trunc.html", "FlammabilityMapMultipliers.html", "divider", "header", "duplicate_flam_maps.html", "alf_gcmRuns_inputPrep.html"),
 	c("header", "AlfrescoCalibration.html", "AlfrescoFRP.html", "fsByVeg.html", "divider", "header", "obs_fire_setup.html", "divider", "header", "histPrep.html", "fireSizePlot.html", "AByearPlot.html", "CABvsFSPlot.html", "CABvsTimePlot.html"),
 	c("header", "fs_eda1.html", "fs_eda2.html", "fs_eda3.html", "divider", "fs_mle1.html", "fs_mle2.html", "fs_mle3.html"),
 	c("header", "appcode_alf_global.html", "appcode_alf_ui.html", "appcode_alf_server.html", "appcode_alf_sidebar.html", "appcode_alf_reactives.html", "appcode_alf_about.html", "divider",

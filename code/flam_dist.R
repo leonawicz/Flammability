@@ -1,10 +1,10 @@
-#################################################################################
-#### This R script explore flammability distributions in CAVM and subregions ####
-#################################################################################
+##############################################################################
+#### This R script explore flammability distributions by vegetation class ####
+##############################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/23/2015        ####
+#### Last updated:   08/20/2015        ####
 
 # @knitr setup1
 setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
@@ -22,6 +22,8 @@ flam.cavm <- extract(s3, which(r.veg[] >= 5))
 flam.shrub <- extract(s5, which(r.veg[] == 5))
 flam.gram <- extract(s5, which(r.veg[] == 6))
 flam.wet <- extract(s5, which(r.veg[] == 7))
+flam.alp <- extract(s5, which(r.veg[] == 1))
+flam.for <- extract(s5, which(r.veg[] == 2 | r.veg[] == 3 | r.veg[] == 4))
 
 yrs <- 1950:2013
 set.seed(123)
@@ -34,7 +36,9 @@ d.cavm <- make_dt(flam.cavm, yrs, veg="CAVM")
 d.shrub <- make_dt(flam.shrub, yrs, veg="shrub")
 d.gram <- make_dt(flam.gram, yrs, veg="graminoid")
 d.wet <- make_dt(flam.wet, yrs, veg="wetland")
-d <- rbindlist(list(d.cavm, d.shrub, d.gram, d.wet))
+d.alp <- make_dt(flam.alp, yrs, veg="alptun")
+d.for <- make_dt(flam.for, yrs, veg="forest")
+d <- rbindlist(list(d.cavm, d.shrub, d.gram, d.wet, d.alp, d.for))
 
 d %>% group_by(Vegetation) %>%
     summarise(Pct05=quantile(Flammability, 0.05, na.rm=T),
@@ -45,18 +49,17 @@ d %>% group_by(Vegetation) %>%
               Pct90=quantile(Flammability, 0.90, na.rm=T),
               Pct95=quantile(Flammability, 0.95, na.rm=T)
     ) -> d.stats
-save(d, d.stats, yrs, file="../../../../../workspaces/gbmFlammability/cavm_flam_dist.RData")
+save(d, d.stats, yrs, file="../../../../../workspaces/gbmFlammability/flam_dist.RData")
 
 # @knitr setup2
 setwd("C:/github/Flammability/workspaces/gbmFlammability")
-dir.create(plotDir <- "../../plots/gbmFlammability/cavm_distributions", showWarnings=FALSE)
-plotDir <- "../plots"
+dir.create(plotDir <- "../../plots/gbmFlammability/distributions", showWarnings=FALSE)
 
 library(ggplot2)
 library(data.table)
 library(dplyr)
 
-load("cavm_flam_dist.RData")
+load("flam_dist.RData")
 
 # @knitr plot_setup
 # ggplot setup
@@ -67,12 +70,12 @@ g <- ggplot(data=d, aes(x=Flammability)) + theme(legend.position="bottom")
 (p01a <- g + geom_line(aes(colour=Vegetation), stat="density", size=1))
 
 # @knitr plot01b
-# flammability marginal distributions (all years) by vegetation, truncated at 0.12
-(p01b <- g + geom_line(data=subset(d, Flammability <= 0.16), aes(colour=Vegetation), stat="density", size=1))
+# flammability marginal distributions (all years) by vegetation, truncated to [0.12, 0.27]
+(p01b <- g + geom_line(data=subset(d, Flammability >= 0.12 & Flammability <= 0.27), aes(colour=Vegetation), stat="density", size=1))
 
 # @knitr plot02
-# flammability distributions by vegetation and year, truncated at 0.12
-(p02 <- g + geom_line(data=subset(d, Flammability <= 0.16), aes(group=Year), stat="density", alpha=0.5) + facet_wrap(~ Vegetation))
+# flammability distributions by vegetation and year, truncated at to [0.12, 0.27]
+(p02 <- g + geom_line(data=subset(d, Flammability >= 0.12 & Flammability <= 0.27), aes(group=Year), stat="density", alpha=0.5) + facet_wrap(~ Vegetation))
 
 # @knitr table01
 d.stats %>% knitr::kable(digits=4, caption="Critical values associated with flammability by vegetation class")

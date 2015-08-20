@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/29/2015        ####
+#### Last updated:   08/20/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -23,6 +23,8 @@ q.cavm <- c(0.1372, 0.1487)
 q.shrub <- c(0.1364, 0.1397)
 q.gram <- c(0.1363, 0.1427)
 q.wet <- c(0.1364, 0.1399)
+q.alp <- c(0.1373, 0.1410)
+q.for <- c(0.1566, 0.2694)
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
@@ -42,6 +44,8 @@ ind.cavm <- which(r.veg[] >= 5)
 ind.shrub <- which(r.veg[] == 5)
 ind.gram <- which(r.veg[] == 6)
 ind.wet <- which(r.veg[] == 7)
+ind.alp <- which(r.veg[] == 1)
+ind.for <- which(r.veg[] == 2 | r.veg[] == 3 | r.veg[] == 4)
 
 # @knitr func
 f <- function(i, outDir, files, gbm, ...){
