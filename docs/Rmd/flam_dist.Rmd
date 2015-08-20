@@ -10,7 +10,7 @@ output:
 ```{r knitr_setup, echo=FALSE}
 opts_chunk$set(cache=FALSE, eval=TRUE, echo=FALSE, tidy=TRUE, message=FALSE, warning=FALSE, dpi=300, fig.height=10.5, fig.width=10.5)
 library(printr)
-read_chunk("../../code/cavm_flam_dist.R")
+read_chunk("../../code/flam_dist.R")
 ```
 
 ```{r setup2}
@@ -23,9 +23,7 @@ read_chunk("../../code/cavm_flam_dist.R")
 ##
 ## Exploratory plots of marginal and conditional flammability distributions.
 
-Each plot is broken out by vegetation class within the CAVM tundra region as well as each of three component classes, shrub, graminoid, and wetland tundra.
-Currently this is only done for CAVM vegetation classes - shrub, graminoid, and wetland tundra - hence the script name.
-Non-CAVM, i.e., boreal forest, is ignored by this script.
+Each plot is broken out by vegetation class, alpine tundra, boreal forest, combined CAVM tundra, and each of three CAVM component classes, shrub, graminoid, and wetland tundra.
 
 ### Marginal distribution
 
@@ -40,7 +38,7 @@ marginalized with repsect to time. The time period is 1950 - 2013. The second pl
 
 ### Conditional distribution
 
-This plot shows multiple overlapping spatial flammability distributions conditioned on each year, also truncated at 0.16.
+This plot shows multiple overlapping spatial flammability distributions conditioned on each year, also truncated to [0.12, 0.27].
 
 ```{r plot02}
 ```

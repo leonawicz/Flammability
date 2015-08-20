@@ -24,7 +24,7 @@ Sampling is stratified by vegetation class. Samples and sample means by vegetati
 
 ### Setup
 
-```{r setup}
+```{r setup, results="hide"}
 ```
 
 ### Plot group 1
