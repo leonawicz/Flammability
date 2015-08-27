@@ -1,5 +1,4 @@
 #!/bin/sh
-## @knitr clip.slurm
 #SBATCH --exclusive
 #SBATCH --mail-type=END
 #SBATCH --mail-user=mfleonawicz@alaska.edu
@@ -10,5 +9,7 @@
 #SBATCH --account=snap
 #SBATCH -p main
 
-#### $1 optional argument, cru=TRUE, defaults to FALSE if unspecified;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/clim_1km_clip2ak.R $1
+#### $1 is required period=\'historical\' or \'projected\'. Cannot be projected if cru=TRUE;
+#### $2 is optional cru=TRUE, defaults to FALSE; if TRUE, must still specify period=\'historical\';
+
+Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/clim_1km_clip2ak.R $1 $2
