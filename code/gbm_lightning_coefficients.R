@@ -65,8 +65,7 @@ dev.off()
 lightning.preds %>% group_by(Scenario, Model) %>% filter(Model!="CRU32") %>%
     mutate(Rank=rank(LightPred), Class=get_classes1(LightPred), Coef=get_coefficients(LightPred), ECDF=ecdf(LightPred)(LightPred)) %>%
     mutate(Class=get_classes2(Class)) %>% setcolorder(names(d)) -> d2
-#d %>% rbind(d2) %>% mutate(Model=factor(Model, levels=unique(Model))) -> d.all
-d.all <- rbind(d, d2)
+d %>% rbind(d2) %>% mutate(Model=factor(Model, levels=unique(Model))) -> d.all
 rcp.lab <- "RCP 6.0"
 rcp <- tolower(gsub("[ .]", "", rcp.lab))
 d2 %>% filter(Scenario %in% c("historical", rcp)) %>% mutate(Scenario=rcp) %>% rbind(d) %>% mutate(Model=factor(Model, levels=c("CRU32", unique(Model)[1:5]))) -> d.sub
