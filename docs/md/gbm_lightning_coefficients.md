@@ -117,9 +117,7 @@ d2 <- lightning.preds %>% group_by(Scenario, Model) %>% filter(Model != "CRU32")
     mutate(Rank = rank(LightPred), Class = get_classes1(LightPred), Coef = get_coefficients(LightPred), 
         ECDF = ecdf(LightPred)(LightPred)) %>% mutate(Class = get_classes2(Class)) %>% 
     setcolorder(names(d))
-# d %>% rbind(d2) %>% mutate(Model=factor(Model, levels=unique(Model))) ->
-# d.all
-d.all <- rbind(d, d2)
+d.all <- d %>% rbind(d2) %>% mutate(Model = factor(Model, levels = unique(Model)))
 rcp.lab <- "RCP 6.0"
 rcp <- tolower(gsub("[ .]", "", rcp.lab))
 d.sub <- d2 %>% filter(Scenario %in% c("historical", rcp)) %>% mutate(Scenario = rcp) %>% 
@@ -190,7 +188,6 @@ title.prefix <- paste("1950-2013 CRU 3.2 and 1950-2005/2006-2099 GCM", rcp.lab,
 ##### Notes:
 
 *    Changes to the lightning detection network prior to 2003 and after 2011 limit the series of comparable samples.
-
 *    A GBM model estimates lightning strike frequency over the domain as a function of climate.
 *    Use of climate provides the opportunity to model annual lightning strike frequency backcasts and future projections over the domain using CRU 3.2 and CMIP5 GCM climate outputs.
 *    Given the lightning sample size, much information is aggregated into each total statewide summer lightning frequency.

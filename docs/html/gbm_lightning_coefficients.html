@@ -335,9 +335,7 @@ d &lt;-<span class="st"> </span><span class="kw">data.table</span>(<span class="
 <span class="st">    </span><span class="kw">mutate</span>(<span class="dt">Rank =</span> <span class="kw">rank</span>(LightPred), <span class="dt">Class =</span> <span class="kw">get_classes1</span>(LightPred), <span class="dt">Coef =</span> <span class="kw">get_coefficients</span>(LightPred), 
         <span class="dt">ECDF =</span> <span class="kw">ecdf</span>(LightPred)(LightPred)) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Class =</span> <span class="kw">get_classes2</span>(Class)) %&gt;%<span class="st"> </span>
 <span class="st">    </span><span class="kw">setcolorder</span>(<span class="kw">names</span>(d))
-<span class="co"># d %&gt;% rbind(d2) %&gt;% mutate(Model=factor(Model, levels=unique(Model))) -&gt;</span>
-<span class="co"># d.all</span>
-d.all &lt;-<span class="st"> </span><span class="kw">rbind</span>(d, d2)
+d.all &lt;-<span class="st"> </span>d %&gt;%<span class="st"> </span><span class="kw">rbind</span>(d2) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Model =</span> <span class="kw">factor</span>(Model, <span class="dt">levels =</span> <span class="kw">unique</span>(Model)))
 rcp.lab &lt;-<span class="st"> &quot;RCP 6.0&quot;</span>
 rcp &lt;-<span class="st"> </span><span class="kw">tolower</span>(<span class="kw">gsub</span>(<span class="st">&quot;[ .]&quot;</span>, <span class="st">&quot;&quot;</span>, rcp.lab))
 d.sub &lt;-<span class="st"> </span>d2 %&gt;%<span class="st"> </span><span class="kw">filter</span>(Scenario %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;historical&quot;</span>, rcp)) %&gt;%<span class="st"> </span><span class="kw">mutate</span>(<span class="dt">Scenario =</span> rcp) %&gt;%<span class="st"> </span>
@@ -402,11 +400,11 @@ d.sub &lt;-<span class="st"> </span>d2 %&gt;%<span class="st"> </span><span clas
 <div id="notes" class="section level5">
 <h5>Notes:</h5>
 <ul>
-<li><p>Changes to the lightning detection network prior to 2003 and after 2011 limit the series of comparable samples.</p></li>
+<li>Changes to the lightning detection network prior to 2003 and after 2011 limit the series of comparable samples.</li>
 <li>A GBM model estimates lightning strike frequency over the domain as a function of climate.</li>
 <li>Use of climate provides the opportunity to model annual lightning strike frequency backcasts and future projections over the domain using CRU 3.2 and CMIP5 GCM climate outputs.</li>
 <li>Given the lightning sample size, much information is aggregated into each total statewide summer lightning frequency.</li>
-<li><p>The model will likely be improved upon with additional data, climate scenarios, assessment of GBM model uncertainty (currently only GCM uncertainty is included), as well as deeper explorations of the nonlinear climate-lightning linkage itself.</p></li>
+<li>The model will likely be improved upon with additional data, climate scenarios, assessment of GBM model uncertainty (currently only GCM uncertainty is included), as well as deeper explorations of the nonlinear climate-lightning linkage itself.</li>
 </ul>
 <pre class="sourceCode r"><code class="sourceCode r">cbpal &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;#000000&quot;</span>, <span class="st">&quot;#E69F00&quot;</span>, <span class="st">&quot;#56B4E9&quot;</span>, <span class="st">&quot;#009E73&quot;</span>, <span class="st">&quot;#F0E442&quot;</span>, <span class="st">&quot;#0072B2&quot;</span>, 
     <span class="st">&quot;#D55E00&quot;</span>, <span class="st">&quot;#CC79A7&quot;</span>)
