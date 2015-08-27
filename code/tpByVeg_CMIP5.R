@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/18/2015        ####
+#### Last updated:   08/24/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -42,14 +42,13 @@ if(vc=="none"){
 
 veg.vals <- if(vc=="cavm") 5 else if(vc=="all") c(1,2,5,6,7) else if(vc=="none") 1
 veg.names <- if(vc=="cavm") "cavm" else if(vc=="all") c("tundra","forest","shrub","graminoid","wetland") else if(vc=="none") "region"
-scenario <- c("rcp45", "rcp60", "rcp85")
-modnames <- rep(list.files(file.path(dataDir, scenario[1])), length(scenario))
+scenario <- c("historical", "rcp45", "rcp60", "rcp85")
+modnames <- rep(list.files(file.path(dataDir, scenario[2])), length(scenario))
 scenario <- rep(scenario, each=length(modnames)/length(scenario))
 path <- list(file.path(dataDir, scenario, modnames, "pr"), file.path(dataDir, scenario, modnames, "tas"))
 dir.create(wsDir <- "tpByVeg", showWarnings=F)
 
-yrs <- 2010:2099
-n.cores <- min(length(yrs), 32)
+n.cores <- 32
 
 # @knitr func
 f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=NULL){
@@ -99,6 +98,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=
 set.seed(55)
 d.list <- vector("list", length(path[[1]]))
 for(z in 1:length(path[[1]])){
+    yrs <- if(scenario[z]=="historical") 1950:2005 else 2006:2099
     if(!samples) f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=n.cores)
     if(samples)  f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, seed=55, mc.cores=n.cores)
     d <- rbindlist(f.out)
