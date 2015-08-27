@@ -4,17 +4,19 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   06/16/2015        ####
+#### Last updated:   08/24/2015        ####
 
 # @knitr setup
-library(parallel)
-library(raster)
-
 comargs <- (commandArgs(TRUE))
 if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
 
+if(!exists("period") || !(period %in% c("historical", "projected"))) stop("Must specify period as historical or projected.")
 if(!exists("cru")) cru <- FALSE
+if(cru & period=="projected") stop("Period cannot be projected if cru is TRUE.")
 if(!is.logical(cru)) stop("Argument 'cru' must be logical.")
+
+library(parallel)
+library(raster)
 
 msk <- raster("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 e <- extent(msk)
@@ -24,11 +26,17 @@ if(cru){
 	varid <- c("pr", "tas")
 	rcp <- "historical"
 	model <- "CRU_TS32"
-} else {
+} else if(period=="projected"){
 	varid <- rep(c("pr","tas"), 15)
 	rcp <- rep(rep(paste0("rcp",c(45,60,85)), each=2), 5)
 	model <- rep(list.files(file.path(mainDir,"rcp60")), each=6)
+} else if(period=="historical"){
+    varid <- rep(c("pr","tas"), 5)
+    rcp <- "historical"
+    model <- list.files(file.path(mainDir, "historical"))
+    model <- rep(model[model != "CRU_TS32"], each=2)
 }
+
 subDir <- file.path(mainDir, rcp, model, varid)
 outDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", rcp, model, varid)
 for(i in 1:length(outDir)) dir.create(outDir[i], recursive=T, showWarnings=F)
@@ -55,11 +63,7 @@ f <- function(i, files=NULL, subDir, outDir, msk){
 }
 
 # @knitr run
-if(cru){
-	for(k in 1:length(subDir)){
-		files <- list.files(subDir[k], full=T, pattern=".tif$")
-		mclapply(1:length(files), f, files=files, subDir=NULL, outDir=outDir[k], msk=msk, mc.cores=32)
-	}
-} else {
-	mclapply(1:length(subDir), f, subDir=subDir, outDir=outDir, msk=msk, cru=cru, mc.cores=length(subDir))
+for(k in 1:length(subDir)){
+    files <- list.files(subDir[k], full=T, pattern=".tif$")
+    mclapply(1:length(files), f, files=files, subDir=NULL, outDir=outDir[k], msk=msk, mc.cores=32)
 }
