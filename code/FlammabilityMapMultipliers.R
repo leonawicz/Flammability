@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   08/07/2015        ####
+#### Last updated:   09/08/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -40,7 +40,7 @@ files <- list.files(pattern="\\.tif$")
 yrs <- as.numeric(gsub("gbm.flamm_", "", gsub("\\.tif", "", files)))
 files <- files[order(yrs)]
 yrs <- yrs[order(yrs)]
-d.sub <- filter(d.all, Period==period & Model==model & Year %in% yrs)
+d.sub <- filter(d.all, Scenario==period & Model==model & Year %in% yrs)
 
 # Sample random coeffcients for unobserved years
 set.seed(51)
