@@ -235,10 +235,10 @@ obs.years.range <- range(d.emp$Year)
 mod.years.range <- range(alf.yrs)
 
 # Assemble final data frames
-rab.dat <- rbind(d,d.emp)
+d %>% rbind(d.emp) %>% setorder(Replicate, Buffer_km, Location) -> rab.dat
 rm(d,d.emp)
 dummy <- capture.output( gc() )
-frp.dat <- rbind(d2,d2.emp)
+d2 %>% rbind(d2.emp) %>% setorder(Replicate, Buffer_km, Location) -> frp.dat
 rm(d2,d2.emp)
 dummy <- capture.output( gc() )
 
@@ -247,18 +247,8 @@ rab.dat[Replicate!="Observed", Source:="Modeled"]
 frp.dat[, Source:="Observed"]
 frp.dat[Replicate!="Observed", Source:="Modeled"]
 
-# Make Fire Return Interval data frame
-friFun <- function(d){ # this function could be improved using data tables and dplyr
-	d <- data.frame(filter(d, Value!=0))
-	d$fac <- with(d, paste(Replicate, Buffer_km, Location))
-	fri.list <- with(d, tapply(Year, paste(Replicate, Buffer_km, Location), function(x) c(NA, diff(x))))
-	d <- d[order(d$fac),]
-	d$FRI <- as.numeric(unlist(fri.list))
-	d <- subset(d, !is.na(d$FRI), -which(names(d) %in% c("Year", "fac")))
-	data.table(d)
-}
-
-fri.dat <- friFun(rab.dat)
+# Make Fire Return Interval data table
+rab.dat %>% filter(Value!=0) %>% group_by(Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year))) %>% filter(!is.na(FRI)) %>% select(-Year) -> fri.dat
 
 # Load/save objects in a workspace file to be transported to app
 dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tolower(alf.domain),1,6)=="statew") "Statewide"
