@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/08/2015        ####
+#### Last updated:   09/24/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -21,7 +21,7 @@ if(!exists("cp2scratch")) cp2scratch <- TRUE
 if(!exists("cp_originals")) cp_originals <- FALSE
 
 verDir <- if(samples) "samples_based" else "means_based"
-setwd(file.path("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
+setwd(file.path("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
 suffix <- if(lightning) "_Lmap" else "_L"
 dir.create(outDir <- paste0("../", mapset, suffix), showWarnings=FALSE)
 if(cp2scratch){
@@ -46,7 +46,7 @@ d.sub <- filter(d.all, Scenario==period & Model==model & Year %in% yrs)
 set.seed(51)
 if(lightning){
 	classes <- sapply(d.sub$Class, function(x) switch(as.character(x), 'Low'=1,'Medium'=2,'High'=3))
-	load("/workspace/UA/mfleonawicz/leonawicz/projects/Lightning/data/summerLightningMaps_2003_2011/summerLightningMaps.RData")
+	load("/workspace/UA/mfleonawicz/projects/Lightning/data/summerLightningMaps_2003_2011/summerLightningMaps.RData")
 	light.yrs <- sapply(classes, function(x, d) sample(d$Year[d$Class==x], 1), d=d.coef)
 	ind <- which(d.sub$Year %in% d.coef$Year)
 	if(length(ind)) light.yrs[ind] <- d.sub$Year[ind]

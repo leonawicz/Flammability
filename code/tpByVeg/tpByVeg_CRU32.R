@@ -1,10 +1,10 @@
-#################################################################################################
-#### This R script calculates CMIP5 temperature and precipitation means by vegetation class. ####
-#################################################################################################
+##############################################################################################################
+#### This R script calculates CRU 3.2 temperature and precipitation means or samples by vegetation class. ####
+##############################################################################################################
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   08/24/2015        ####
+#### Last updated:   09/24/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -21,7 +21,7 @@ library(data.table)
 library(reshape2)
 library(parallel)
 
-setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
+setwd("/workspace/UA/mfleonawicz/projects/Flammability/workspaces")
 dataDir <- "/big_scratch/mfleonawicz/Climate_1km_AKstatewide"
 
 r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")
@@ -42,13 +42,13 @@ if(vc=="none"){
 
 veg.vals <- if(vc=="cavm") 5 else if(vc=="all") c(1,2,5,6,7) else if(vc=="none") 1
 veg.names <- if(vc=="cavm") "cavm" else if(vc=="all") c("tundra","forest","shrub","graminoid","wetland") else if(vc=="none") "region"
-scenario <- c("historical", "rcp45", "rcp60", "rcp85")
-modnames <- rep(list.files(file.path(dataDir, scenario[2])), length(scenario))
-scenario <- rep(scenario, each=length(modnames)/length(scenario))
-path <- list(file.path(dataDir, scenario, modnames, "pr"), file.path(dataDir, scenario, modnames, "tas"))
+modnames <- "CRU_TS32"
+scenario <- "historical"
+path <- file.path(dataDir, scenario, modnames, c("pr", "tas"))
 dir.create(wsDir <- "tpByVeg", showWarnings=F)
 
-n.cores <- 32
+yrs <- 1950:2013
+n.cores <- min(length(yrs), 32)
 
 # @knitr func
 f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=NULL){
@@ -75,6 +75,7 @@ f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=
             pre <- precip.tmp[ind2,]
             tas <- temp.tmp[ind2,]
             samp <- sample(1:nrow(pre), n)
+            if(j==1) print(paste("sample number one is", samp[1]))
             mp <- cbind(mp, as.numeric(pre[samp,]))
             mt <- cbind(mt, as.numeric(tas[samp,]))
         }
@@ -96,27 +97,20 @@ f <- function(k, path, veg.vec, veg.vals, veg.names, samples=FALSE, n=100, seed=
 
 # @knitr run
 set.seed(55)
-d.list <- vector("list", length(path[[1]]))
-for(z in 1:length(path[[1]])){
-    yrs <- if(scenario[z]=="historical") 1950:2005 else 2006:2099
-    if(!samples) f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=n.cores)
-    if(samples)  f.out <- mclapply(yrs, f, path=c(path[[1]][z], path[[2]][z]), veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, seed=55, mc.cores=n.cores)
-    d <- rbindlist(f.out)
-    d[, Scenario := scenario[z]]
-    d[, Model := modnames[z]]
-    setcolorder(d, c("Scenario", "Model", names(d)[1:(ncol(d)-2)]))
-    d.list[[z]] <- d
-}
-d <- rbindlist(d.list)
-rm(f.out, d.list)
+if(!samples) f.out <- mclapply(yrs, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, mc.cores=n.cores)
+if(samples)  f.out <- mclapply(yrs, f, path=path, veg.vec=veg.vec, veg.vals=veg.vals, veg.names=veg.names, samples=TRUE, n=n, seed=55, mc.cores=n.cores)
+d <- rbindlist(f.out)
+d[, Scenario := "historical"]
+d[, Model := "CRU32"]
+setcolorder(d, c("Scenario", "Model", names(d)[1:(ncol(d)-2)]))
 if(vc=="cavm") d.cavm <- d else if(vc=="none") d.region <- d
 
 # @knitr save
 lab <- if(samples) paste0("samples", n) else "means"
 if(vc=="cavm"){
-    save(d.cavm, file=paste0(wsDir, "/tpByVeg_", lab, "_CMIP5_cavm.RData"))
+    save(d.cavm, file=paste0(wsDir, "/tpByVeg_", lab, "_CRU32_cavm.RData"))
 } else if(vc=="all") {
-    save(d, file=paste0(wsDir, "/tpByVeg_", lab, "_CMIP5_individual.RData"))
+    save(d, file=paste0(wsDir, "/tpByVeg_", lab, "_CRU32_individual.RData"))
 } else if(vc=="none") {
-    save(d.region, file=paste0(wsDir, "/tpByVeg_", lab, "_CMIP5_regional.RData"))
+    save(d.region, file=paste0(wsDir, "/tpByVeg_", lab, "_CRU32_regional.RData"))
 }

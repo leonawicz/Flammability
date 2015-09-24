@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   08/04/2015        ####
+#### Last updated:   09/24/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -25,7 +25,7 @@ rasterOptions(chunksize=10e10,maxmemory=10e11)
 ncores <- 32
 
 verDir <- if(samples) "samples_based" else "means_based"
-setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
+setwd("/workspace/UA/mfleonawicz/projects/Flammability/workspaces")
 suffix <- if(samples) paste0(n, "n") else "Mean"
 out <- if(allcavm) paste0("3m", suffix) else paste0("5m", suffix)
 dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model, out), recursive=T, showWarnings=F)

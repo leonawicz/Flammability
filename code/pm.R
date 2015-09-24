@@ -9,8 +9,8 @@ newProject(proj.name, proj.location, docs.dirs=docDir, overwrite=T) # create a n
 appcode.frp.files <- list.files("C:/github/shiny-apps/alfoutdev", pattern="\\.R$", full=TRUE, recursive=TRUE)
 appcode.alf.files <- list.files("C:/github/shiny-apps/run_alfresco", pattern="\\.R$", full=TRUE, recursive=TRUE)
 rfile.path <- file.path(proj.location, proj.name, "code") # path to R scripts
-file.copy(appcode.frp.files, paste0(rfile.path, "/appcode_frp_", basename(appcode.frp.files)), overwrite=TRUE)
-file.copy(appcode.alf.files, paste0(rfile.path, "/appcode_alf_", basename(appcode.alf.files)), overwrite=TRUE)
+file.copy(appcode.frp.files, paste0(rfile.path, "/appcode/appcode_frp_", basename(appcode.frp.files)), overwrite=TRUE)
+file.copy(appcode.alf.files, paste0(rfile.path, "/appcode/appcode_alf_", basename(appcode.alf.files)), overwrite=TRUE)
 docs.path <- file.path(proj.location, proj.name, "docs")
 rmd.path <- file.path(docs.path, "Rmd")
 

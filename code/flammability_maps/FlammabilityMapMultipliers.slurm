@@ -16,4 +16,4 @@
 #### $5 lightning, passed as lightning=TRUE, defaults to TRUE, optional;
 #### $5 cp2scratch, passed as TRUE or FALSE, optional, defaults to TRUE;
 #### $6 cp_originals, passed as TRUE or FALSE, optional, defaults to FALSE;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/FlammabilityMapMultipliers.R $1 $2 $3 $4 $5 $6 $7
+Rscript /workspace/UA/mfleonawicz/projects/Flammability/code/flammability_maps/FlammabilityMapMultipliers.R $1 $2 $3 $4 $5 $6 $7

@@ -16,4 +16,4 @@
 #### $5 out, passed as out=\'3m_loop', etc., required, mapset and out may be the same;
 #### $6 yearloop, passed as yearloop=1950:2013, etc., required;
 #### $7 n, passed as n=40, etc., optional, defaults to 40, see code for details on use;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/duplicate_flam_maps.R $1 $2 $3 $4 $5 $6 $7
+Rscript /workspace/UA/mfleonawicz/projects/Flammability/code/flammability_maps/duplicate_flam_maps.R $1 $2 $3 $4 $5 $6 $7

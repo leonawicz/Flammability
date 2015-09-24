@@ -9,7 +9,7 @@ output:
 
 ```{r knitr_setup, echo=FALSE}
 opts_chunk$set(cache=FALSE, eval=FALSE, tidy=TRUE, message=FALSE, warning=FALSE)
-read_chunk("../../code/clim_resample_2km_1km.R")
+read_chunk("../../code/climate_prep/clim_resample_2km_1km.R")
 ```
 
 ##

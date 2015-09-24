@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   08/24/2015        ####
+#### Last updated:   09/24/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -18,7 +18,7 @@ if(!is.logical(cru)) stop("Argument 'cru' must be logical.")
 library(parallel)
 library(raster)
 
-msk <- raster("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
+msk <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 e <- extent(msk)
 
 mainDir <- "/big_scratch/mfleonawicz/Climate_1km"

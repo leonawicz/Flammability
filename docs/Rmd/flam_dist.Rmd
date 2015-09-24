@@ -10,7 +10,7 @@ output:
 ```{r knitr_setup, echo=FALSE}
 opts_chunk$set(cache=FALSE, eval=TRUE, echo=FALSE, tidy=TRUE, message=FALSE, warning=FALSE, dpi=300, fig.height=10.5, fig.width=10.5)
 library(printr)
-read_chunk("../../code/flam_dist.R")
+read_chunk("../../code/flammability_maps/flam_dist.R")
 ```
 
 ```{r setup2}

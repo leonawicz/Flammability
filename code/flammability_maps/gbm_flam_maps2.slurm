@@ -5,7 +5,7 @@
 #SBATCH --ntasks=32
 #SBATCH --nodes=1
 ####SBATCH --nodelist=atlas01
-#SBATCH --job-name=gbmFlamMaps
+#SBATCH --job-name=gbmFlamMaps2
 #SBATCH --account=snap
 #SBATCH -p main
 
@@ -14,4 +14,4 @@
 #### $3 optional unified single-GBM CAVM region as allcavm=TRUE, defaults to FALSE;
 #### $4 samples=TRUE, optional, defaults to FALSE;
 #### $5 sample size, e.g. n=100, should be known for input data, required if samples=TRUE;
-Rscript /workspace/UA/mfleonawicz/leonawicz/projects/Flammability/code/gbm_flam_maps.R $1 $2 $3 $4 $5
+Rscript /workspace/UA/mfleonawicz/projects/Flammability/code/flammability_maps/gbm_flam_maps2.R $1 $2 $3 $4 $5

@@ -9,7 +9,7 @@ output:
 
 ```{r knitr_setup, echo=FALSE}
 opts_chunk$set(cache=FALSE, eval=TRUE, tidy=TRUE, message=FALSE, warning=FALSE, dpi=300, fig.height=6, fig.width=12)
-read_chunk("../../code/tpByVeg_plots.R")
+read_chunk("../../code/tpByVeg/tpByVeg_plots.R")
 ```
 
 ##

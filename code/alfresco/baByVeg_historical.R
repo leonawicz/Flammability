@@ -2,7 +2,7 @@
 library(raster)
 library(data.table)
 library(dplyr)
-setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/data")
+setwd("/workspace/UA/mfleonawicz/projects/Flammability/data")
 outDir <- "../workspaces/gbmFlammability"
 shp <- shapefile("../data/shapefiles/noa_basin2/Noa_basin2")
 

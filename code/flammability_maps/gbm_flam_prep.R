@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   07/27/2015        ####
+#### Last updated:   09/24/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -19,7 +19,7 @@ library(rgdal)
 library(raster)
 rasterOptions(chunksize=10e9,maxmemory=10e10)
 
-setwd("/workspace/UA/mfleonawicz/leonawicz/projects/Flammability/workspaces")
+setwd("/workspace/UA/mfleonawicz/projects/Flammability/workspaces")
 dir.create(outDir <- file.path("gbmFlammability"), showWarnings=F)
 
 # @knitr eco_veg
