@@ -36,6 +36,7 @@ if(!exists("n.sims")) n.sims <- 32
 n.cores <- min(n.sims, 32)
 
 pts <- read.csv(file.path(input,pts))
+if(substr(alf.domain,1,6)=="Noatak") pts$ID <- factor(pts$ID, levels=paste0(rep(c("", "Shrub_", "Gram_"), each=4), c("Raven", "Uchugrak", "Poktovik", "LittleIsac")))
 pts <- pts[order(pts$ID),]
 locs <- as.character(pts$ID)
 pts <- cbind(pts$Lon,pts$Lat)
@@ -248,7 +249,24 @@ frp.dat[, Source:="Observed"]
 frp.dat[Replicate!="Observed", Source:="Modeled"]
 
 # Make Fire Return Interval data table
-rab.dat %>% filter(Value!=0) %>% group_by(Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year))) %>% filter(!is.na(FRI)) %>% select(-Year) -> fri.dat
+filter(rab.dat, Value!=0) %>% group_by(Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year))) %>% filter(!is.na(FRI)) %>% select(-Year) %>% data.table -> fri.dat
+
+# Noatak-specific
+if(substr(alf.domain,1,6)=="Noatak"){
+    lev <- c("Raven", "Uchugrak", "Poktovik", "LittleIsac")
+    rab.dat[, LocGroup:="Origin"]
+    rab.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
+    rab.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
+    rab.dat <- mutate(rab.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid")), Location=factor(gsub("Shrub_", "", gsub("Gram_" , "", Location)), levels=lev))
+    frp.dat[, LocGroup:="Origin"]
+    frp.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
+    frp.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
+    frp.dat <- mutate(frp.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid")), Location=factor(gsub("Shrub_", "", gsub("Gram_" , "", Location)), levels=lev))
+    fri.dat[, LocGroup:="Origin"]
+    fri.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
+    fri.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
+    fri.dat <- mutate(fri.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid")), Location=factor(gsub("Shrub_", "", gsub("Gram_" , "", Location)), levels=lev))
+}
 
 # Load/save objects in a workspace file to be transported to app
 dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tolower(alf.domain),1,6)=="statew") "Statewide"
