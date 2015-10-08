@@ -3,7 +3,7 @@
 library(rasterVis)
 setwd("C:/github/Flammability/data")
 outDir <- "../plots/alfInputs"
-shp <- shapefile("shapefiles/noa_basin2/Noa_basin2")
+shp <- shapefile("shapefiles/noa_basin2/Noa_basin2.shp")
 r.veg <- raster("alf2005.cavm.merged.030212.tif")
 r.veg[r.veg==0] <- NA
 r.veg <- mask(crop(r.veg, shp), shp)
@@ -54,7 +54,7 @@ library(rasterVis)
 rasterOptions(chunksize=10e10,maxmemory=10e11)
 setwd("/big_scratch/mfleonawicz/Climate_1km_AKstatewide/historical/CRU_TS32/")
 dir.create(outDir <- "/workspace/UA/mfleonawicz/projects/Flammability/plots/alfInputs", recur=T, showWarnings=F)
-shp <- shapefile("/workspace/UA/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2")
+shp <- shapefile("/workspace/UA/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2.shp")
 r.veg <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 r.veg[r.veg==0] <- NA
 r.veg <- mask(crop(r.veg, shp), shp)
@@ -68,7 +68,7 @@ files <- list.files("pr", full=T)
 files <- files[yrs>=1950 & yrs<=2013 & mos %in% 6:8]
 r.p <- 3*calc(mask(crop(stack(files), shp), shp), mean)
 
-pts <- read.csv("/workspace/UA/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations2.csv")
+pts <- read.csv("/workspace/UA/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
 #pts <- pts[order(pts$ID),]
 locs <- as.character(pts$ID)
 pts <- cbind(pts$Lon,pts$Lat)
@@ -92,10 +92,11 @@ revRasterTheme <- function (pch = 19, cex = 0.7, region=rev(brewer.pal(9, "RdBu"
     theme
 }
 
-r.pts.gram <- r.pts <- r.t
-r.pts[] <- r.pts.gram[] <- NA
+r.pts.gram <- r.pts.shrub <- r.pts <- r.t
+r.pts[] <- r.pts.shrub[] <- r.pts.gram[] <- NA
 r.pts[cellFromXY(r.pts, pts[1:4,])] <- 1
-r.pts.gram[cellFromXY(r.pts.gram, pts[5:8,])] <- 1
+r.pts.shrub[cellFromXY(r.pts.shrub, pts[5:8,])] <- 1
+r.pts.gram[cellFromXY(r.pts.gram, pts[9:12,])] <- 1
 
 png(file.path(outDir, "noatak_tas_meanJJA_1950-2013mean.png"), height=1600, width=3200, res=200)
 p <- levelplot(r.t, main="ALFRESCO implicit JJA mean temperature input 1950-2013", par.settings=revRasterTheme, margin=F) +
@@ -124,24 +125,24 @@ d <- rbindlist(lapply(1:length(e),
     x=e, locs=locs))
 d <- mutate(d, Location="Origin", Var=factor(Var, levels=c("Temperature", "Precipitation")))
 d[substr(Lake,1,4)=="Gram", Location:="Graminoid"]
-d[substr(Lake,1,4)=="Shrub", Location:="Shrub"]
+d[substr(Lake,1,5)=="Shrub", Location:="Shrub"]
 d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid")), Lake=factor(gsub("Shrub_", "", gsub("Gram_" , "", Lake)), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac")))
 
 cbpal <- c("#000000", "#D55E00", "#0072B2")
 
-png(file.path(outDir, "noatak_10kmClimSpace_Gram.png"), height=1600, width=3200, res=200)
+png(file.path(outDir, "noatak_10kmClimSpace.png"), height=1600, width=3200, res=200)
 ggplot(d, aes(x=Lake, y=Val, colour=Location)) + geom_boxplot(position=position_dodge(width=0.9)) + facet_wrap(~ Var, scales="free") +
     scale_colour_manual("Location", values=cbpal) +
     labs(title="1950-2013 climate space by lake using 10th and 90th quantiles of a 10-km buffer") + theme(legend.position="bottom")
 dev.off()
 
-png(file.path(outDir, "noatak_10kmClimSpace_Gram2.png"), height=3200, width=3200, res=300)
+png(file.path(outDir, "noatak_10kmClimSpace2.png"), height=2400, width=3200, res=300)
 ggplot(d, aes(x=Lake, y=Val)) + geom_boxplot(position=position_dodge(width=0.9)) + facet_wrap(Var ~ Location, scales="free") +
     scale_colour_manual("Location", values=cbpal) +
     labs(title="1950-2013 climate space by lake using 10th and 90th quantiles of a 10-km buffer") + theme(legend.position="bottom")
 dev.off()
 
-s.newlakes <- do.call(stack, c(lapply(1:(length(eq)/2), f, e=eq, rtp=stack(r.t, r.p), rv=r.veg, v=5), lapply(1:(length(eq)/2), f, e=eq, rtp=stack(r.t, r.p), rv=r.veg, v=6)))
+s.newlakes <- do.call(stack, c(lapply(1:(length(eq)/3), f, e=eq, rtp=stack(r.t, r.p), rv=r.veg, v=5), lapply(1:(length(eq)/3), f, e=eq, rtp=stack(r.t, r.p), rv=r.veg, v=6)))
 names(s.newlakes) <- paste0(locs[1:4], rep(c("_shrub", "_graminoid"), each=4))
 at.vals <- c(0.9, 1, 1.1)
 colkey <- list(at=at.vals, labels=list(labels=c("", "Available\nlocations", ""), at=at.vals), x=3, y=1, height=0.2, tck=0)
@@ -152,10 +153,11 @@ revRasterTheme <- function (pch = 19, cex = 0.7, region=c("gray40"), ...){
     theme
 }
 
-png(file.path(outDir, "noatak_newLakeLocs_1090pct_10km_Gram.png"), height=1600, width=3200, res=200)
+png(file.path(outDir, "noatak_newLakeLocs_1090pct_10km.png"), height=1600, width=3200, res=200)
 p <- levelplot(s.newlakes, main="Potential lake sites by vegetation type and origin lake climate space", par.settings=revRasterTheme, margin=F, ay=at.vals, colorkey=colkey) +
     layer(sp.points(rasterToPoints(r.pts, sp=T), col='black')) +
     layer(sp.points(rasterToPoints(r.pts.gram, sp=T), col=cbpal[2])) +
+    layer(sp.points(rasterToPoints(r.pts.shrub, sp=T), col=cbpal[3])) +
     layer(sp.polygons(shp, col='black'))
 print(p)
 dev.off()
@@ -166,7 +168,7 @@ library(rasterVis)
 rasterOptions(chunksize=10e10,maxmemory=10e11)
 setwd("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 dir.create(outDir <- "/workspace/UA/mfleonawicz/projects/Flammability/plots/alfInputs", recur=T, showWarnings=F)
-shp <- shapefile("/workspace/UA/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2")
+shp <- shapefile("/workspace/UA/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2.shp")
 r.veg <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 r.veg[r.veg==0] <- NA
 r.veg <- mask(crop(r.veg, shp), shp)

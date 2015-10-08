@@ -39,7 +39,7 @@ files <- files[order(yrs)]
 yrs <- yrs[order(yrs)]
 
 r.veg <- readAll(raster("../../../../../alf2005.cavm.merged.030212.tif"))
-noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2")
+noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2.shp")
 ind.cavm <- which(r.veg[] >= 5)
 ind.shrub <- which(r.veg[] == 5)
 ind.gram <- which(r.veg[] == 6)

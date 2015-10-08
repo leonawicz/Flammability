@@ -16,7 +16,7 @@ library(rasterVis)
 dirs3 <- dirs[c(1,4)]
 dirs5 <- dirs[c(5,8)]
 
-noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2")
+noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2.shp")
 
 yrs <- c(1954, 1957, 1968, 1969, 1977, 2004, 2005, 2007)
 
@@ -95,7 +95,7 @@ f <- function(x) list.files(x, pattern=paste0("\\.tif$"), full=TRUE)
 files3 <- unlist(lapply(dirs3, f))
 files5 <- unlist(lapply(dirs5, f))
 
-noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2")
+noa.shp <- shapefile("/big_scratch/mfleonawicz/Alf_Files_20121129/noa_basin2/Noa_basin2.shp")
 
 threshold <- 0.01
 #default.pvalue <- 0.25

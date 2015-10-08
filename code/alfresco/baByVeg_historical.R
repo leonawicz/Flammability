@@ -4,7 +4,7 @@ library(data.table)
 library(dplyr)
 setwd("/workspace/UA/mfleonawicz/projects/Flammability/data")
 outDir <- "../workspaces/gbmFlammability"
-shp <- shapefile("../data/shapefiles/noa_basin2/Noa_basin2")
+shp <- shapefile("../data/shapefiles/noa_basin2/Noa_basin2.shp")
 
 noatak=TRUE
 noatak=FALSE
