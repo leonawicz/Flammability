@@ -4,8 +4,8 @@ library(parallel)
 
 domain <- "Noatak"
 #domain <- "Statewide"
-run.name <- "m3TL_33150s_00178i_historical_CRU32"
-#run.name <- "m5TL_30750s_00185i_historical_CRU32"
+run.name <- "m3TL_31200s_0023775i_historical_CRU32"
+#run.name <- "m5TL_32500s_002275i_historical_CRU32"
 #run.name <- "m3TL_45000s_00175i_historical_CRU32"
 gbm <- paste0(substr(run.name, 2, 2), substr(run.name, 1, 1))
 inDir <- paste0("/big_scratch/shiny/Runs_", domain, "/paul.duffy_at_neptuneinc.org/", run.name, "/Maps")
@@ -23,4 +23,4 @@ par_copy <- function(i, r.template, outDir){
     return(NULL)
 }
 
-mclapply(1:length(files), par_copy, r.template=r.template, outDir=outDir, mc.cores=32)
+system.time( mclapply(1:length(files), par_copy, r.template=r.template, outDir=outDir, mc.cores=32) )
