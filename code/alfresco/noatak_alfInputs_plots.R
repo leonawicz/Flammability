@@ -62,11 +62,11 @@ r.veg <- mask(crop(r.veg, shp), shp)
 files <- list.files("tas", full=T)
 mos <- as.numeric(substr(files, nchar(files)-10, nchar(files)-9))
 yrs <- as.numeric(substr(files, nchar(files)-7, nchar(files)-4))
-files <- files[yrs>=1950 & yrs<=2013 & mos %in% 6:8]
+files <- files[yrs>=1950 & yrs<=2013 & mos %in% 8]
 r.t <- calc(mask(crop(stack(files), shp), shp), mean)
 files <- list.files("pr", full=T)
-files <- files[yrs>=1950 & yrs<=2013 & mos %in% 6:8]
-r.p <- 3*calc(mask(crop(stack(files), shp), shp), mean)
+files <- files[yrs>=1950 & yrs<=2013 & mos %in% 7]
+r.p <- calc(mask(crop(stack(files), shp), shp), mean)
 
 pts <- read.csv("/workspace/UA/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
 #pts <- pts[order(pts$ID),]
@@ -92,33 +92,27 @@ revRasterTheme <- function (pch = 19, cex = 0.7, region=rev(brewer.pal(9, "RdBu"
     theme
 }
 
-r.pts.gram <- r.pts.shrub <- r.pts <- r.t
-r.pts[] <- r.pts.shrub[] <- r.pts.gram[] <- NA
+r.pts.fire <- r.pts.gram <- r.pts.shrub <- r.pts <- r.t
+r.pts[] <- r.pts.shrub[] <- r.pts.gram[] <- r.pts.fire[] <- NA
 r.pts[cellFromXY(r.pts, pts[1:4,])] <- 1
 r.pts.shrub[cellFromXY(r.pts.shrub, pts[5:8,])] <- 1
 r.pts.gram[cellFromXY(r.pts.gram, pts[9:12,])] <- 1
+r.pts.fire[cellFromXY(r.pts.fire, pts[13:14,])] <- 1
 
-png(file.path(outDir, "noatak_tas_meanJJA_1950-2013mean.png"), height=1600, width=3200, res=200)
+png(file.path(outDir, "noatak_tas_Aug_1950-2013mean.png"), height=1600, width=3200, res=200)
 p <- levelplot(r.t, main="ALFRESCO implicit JJA mean temperature input 1950-2013", par.settings=revRasterTheme, margin=F) +
     layer(sp.points(rasterToPoints(r.pts, sp=T), col='black'))
 print(p)
 dev.off()
 
-png(file.path(outDir, "noatak_pr_totalJJA_1950-2013mean.png"), height=1600, width=3200, res=200)
+png(file.path(outDir, "noatak_pr_Jul_1950-2013mean.png"), height=1600, width=3200, res=200)
 p <- levelplot(r.p, main="ALFRESCO implicit JJA total precipitation input 1950-2013", par.settings=GrTheme, margin=F) +
     layer(sp.points(rasterToPoints(r.pts, sp=T), col='greenyellow'))
 print(p)
 dev.off()
 
-e <- extract(stack(r.t, r.p), pts, buffer=5000)
+e <- extract(stack(r.t, r.p), pts, buffer=10000)
 eq <- lapply(e, function(x) apply(x, 2, function(y) quantile(y, c(0.1, 0.9))))
-
-f <- function(i, e, rtp, rv, v){
-    x <- rv
-    x[] <- NA
-    x[rv==v & subset(rtp,1) >= e[[i]][1,1] & subset(rtp,1) <= e[[i]][2,1] & subset(rtp,2) >= e[[i]][2,1] & subset(rtp,2) <= e[[i]][2,2]] <- 1
-    x
-}
 
 d <- rbindlist(lapply(1:length(e),
     function(i,x, locs) data.frame(Lake=locs[i], Var=rep(c("Temperature", "Precipitation"), each=nrow(x[[i]])), Val=as.numeric(x[[i]])),
@@ -126,9 +120,10 @@ d <- rbindlist(lapply(1:length(e),
 d <- mutate(d, Location="Origin", Var=factor(Var, levels=c("Temperature", "Precipitation")))
 d[substr(Lake,1,4)=="Gram", Location:="Graminoid"]
 d[substr(Lake,1,5)=="Shrub", Location:="Shrub"]
-d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid")), Lake=factor(gsub("Shrub_", "", gsub("Gram_" , "", Lake)), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac")))
+d[substr(Lake,1,4)=="Fire", Location:="Fire"]
+d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid", "Fire")), Lake=factor(gsub("Fire_", "", gsub("Shrub_", "", gsub("Gram_" , "", Lake))), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac", "LakeWest", "LakeEast")))
 
-cbpal <- c("#000000", "#D55E00", "#0072B2")
+cbpal <- c("#000000", "#D55E00", "#0072B2", "#FF0000")
 
 png(file.path(outDir, "noatak_10kmClimSpace.png"), height=1600, width=3200, res=200)
 ggplot(d, aes(x=Lake, y=Val, colour=Location)) + geom_boxplot(position=position_dodge(width=0.9)) + facet_wrap(~ Var, scales="free") +
@@ -156,14 +151,16 @@ revRasterTheme <- function (pch = 19, cex = 0.7, region=c("gray40"), ...){
 png(file.path(outDir, "noatak_newLakeLocs_1090pct_10km.png"), height=1600, width=3200, res=200)
 p <- levelplot(s.newlakes, main="Potential lake sites by vegetation type and origin lake climate space", par.settings=revRasterTheme, margin=F, ay=at.vals, colorkey=colkey) +
     layer(sp.points(rasterToPoints(r.pts, sp=T), col='black')) +
-    layer(sp.points(rasterToPoints(r.pts.gram, sp=T), col=cbpal[2])) +
-    layer(sp.points(rasterToPoints(r.pts.shrub, sp=T), col=cbpal[3])) +
+    layer(sp.points(rasterToPoints(r.pts.shrub, sp=T), col=cbpal[2])) +
+    layer(sp.points(rasterToPoints(r.pts.gram, sp=T), col=cbpal[3])) +
     layer(sp.polygons(shp, col='black'))
 print(p)
 dev.off()
 
-
 # Alfresco 1950-2013 CRU 3.2-based flammability map summaries
+library(data.table)
+library(dplyr)
+library(ggplot2)
 library(rasterVis)
 rasterOptions(chunksize=10e10,maxmemory=10e11)
 setwd("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
@@ -187,7 +184,7 @@ names(r3) <- paste("GBM3", c("Mean", "SD", "Min", "Max"), sep="_")
 names(r5) <- paste("GBM5", c("Mean", "SD", "Min", "Max"), sep="_")
 
 pts <- read.csv("/workspace/UA/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
-pts <- pts[order(pts$ID),]
+#pts <- pts[order(pts$ID),]
 locs <- as.character(pts$ID)
 pts <- cbind(pts$Lon,pts$Lat)
 
@@ -210,13 +207,20 @@ revRasterTheme <- function (pch = 19, cex = 0.7, region=brewer.pal(9, "YlOrRd")[
     theme
 }
 
-r.pts <- r3
-r.pts[] <- NA
-r.pts[cellFromXY(r.pts, pts)] <- 1
+r.pts <- subset(r3,1)
+r.pts.fire <- r.pts.gram <- r.pts.shrub <- r.pts <- r.t
+r.pts[] <- r.pts.shrub[] <- r.pts.gram[] <- r.pts.fire[] <- NA
+r.pts[cellFromXY(r.pts, pts[1:4,])] <- 1
+r.pts.shrub[cellFromXY(r.pts.shrub, pts[5:8,])] <- 1
+r.pts.gram[cellFromXY(r.pts.gram, pts[9:12,])] <- 1
+r.pts.fire[cellFromXY(r.pts.fire, pts[13:14,])] <- 1
 
 png(file.path(outDir, "noatak_flammability_mean_1950-2013_sgw.png"), height=3200, width=3200, res=300)
 p <- levelplot(stack(subset(r3,1),subset(r5,1)), main="ALFRESCO 1950-2013 annual shrub/graminoid/wetland flammability input summary", par.settings=revRasterTheme, margin=F) +
-    layer(sp.points(rasterToPoints(r.pts, sp=T), col='black'))
+    layer(sp.points(rasterToPoints(r.pts, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.shrub, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.gram, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.fire, sp=T), col='black'))
 print(p)
 dev.off()
 
@@ -236,4 +240,32 @@ png(file.path(outDir, "noatak_flammability_max_1950-2013_sgw.png"), height=3200,
 p <- levelplot(stack(subset(r3,4),subset(r5,4)), main="ALFRESCO 1950-2013 annual shrub/graminoid/wetland flammability input summary", par.settings=revRasterTheme, margin=F) +
     layer(sp.points(rasterToPoints(r.pts, sp=T), col='black'))
 print(p)
+dev.off()
+
+e <- extract(stack(subset(r3,1), subset(r5,1)), pts, buffer=10000)
+e <- lapply(e, function(x) { x[is.na(x)] <- 0; x } )
+eq <- lapply(e, function(x) apply(x, 2, function(y) quantile(y, c(0.1, 0.9), na.rm=TRUE)))
+
+d <- rbindlist(lapply(1:length(e),
+    function(i,x, locs) data.frame(Lake=locs[i], Var=rep(c("3-GBM", "5-GBM"), each=nrow(x[[i]])), Val=as.numeric(x[[i]])),
+    x=e, locs=locs))
+d <- mutate(d, Location="Origin", Var=factor(Var, levels=c("3-GBM", "5-GBM")))
+d[substr(Lake,1,4)=="Gram", Location:="Graminoid"]
+d[substr(Lake,1,5)=="Shrub", Location:="Shrub"]
+d[substr(Lake,1,4)=="Fire", Location:="Fire"]
+d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid", "Fire")), Lake=factor(gsub("Fire_", "", gsub("Shrub_", "", gsub("Gram_" , "", Lake))), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac", "LakeWest", "LakeEast")))
+#d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid")), Lake=factor(gsub("Shrub_", "", gsub("Gram_" , "", Lake)), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac")))
+
+cbpal <- c("#000000", "#D55E00", "#0072B2", "#FF0000")
+
+png(file.path(outDir, "noatak_10kmFlamSpace.png"), height=1600, width=3200, res=200)
+ggplot(d, aes(x=Lake, y=Val, colour=Location)) + geom_boxplot(position=position_dodge(width=0.9)) + facet_wrap(~ Var, scales="free") +
+    scale_colour_manual("Location", values=cbpal) +
+    labs(title="1950-2013 flammability space by lake using 10th and 90th quantiles of a 10-km buffer") + theme(legend.position="bottom")
+dev.off()
+
+png(file.path(outDir, "noatak_10kmFlamSpace2.png"), height=2400, width=3200, res=300)
+ggplot(d, aes(x=Lake, y=Val)) + geom_boxplot(position=position_dodge(width=0.9)) + facet_wrap(Var ~ Location, scales="free") +
+    scale_colour_manual("Location", values=cbpal) +
+    labs(title="1950-2013 flammability space by lake using 10th and 90th quantiles of a 10-km buffer") + theme(legend.position="bottom")
 dev.off()
