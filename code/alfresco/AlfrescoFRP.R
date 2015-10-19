@@ -253,19 +253,22 @@ filter(rab.dat, Value!=0) %>% group_by(Replicate, Buffer_km, Location) %>% mutat
 
 # Noatak-specific
 if(substr(alf.domain,1,6)=="Noatak"){
-    lev <- c("Raven", "Uchugrak", "Poktovik", "LittleIsac")
+    lev <- c("Raven", "Uchugrak", "Poktovik", "LittleIsac", "LakeWest", "LakeEast")
     rab.dat[, LocGroup:="Origin"]
     rab.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
     rab.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
-    rab.dat <- mutate(rab.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid")), Location=factor(gsub("Shrub_", "", gsub("Gram_" , "", Location)), levels=lev))
+    rab.dat[substr(Location,1,5)=="Fire_", LocGroup:="Fire"]
+    rab.dat <- mutate(rab.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid", "Fire")), Location=factor(gsub("Fire_", "", gsub("Shrub_", "", gsub("Gram_" , "", Location))), levels=lev))
     frp.dat[, LocGroup:="Origin"]
     frp.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
     frp.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
-    frp.dat <- mutate(frp.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid")), Location=factor(gsub("Shrub_", "", gsub("Gram_" , "", Location)), levels=lev))
+    frp.dat[substr(Location,1,5)=="Fire_", LocGroup:="Fire"]
+    frp.dat <- mutate(frp.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid", "Fire")), Location=factor(gsub("Fire_", "", gsub("Shrub_", "", gsub("Gram_" , "", Location))), levels=lev))
     fri.dat[, LocGroup:="Origin"]
     fri.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
     fri.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
-    fri.dat <- mutate(fri.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid")), Location=factor(gsub("Shrub_", "", gsub("Gram_" , "", Location)), levels=lev))
+    fri.dat[substr(Location,1,5)=="Fire_", LocGroup:="Fire"]
+    fri.dat <- mutate(fri.dat, LocGroup=factor(LocGroup, levels=c("Origin", "Shrub", "Graminoid", "Fire")), Location=factor(gsub("Fire_", "", gsub("Shrub_", "", gsub("Gram_" , "", Location))), levels=lev))
 }
 
 # Load/save objects in a workspace file to be transported to app
