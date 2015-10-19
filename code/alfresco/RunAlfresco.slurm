@@ -10,8 +10,11 @@
 ####export PATH=/usr/lib64/openmpi/bin:$PATH
 ####export LD_LIBRARY_PATH=/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
 
-export PATH=/home/UA/apbennett/test/bin:/usr/lib64/openmpi/bin:$PATH
-export LD_LIBRARY_PATH=/home/UA/apbennett/test/lib:/home/UA/apbennett/lib:/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
+#export PATH=/home/UA/apbennett/test/bin:/usr/lib64/openmpi/bin:$PATH
+#export LD_LIBRARY_PATH=/home/UA/apbennett/test/lib:/home/UA/apbennett/lib:/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
+
+export PATH=/home/UA/apbennett/alf-altfire/bin:/usr/lib64/openmpi/bin:$PATH
+export LD_LIBRARY_PATH=/home/UA/apbennett/alf-altfire/lib:/home/UA/apbennett/lib:/usr/lib64/openmpi/lib:$LD_LIBRARY_PATH
 
 echo $1
 echo $2
@@ -35,7 +38,7 @@ echo ${18}
 if [ $7 -eq 1 ]
 then
 ####mpirun -np 32 /home/UA/apbennett/bin/fresco-mpi --fif $6
-mpirun -np ${17} /home/UA/apbennett/test/bin/fresco-mpi --fif $6
+mpirun --oversubscribe -np ${17} /home/UA/apbennett/alf-altfire/bin/fresco-mpi --fif $6
 fi
 
 sbatch -D $2 CompileData.slurm $1 $3 $4 $5 $6 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18}
