@@ -36,8 +36,8 @@ if(!exists("n.sims")) n.sims <- 32
 n.cores <- min(n.sims, 32)
 
 pts <- read.csv(file.path(input,pts))
-if(substr(alf.domain,1,6)=="Noatak") pts$ID <- factor(pts$ID, levels=paste0(rep(c("", "Shrub_", "Gram_"), each=4), c("Raven", "Uchugrak", "Poktovik", "LittleIsac")))
-pts <- pts[order(pts$ID),]
+if(substr(alf.domain,1,6)=="Noatak") pts$ID <- factor(pts$ID, levels=c(paste0(rep(c("", "Shrub_", "Gram_"), each=4), c("Raven", "Uchugrak", "Poktovik", "LittleIsac")), "Fire_LakeWest", "Fire_LakeEast"))
+#pts <- pts[order(pts$ID),]
 locs <- as.character(pts$ID)
 pts <- cbind(pts$Lon,pts$Lat)
 if(!is.matrix(pts)) stop("No coordinates matrix provided for relative area burned time series extraction")
