@@ -63,10 +63,12 @@ files <- list.files("tas", full=T)
 mos <- as.numeric(substr(files, nchar(files)-10, nchar(files)-9))
 yrs <- as.numeric(substr(files, nchar(files)-7, nchar(files)-4))
 files <- files[yrs>=1950 & yrs<=2013 & mos %in% 8]
-r.t <- calc(mask(crop(stack(files), shp), shp), mean)
+r.t.all <- mask(crop(stack(files), shp), shp)
+r.t <- calc(r.t.all, mean)
 files <- list.files("pr", full=T)
 files <- files[yrs>=1950 & yrs<=2013 & mos %in% 7]
-r.p <- calc(mask(crop(stack(files), shp), shp), mean)
+r.p.all <- mask(crop(stack(files), shp), shp)
+r.p <- calc(r.p.all, mean)
 
 pts <- read.csv("/workspace/UA/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
 #pts <- pts[order(pts$ID),]
@@ -157,6 +159,7 @@ p <- levelplot(s.newlakes, main="Potential lake sites by vegetation type and ori
 print(p)
 dev.off()
 
+
 # Alfresco 1950-2013 CRU 3.2-based flammability map summaries
 library(data.table)
 library(dplyr)
@@ -174,12 +177,14 @@ yrs <- as.numeric(sub(".tif", "", gsub("gbm.flamm_", "", basename(files))))
 files3 <- files[yrs>=1950 & yrs<=2013]
 files <- list.files("5m100n_cavmDistTrunc_loop_L", full=T)
 files5 <- files[yrs>=1950 & yrs<=2013]
-r3 <- calc(mask(crop(stack(files3), shp), shp), function(x) c(mean(x), sd(x), min(x), max(x)))
-r5 <- calc(mask(crop(stack(files5), shp), shp), function(x) c(mean(x), sd(x), min(x), max(x)))
+r3.all <- mask(crop(stack(files3), shp), shp)
+r5.all <- mask(crop(stack(files5), shp), shp)
 r.veg2 <- r.veg
 r.veg2[r.veg2<5] <- NA
-r3 <- mask(r3, r.veg2)
-r5 <- mask(r5, r.veg2)
+r3.all <- mask(r3.all, r.veg2)
+r5.all <- mask(r5.all, r.veg2)
+r3 <- calc(r3.all, function(x) c(mean(x), sd(x), min(x), max(x)))
+r5 <- calc(r5.all, function(x) c(mean(x), sd(x), min(x), max(x)))
 names(r3) <- paste("GBM3", c("Mean", "SD", "Min", "Max"), sep="_")
 names(r5) <- paste("GBM5", c("Mean", "SD", "Min", "Max"), sep="_")
 
@@ -207,8 +212,7 @@ revRasterTheme <- function (pch = 19, cex = 0.7, region=brewer.pal(9, "YlOrRd")[
     theme
 }
 
-r.pts <- subset(r3,1)
-r.pts.fire <- r.pts.gram <- r.pts.shrub <- r.pts <- r.t
+r.pts.fire <- r.pts.gram <- r.pts.shrub <- r.pts <- subset(r3,1)
 r.pts[] <- r.pts.shrub[] <- r.pts.gram[] <- r.pts.fire[] <- NA
 r.pts[cellFromXY(r.pts, pts[1:4,])] <- 1
 r.pts.shrub[cellFromXY(r.pts.shrub, pts[5:8,])] <- 1
@@ -242,6 +246,16 @@ p <- levelplot(stack(subset(r3,4),subset(r5,4)), main="ALFRESCO 1950-2013 annual
 print(p)
 dev.off()
 
+e.all <- extract(stack(r3.all, r5.all), pts, buffer=10000)
+d.all <- rbindlist(lapply(1:length(e.all),
+    function(i,x, locs) data.frame(Lake=locs[i], Var=rep(c("3-GBM", "5-GBM"), each=ncol(x[[i]])/2), Year=as.numeric(substr(gsub("gbm.flamm_", "", colnames(x[[i]])), 1, 4)), Val=as.numeric(t(x[[i]])), Obs=rep(1:nrow(x[[i]]), each=ncol(x[[i]]))),
+    x=e.all, locs=locs))
+d.all <- mutate(d.all, Location="Origin", Var=factor(Var, levels=c("3-GBM", "5-GBM")))
+d.all[substr(Lake,1,4)=="Gram", Location:="Graminoid"]
+d.all[substr(Lake,1,5)=="Shrub", Location:="Shrub"]
+d.all[substr(Lake,1,4)=="Fire", Location:="Fire"]
+d.all <- mutate(d.all, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid", "Fire")), Lake=factor(gsub("Fire_", "", gsub("Shrub_", "", gsub("Gram_" , "", Lake))), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac", "LakeWest", "LakeEast")))
+
 e <- extract(stack(subset(r3,1), subset(r5,1)), pts, buffer=10000)
 e <- lapply(e, function(x) { x[is.na(x)] <- 0; x } )
 eq <- lapply(e, function(x) apply(x, 2, function(y) quantile(y, c(0.1, 0.9), na.rm=TRUE)))
@@ -257,6 +271,28 @@ d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid"
 #d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid")), Lake=factor(gsub("Shrub_", "", gsub("Gram_" , "", Lake)), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac")))
 
 cbpal <- c("#000000", "#D55E00", "#0072B2", "#FF0000")
+
+png(file.path(outDir, "noatak_10kmMeanFlam_ts_1950-2013.png"), height=1600, width=3200, res=200)
+ggplot(d.all %>% group_by(Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(x=Year, y=Val, colour=Location)) +
+    geom_line() + geom_point() + facet_wrap(Var ~ Location, scales="fixed") +
+    scale_colour_manual("Location", values=cbpal) +
+    labs(title="1950-2013 10-km buffered mean flammability by lake") + theme(legend.position="bottom")
+dev.off()
+
+png(file.path(outDir, "noatak_10kmMeanFlam_ts2_1950-2013.png"), height=1600, width=3200, res=200)
+ggplot(d.all, aes(x=Year, y=Val, group=Obs, colour=Location)) +
+    geom_line() + geom_point() + facet_wrap(Var ~ Location, scales="fixed") +
+    geom_line(data=group_by(d.all, Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(group=NULL), size=1, linetype=2) +
+    scale_colour_manual("Location", values=cbpal) +
+    labs(title="1950-2013 10-km buffered individual and mean flammability by lake") + theme(legend.position="bottom")
+dev.off()
+
+png(file.path(outDir, "noatak_10kmMeanFlam_ts_1950-2013.png"), height=1600, width=3200, res=200)
+ggplot(d.all %>% group_by(Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(x=Year, y=Val, colour=Location)) +
+    geom_line() + geom_point() + facet_wrap(Var ~ Location, scales="fixed") +
+    scale_colour_manual("Location", values=cbpal) +
+    labs(title="1950-2013 10-km buffered mean flammability by lake") + theme(legend.position="bottom")
+dev.off()
 
 png(file.path(outDir, "noatak_10kmFlamSpace.png"), height=1600, width=3200, res=200)
 ggplot(d, aes(x=Lake, y=Val, colour=Location)) + geom_boxplot(position=position_dodge(width=0.9)) + facet_wrap(~ Var, scales="free") +
