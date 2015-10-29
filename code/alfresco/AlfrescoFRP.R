@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   07/29/2015        ####
+#### Last updated:   10/28/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -67,99 +67,70 @@ wgs2ak <- function(xy){
 pts <- wgs2ak(pts)
 
 # @knitr func_modeled
-fireEventsFun <- function(d, pts, buffer.list=list(NULL), fun.list=list(NULL), burnable.cells.raster=NULL, mainDir){
+fireEventsFun <- function(k, pts, locs, replicates, source="Modeled", buffer.list=list(NULL), buffer.labels=LETTERS[1:length(buffer.list)], burnable.cells.raster=NULL, mainDir){
 	require(raster)
 	if(!is.null(burnable.cells.raster)) burnable.cells <- Which(burnable.cells.raster==1)
-	reps <- paste0("_",d-1,"_")
+	reps <- paste0("_",k-1,"_")
 	files <- list.files(mainDir,pattern=gsub("expression","",paste(bquote(expression("^FireSc.*.",.(reps),".*.tif$")),collapse="")),full=T)
 	yrs <- as.numeric(gsub("FireScar_\\d+_", "", gsub(".tif", "", basename(files))))
 	n <- length(yrs)
 	ord <- order(yrs)
 	files <- files[ord]
 	yrs <- yrs[ord]
-	e.hold <- cells.list <- list()
+    d <- vector("list", n)
 	for(i in 1:n){
-		if(i==1) {
-			r.hold <- raster(files[i])
-			r.hold[is.na(r.hold)] <- 0
-			r.hold <- mask(r.hold, burnable.cells)
-			r.hold[r.hold>0] <- 1
+        r <- raster(files[i])
+        r[is.na(r)] <- 0
+        if(i==1) r <- mask(r, burnable.cells, maskvalue=0)
+        r[r>0] <- 1
+        if(i==1){
+            r.hold <- r
+            cells <- vector("list", length(buffer.list))
 			for(p in 1:length(buffer.list)){
-				if(!is.null(buffer.list[[p]])){
-					cells.list[[p]] <- lapply(extract(r.hold, pts, buffer=buffer.list[[p]], cellnumbers=T), function(x) x[,1])
-					tmp <- c()
-					f <- fun.list[[p]]
-					for(q in 1:length(cells.list[[p]])) tmp <- c(tmp, f(extract(r.hold, cells.list[[p]][[q]])))
-					e.hold[[p]] <- tmp
-				} else if(is.null(buffer.list[[p]])){
-					cells.list[[p]] <- extract(r, pts, cellnumbers=T)[,1]
-					e.hold[[p]] <- extract(r.hold, cells.list[[p]])
-				}
+				tmp <- if(is.null(buffer.list[[p]])) as.list(extract(r, pts, cellnumbers=T)[,1]) else lapply(extract(r, pts, buffer=buffer.list[[p]], cellnumbers=T), function(x) x[,1])
+                tmp <- rbindlist(lapply(1:length(tmp), function(m, x, locs) data.table(Location=locs[m], Cell=x[[m]]), x=tmp, locs=locs))
+                cells[[p]] <- mutate(tmp, Buffer_km=buffer.labels[p])
 			}
-		} else {
-			r <- raster(files[i])
-			r[is.na(r)] <- 0
-			r <- mask(r, burnable.cells)
-			r[r>0] <- 1
-			r.hold <- r + r.hold
-			for(p in 1:length(buffer.list)){
-				if(!is.null(buffer.list[[p]])){
-					tmp <- c()
-					f <- fun.list[[p]]
-					for(q in 1:length(cells.list[[p]])) tmp <- c(tmp, f(extract(r, cells.list[[p]][[q]])))
-					e.hold[[p]] <- rbind(e.hold[[p]], tmp)
-				} else if(is.null(buffer.list[[p]])) {
-					e.hold[[p]] <- rbind(e.hold[[p]], extract(r, cells.list[[p]]))
-				}
-			}
-		}
+            cells <- rbindlist(cells)
+        } else r.hold <- r.hold + r
+        cells <- mutate(cells, Value=r[Cell])
+        d[[i]] <- group_by(cells, Buffer_km, Location) %>% summarise(Value=mean(Value, na.rm=TRUE)) %>% mutate(Year=yrs[i])
 	}
-	list(rasters=r.hold,points=e.hold,years=n, years.vec=yrs)
+    d <- rbindlist(d) %>% mutate(Source=factor(source, levels=c("Observed", "Modeled")), Replicate=factor(replicates[k], levels=unique(c("Observed", replicates)))) %>%
+        group_by(Source, Replicate, Buffer_km, Location, Year) %>% arrange(Source, Replicate, Buffer_km, Location, Year) %>%
+        setcolorder(c("Source", "Replicate", "Buffer_km", "Location", "Year", "Value"))
+	list(rasters=r.hold, points=d, years=n, years.vec=yrs)
 }
 
+
 # @knitr func_empirical
-fireEventsFunEmpirical <- function(b, pts, buffer.list=list(NULL), fun.list=list(NULL), burnable.cells.raster=NULL){
+fireEventsFunEmpirical <- function(b, pts, locs, replicates="Observed", source="Observed", buffer.list=list(NULL), buffer.labels=LETTERS[1:length(buffer.list)], burnable.cells.raster=NULL){
 	require(raster)
 	if(!is.null(burnable.cells.raster)) burnable.cells <- Which(burnable.cells.raster==1)
 	n <- nlayers(b)
-	e.hold <- cells.list <- list()
+	d <- vector("list", n)
 	for(i in 1:n){
-		if(i==1) {
-			r.hold <- subset(b,i)
-			r.hold[is.na(r.hold)] <- 0
-			r.hold <- mask(r.hold, burnable.cells)
-			r.hold[r.hold>0] <- 1
+		r <- subset(b,i)
+		r[is.na(r)] <- 0
+        if(i==1) r <- mask(r, burnable.cells, maskvalue=0)
+        r[r>0] <- 1
+        if(i==1){
+            r.hold <- r
+            cells <- vector("list", length(buffer.list))
 			for(p in 1:length(buffer.list)){
-				if(!is.null(buffer.list[[p]])){
-					cells.list[[p]] <- lapply(extract(r.hold, pts, buffer=buffer.list[[p]], cellnumbers=T), function(x) x[,1])
-					tmp <- c()
-					f <- fun.list[[p]]
-					for(q in 1:length(cells.list[[p]])) tmp <- c(tmp, f(extract(r.hold, cells.list[[p]][[q]])))
-					e.hold[[p]] <- tmp
-				} else if(is.null(buffer.list[[p]])){
-					cells.list[[p]] <- extract(r, pts, cellnumbers=T)[,1]
-					e.hold[[p]] <- extract(r.hold, cells.list[[p]])
-				}
+				tmp <- if(is.null(buffer.list[[p]])) as.list(extract(r, pts, cellnumbers=T)[,1]) else lapply(extract(r, pts, buffer=buffer.list[[p]], cellnumbers=T), function(x) x[,1])
+                tmp <- rbindlist(lapply(1:length(tmp), function(m, x, locs) data.table(Location=locs[m], Cell=x[[m]]), x=tmp, locs=locs))
+                cells[[p]] <- mutate(tmp, Buffer_km=buffer.labels[p])
 			}
-		} else {
-			r <- subset(b,i)
-			r[is.na(r)] <- 0
-			r <- mask(r, burnable.cells)
-			r[r>0] <- 1
-			r.hold <- r + r.hold
-			for(p in 1:length(buffer.list)){
-				if(!is.null(buffer.list[[p]])){
-					tmp <- c()
-					f <- fun.list[[p]]
-					for(q in 1:length(cells.list[[p]])) tmp <- c(tmp, f(extract(r, cells.list[[p]][[q]])))
-					e.hold[[p]] <- rbind(e.hold[[p]], tmp)
-				} else if(is.null(buffer.list[[p]])) {
-					e.hold[[p]] <- rbind(e.hold[[p]], extract(r, cells.list[[p]]))
-				}
-			}
-		}
+            cells <- rbindlist(cells)
+        } else r.hold <- r.hold + r
+        cells <- mutate(cells, Value=r[Cell])
+        d[[i]] <- group_by(cells, Buffer_km, Location) %>% summarise(Value=mean(Value, na.rm=TRUE)) %>% mutate(Year=yrs[i])
 	}
-	list(rasters=r.hold,points=e.hold,years=n)
+	d <- rbindlist(d) %>% mutate(Source=factor(source, levels=c("Observed", "Modeled")), Replicate=factor(replicates[1], levels=unique(c("Observed", replicates)))) %>%
+        group_by(Source, Replicate, Buffer_km, Location, Year) %>% arrange(Source, Replicate, Buffer_km, Location, Year) %>%
+        setcolorder(c("Source", "Replicate", "Buffer_km", "Location", "Year", "Value"))
+	list(rasters=r.hold, points=d, years=n)
 }
 
 # @knitr empirical_data_setup
@@ -167,12 +138,15 @@ source("/big_scratch/shiny/obs_fire_setup.R")
 r.burnable <- Which(r>0)
 
 # @knitr run
+# Empirical observations and simulation replicates
+reps.emp <- "Observed"
+reps.alf <- paste0("Rep_",c(paste0(0,0,0:9), paste0(0,10:99), 100:999))[1:n.sims]
 # Process empirical data
-out.emp <- fireEventsFunEmpirical(b=result, pts=pts, buffer.list=buffers, fun.list=buffer.functions, burnable.cells.raster=r.burnable)
+out.emp <- fireEventsFunEmpirical(b=result, pts=pts, locs=locs, replicates=c(reps.emp, reps.alf), buffer.list=buffers, buffer.labels=buffers.labels, burnable.cells.raster=r.burnable)
 # Process modeled data
 n.cores <- min(n.sims, 32)
 print(paste("Process modeled fire scar data from entire Alfresco run. Time:"))
-system.time( out.alf <- mclapply(1:n.sims, fireEventsFun, pts=pts, buffer.list=buffers, fun.list=buffer.functions, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=n.cores) )
+system.time( out.alf <- mclapply(1:n.cores, fireEventsFun, pts=pts, locs=locs, replicates=reps.alf, buffer.list=buffers, buffer.labels=buffers.labels, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=n.cores) )
 
 # @knitr FRP_maps
 alf.yrs <- out.alf[[1]][[4]]
@@ -209,26 +183,16 @@ print(system.time( mclapply(1:length(out.alf), FRPmapsNoBuffer, alf.data=out.alf
 dfPrepFun <- function(x, multiple.reps=T){
 	if(!multiple.reps) x <- list(x)
 	x <- lapply(x, "[[", 2)
-	for(i in 1:length(x)) x[[i]] <- do.call(c, lapply(x[[i]], as.numeric))
-	x <- do.call(c, x)
-	x
+	rbindlist(x) %>% group_by(Source, Replicate, Buffer_km, Location, Year)
 }
 
-# Empirical observations and simulation replicates
-reps.emp <- "Observed"
-reps.alf <- paste0("Rep_",c(paste0(0,0,0:9), paste0(0,10:99), 100:999))[1:length(out.alf)]
-
 # Organize observed data
-x.emp <- dfPrepFun(out.emp, multiple.reps=F)
-d.emp <- data.table(rev(expand.grid(Value=NA, Year=yrs.hist.all, Location=locs, Buffer_km=buffers.labels, Replicate=reps.emp, stringsAsFactors=F)))
-d.emp[, Value:=x.emp]
-d.emp %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2.emp
+d.emp <- dfPrepFun(out.emp, multiple.reps=F)
+d.emp %>% group_by(Source, Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2.emp
 
 # Organize modeled data
-x <- dfPrepFun(out.alf)
-d <- data.table(rev(expand.grid(Value=NA, Year=alf.yrs, Location=locs, Buffer_km=buffers.labels, Replicate=reps.alf, stringsAsFactors=F)))
-d[, Value:=x]
-d %>% group_by(Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2
+d <- dfPrepFun(out.alf)
+d %>% group_by(Source, Replicate, Buffer_km, Location) %>% summarise(FRP=length(Year)/sum(Value)) -> d2
 
 # Additional objects to transport to app
 buffersize <- unique(d.emp$Buffer_km)
@@ -243,13 +207,13 @@ d2 %>% rbind(d2.emp) %>% setorder(Replicate, Buffer_km, Location) -> frp.dat
 rm(d2,d2.emp)
 dummy <- capture.output( gc() )
 
-rab.dat[, Source:="Observed"]
-rab.dat[Replicate!="Observed", Source:="Modeled"]
-frp.dat[, Source:="Observed"]
-frp.dat[Replicate!="Observed", Source:="Modeled"]
+#rab.dat[, Source:="Observed"]
+#rab.dat[Replicate!="Observed", Source:="Modeled"]
+#frp.dat[, Source:="Observed"]
+#frp.dat[Replicate!="Observed", Source:="Modeled"]
 
 # Make Fire Return Interval data table
-filter(rab.dat, Value!=0) %>% group_by(Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year))) %>% filter(!is.na(FRI)) %>% select(-Year) %>% data.table -> fri.dat
+filter(rab.dat, Value!=0) %>% group_by(Source, Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year))) %>% filter(!is.na(FRI)) %>% select(-Year) %>% data.table -> fri.dat
 
 # Noatak-specific
 if(substr(alf.domain,1,6)=="Noatak"){
