@@ -169,6 +169,10 @@ rasterOptions(chunksize=10e10,maxmemory=10e11)
 setwd("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 dir.create(outDir <- "/workspace/UA/mfleonawicz/projects/Flammability/plots/alfInputs", recur=T, showWarnings=F)
 shp <- shapefile("/workspace/UA/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2.shp")
+#r.frp <- calc(stack(list.files("/big_scratch/shiny/Runs_Noatak/paul.duffy_at_neptuneinc.org/m3TL_31200s_0023775i_historical_CRU32/FRP/Maps_noBuffer", pattern="\\.tif$", full=T)), mean)
+r.frp <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alfExOutputs/noatak_frp_64repMean.tif")
+r.frp <- mask(crop(r.frp, shp), shp)
+names(r.frp) <- "GBM3_FRP"
 r.veg <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 r.veg[r.veg==0] <- NA
 r.veg <- mask(crop(r.veg, shp), shp)
@@ -180,7 +184,7 @@ files5 <- files[yrs>=1950 & yrs<=2013]
 r3.all <- mask(crop(stack(files3), shp), shp)
 r5.all <- mask(crop(stack(files5), shp), shp)
 r.veg2 <- r.veg
-r.veg2[r.veg2<5] <- NA
+#r.veg2[r.veg2<5] <- NA
 r3.all <- mask(r3.all, r.veg2)
 r5.all <- mask(r5.all, r.veg2)
 r3 <- calc(r3.all, function(x) c(mean(x), sd(x), min(x), max(x)))
@@ -205,6 +209,13 @@ wgs2ak <- function(xy){
 
 pts <- wgs2ak(pts)
 
+RasterTheme <- function (pch = 19, cex = 0.7, region=rev(brewer.pal(9, "YlOrRd")[-1]), ...){
+    theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
+    theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
+    theme$add.line$lwd = 0.4
+    theme
+}
+
 revRasterTheme <- function (pch = 19, cex = 0.7, region=brewer.pal(9, "YlOrRd")[-1], ...){
     theme <- custom.theme.2(pch = pch, cex = cex, region = region, ...)
     theme$strip.background$col <- theme$strip.shingle$col <- theme$strip.border$col <- "transparent"
@@ -218,6 +229,21 @@ r.pts[cellFromXY(r.pts, pts[1:4,])] <- 1
 r.pts.shrub[cellFromXY(r.pts.shrub, pts[5:8,])] <- 1
 r.pts.gram[cellFromXY(r.pts.gram, pts[9:12,])] <- 1
 r.pts.fire[cellFromXY(r.pts.fire, pts[13:14,])] <- 1
+
+library(gridExtra)
+png(file.path(outDir, "noatak_flamInMean1950-2013_frpOut1-2013.png"), height=3200, width=3200, res=300)
+p1 <- levelplot(subset(r3,1), main="ALFRESCO 1950-2013 mean flammability input", par.settings=revRasterTheme, margin=F, at=seq(0.03,  max(subset(r3,1)[], na.rm=T), by=0.01)) +
+    layer(sp.points(rasterToPoints(r.pts, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.shrub, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.gram, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.fire, sp=T), col='black'))
+p2 <- levelplot(2013/r.frp, main="ALFRESCO 1-2013 64-rep mean FRP output", par.settings=RasterTheme, margin=F, at=seq(0, 2013, by=250)) +
+    layer(sp.points(rasterToPoints(r.pts, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.shrub, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.gram, sp=T), col='black')) +
+    layer(sp.points(rasterToPoints(r.pts.fire, sp=T), col='black'))
+grid.arrange(p1, p2, ncol=1)
+dev.off()
 
 png(file.path(outDir, "noatak_flammability_mean_1950-2013_sgw.png"), height=3200, width=3200, res=300)
 p <- levelplot(stack(subset(r3,1),subset(r5,1)), main="ALFRESCO 1950-2013 annual shrub/graminoid/wetland flammability input summary", par.settings=revRasterTheme, margin=F) +
@@ -271,27 +297,21 @@ d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid"
 #d <- mutate(d, Location=factor(Location, levels=c("Origin", "Shrub", "Graminoid")), Lake=factor(gsub("Shrub_", "", gsub("Gram_" , "", Lake)), levels=c("Raven", "Uchugrak", "Poktovik", "LittleIsac")))
 
 cbpal <- c("#000000", "#D55E00", "#0072B2", "#FF0000")
+cbpal2 <- c("#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00", "#CC79A7")
 
 png(file.path(outDir, "noatak_10kmMeanFlam_ts_1950-2013.png"), height=1600, width=3200, res=200)
-ggplot(d.all %>% group_by(Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(x=Year, y=Val, colour=Location)) +
-    geom_line() + geom_point() + facet_wrap(Var ~ Location, scales="fixed") +
-    scale_colour_manual("Location", values=cbpal) +
+ggplot(d.all %>% filter(Var=="3-GBM") %>% group_by(Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(x=Year, y=Val, colour=Lake)) +
+    geom_line() + geom_point() + facet_wrap(~ Location, scales="fixed") +
+    scale_colour_manual("Location", values=cbpal2) +
     labs(title="1950-2013 10-km buffered mean flammability by lake") + theme(legend.position="bottom")
 dev.off()
 
 png(file.path(outDir, "noatak_10kmMeanFlam_ts2_1950-2013.png"), height=1600, width=3200, res=200)
-ggplot(d.all, aes(x=Year, y=Val, group=Obs, colour=Location)) +
-    geom_line() + geom_point() + facet_wrap(Var ~ Location, scales="fixed") +
-    geom_line(data=group_by(d.all, Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(group=NULL), size=1, linetype=2) +
-    scale_colour_manual("Location", values=cbpal) +
+ggplot(d.all %>% filter(Var=="3-GBM"), aes(x=Year, y=Val, group=interaction(Location, Lake, Obs), colour=Lake)) +
+    geom_line() + geom_point() + facet_wrap(~ Location, scales="fixed") +
+    geom_line(data=filter(d.all, Var=="3-GBM") %>% group_by(Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(group=NULL), size=1, linetype=2) +
+    scale_colour_manual("Location", values=cbpal2) +
     labs(title="1950-2013 10-km buffered individual and mean flammability by lake") + theme(legend.position="bottom")
-dev.off()
-
-png(file.path(outDir, "noatak_10kmMeanFlam_ts_1950-2013.png"), height=1600, width=3200, res=200)
-ggplot(d.all %>% group_by(Var, Location, Lake, Year) %>% summarise(Val=mean(Val, na.rm=TRUE)), aes(x=Year, y=Val, colour=Location)) +
-    geom_line() + geom_point() + facet_wrap(Var ~ Location, scales="fixed") +
-    scale_colour_manual("Location", values=cbpal) +
-    labs(title="1950-2013 10-km buffered mean flammability by lake") + theme(legend.position="bottom")
 dev.off()
 
 png(file.path(outDir, "noatak_10kmFlamSpace.png"), height=1600, width=3200, res=200)
