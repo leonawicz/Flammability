@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   10/28/2015        ####
+#### Last updated:   12/07/2015        ####
 
 # @knitr setup
 comArgs <- commandArgs(TRUE)
@@ -146,7 +146,7 @@ out.emp <- fireEventsFunEmpirical(b=result, pts=pts, locs=locs, replicates=c(rep
 # Process modeled data
 n.cores <- min(n.sims, 32)
 print(paste("Process modeled fire scar data from entire Alfresco run. Time:"))
-system.time( out.alf <- mclapply(1:n.cores, fireEventsFun, pts=pts, locs=locs, replicates=reps.alf, buffer.list=buffers, buffer.labels=buffers.labels, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=n.cores) )
+system.time( out.alf <- mclapply(1:n.sims, fireEventsFun, pts=pts, locs=locs, replicates=reps.alf, buffer.list=buffers, buffer.labels=buffers.labels, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=n.cores) )
 
 # @knitr FRP_maps
 alf.yrs <- out.alf[[1]][[4]]
