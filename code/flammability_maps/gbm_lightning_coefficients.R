@@ -11,8 +11,12 @@ library(dplyr)
 
 # @knitr support_functions
 get_classes1 <- function(x, y=qtiles) cut(x, breaks=c(0, y, 99999), labels=F)
-get_coefficients <- function(x, b=bounds, use.ecdf=TRUE){
-    if(use.ecdf) return(ecdf(x)(x)) # x represents lightning values
+get_coefficients <- function(x, b=bounds, use.ecdf=TRUE, trim=TRUE){
+    if(use.ecdf){
+        y <- ecdf(x)(x) # x represents lightning values
+        if(trim) { y[y < 0.1] <- 0.1; y[y>0.9] <- 0.9 }
+        return(y)
+    }
     b <- c(0.01, b, 1) # x represents bin integers
     #sapply(x, function(y) switch(y, '1'=0.05, '2'=0.5, '3'=0.95))
     sapply(x, function(y, b) runif(1, b[y], b[y+1]), b=b)
