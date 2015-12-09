@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -19,7 +19,7 @@ library(rgdal)
 library(raster)
 rasterOptions(chunksize=10e9,maxmemory=10e10)
 
-setwd("/workspace/UA/mfleonawicz/projects/Flammability/workspaces")
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/workspaces")
 dir.create(outDir <- file.path("gbmFlammability"), showWarnings=F)
 
 # @knitr eco_veg
@@ -43,10 +43,10 @@ ind.names <- c("f.ind", "a.ind", "s.ind", "g.ind", "w.ind") # order: forest, alp
 # Prepare and save workspace
 if(period=="historical"){
 	yrs <- 1950:2013
-	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "CRU_TS32")
+	tpDir <- file.path("/atlas_scratch/mfleonawicz/Climate_1km_AKstatewide", period, "CRU_TS32")
 } else {
 	yrs <- 2010:2099
-	tpDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", period, model)
+	tpDir <- file.path("/atlas_scratch/mfleonawicz/Climate_1km_AKstatewide", period, model)
 }
 mo.ind <- 6:8 #1:9
 varid <- c("pr", "tas")

@@ -4,10 +4,10 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup1
-setwd("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
 
 library(raster)
 library(ggplot2)

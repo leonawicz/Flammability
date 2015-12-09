@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -21,7 +21,7 @@ library(data.table)
 library(reshape2)
 library(parallel)
 
-setwd("/workspace/UA/mfleonawicz/projects/Flammability/workspaces")
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/workspaces")
 dataDir <- "/big_scratch/mfleonawicz/Climate_1km_AKstatewide"
 
 r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")

@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -18,10 +18,10 @@ if(!is.logical(cru)) stop("Argument 'cru' must be logical.")
 library(parallel)
 library(raster)
 
-msk <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
+msk <- raster("/atlas_scratch/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 e <- extent(msk)
 
-mainDir <- "/big_scratch/mfleonawicz/Climate_1km"
+mainDir <- "/atlas_scratch/mfleonawicz/Climate_1km"
 if(cru){
 	varid <- c("pr", "tas")
 	rcp <- "historical"
@@ -38,7 +38,7 @@ if(cru){
 }
 
 subDir <- file.path(mainDir, rcp, model, varid)
-outDir <- file.path("/big_scratch/mfleonawicz/Climate_1km_AKstatewide", rcp, model, varid)
+outDir <- file.path("/atlas_scratch/mfleonawicz/Climate_1km_AKstatewide", rcp, model, varid)
 for(i in 1:length(outDir)) dir.create(outDir[i], recursive=T, showWarnings=F)
 
 # @knitr func

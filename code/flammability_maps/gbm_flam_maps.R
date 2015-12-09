@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -25,7 +25,7 @@ rasterOptions(chunksize=10e10,maxmemory=10e11)
 ncores <- 32
 
 verDir <- if(samples) "samples_based" else "means_based"
-setwd("/workspace/UA/mfleonawicz/projects/Flammability/workspaces")
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/workspaces")
 load(paste0("gbmFlammability/", model, "_", period, "_Jun-AugTP.RData"))
 #load(paste0("gbmFlammability/", model, "_", period, "_Jan-SepTP.RData"))
 suffix <- if(samples) paste0(n, "n") else "Mean"

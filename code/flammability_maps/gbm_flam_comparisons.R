@@ -4,12 +4,12 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 # GBM flammability map comparisons
-setwd("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
-dir.create(plotDir <- "/workspace/UA/mfleonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
+dir.create(plotDir <- "/atlas_scratch/mfleonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
 
 library(rasterVis)
 (dirs <- list.files())
@@ -82,8 +82,8 @@ print(yr)
 # @knitr setup2
 # Minimum threshold analysis
 # RV's X = flammability and Y = lightning probability, with condition min(XY) = c
-setwd("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
-dir.create(plotDir <- "/workspace/UA/mfleonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
+dir.create(plotDir <- "/atlas_scratch/mfleonawicz/projects/Flammability/plots/gbmFlammability/map_comparisons", showWarnings=FALSE)
 
 library(rasterVis)
 library(grid)

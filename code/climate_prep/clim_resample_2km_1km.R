@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   08/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -40,7 +40,7 @@ if(cru){
     subDir <- file.path(mainDir, model, varid)
 }
 
-outDir <- file.path("/big_scratch/mfleonawicz/Climate_1km", rcp, model, varid)
+outDir <- file.path("/atlas_scratch/mfleonawicz/Climate_1km", rcp, model, varid)
 for(i in 1:length(outDir)) dir.create(outDir[i], recursive=T, showWarnings=T)
 
 f <- function(i, subDir, outDir, msk, yr.min=1950){

@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr duplicate
 comargs <- (commandArgs(TRUE))
@@ -22,8 +22,8 @@ if(!exists("yearloop")) stop("Argument 'yearloop' not passed at command line.")
 
 library(parallel)
 verDir <- if(samples) "samples_based" else "means_based"
-mainDir <- file.path("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset)
-dir.create(outDir <- file.path("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, out), showWarnings=FALSE)
+mainDir <- file.path("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset)
+dir.create(outDir <- file.path("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, out), showWarnings=FALSE)
 setwd(outDir)
 
 files <- list.files(pattern="\\.tif$", full=TRUE)

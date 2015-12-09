@@ -53,9 +53,9 @@ library(ggplot2)
 library(rasterVis)
 rasterOptions(chunksize=10e10,maxmemory=10e11)
 setwd("/big_scratch/mfleonawicz/Climate_1km_AKstatewide/historical/CRU_TS32/")
-dir.create(outDir <- "/workspace/UA/mfleonawicz/projects/Flammability/plots/alfInputs", recur=T, showWarnings=F)
-shp <- shapefile("/workspace/UA/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2.shp")
-r.veg <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
+dir.create(outDir <- "/atlas_scratch/mfleonawicz/projects/Flammability/plots/alfInputs", recur=T, showWarnings=F)
+shp <- shapefile("/atlas_scratch/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2.shp")
+r.veg <- raster("/atlas_scratch/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 r.veg[r.veg==0] <- NA
 r.veg <- mask(crop(r.veg, shp), shp)
 
@@ -70,7 +70,7 @@ files <- files[yrs>=1950 & yrs<=2013 & mos %in% 7]
 r.p.all <- mask(crop(stack(files), shp), shp)
 r.p <- calc(r.p.all, mean)
 
-pts <- read.csv("/workspace/UA/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
+pts <- read.csv("/atlas_scratch/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
 #pts <- pts[order(pts$ID),]
 locs <- as.character(pts$ID)
 pts <- cbind(pts$Lon,pts$Lat)
@@ -166,14 +166,14 @@ library(dplyr)
 library(ggplot2)
 library(rasterVis)
 rasterOptions(chunksize=10e10,maxmemory=10e11)
-setwd("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
-dir.create(outDir <- "/workspace/UA/mfleonawicz/projects/Flammability/plots/alfInputs", recur=T, showWarnings=F)
-shp <- shapefile("/workspace/UA/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2.shp")
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability/samples_based/historical/CRU32")
+dir.create(outDir <- "/atlas_scratch/mfleonawicz/projects/Flammability/plots/alfInputs", recur=T, showWarnings=F)
+shp <- shapefile("/atlas_scratch/mfleonawicz/projects/Flammability/data/shapefiles/noa_basin2/Noa_basin2.shp")
 #r.frp <- calc(stack(list.files("/big_scratch/shiny/Runs_Noatak/paul.duffy_at_neptuneinc.org/m3TL_31200s_0023775i_historical_CRU32/FRP/Maps_noBuffer", pattern="\\.tif$", full=T)), mean)
-r.frp <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alfExOutputs/noatak_frp_64repMean.tif")
+r.frp <- raster("/atlas_scratch/mfleonawicz/projects/Flammability/data/alfExOutputs/noatak_frp_64repMean.tif")
 r.frp <- mask(crop(r.frp, shp), shp)
 names(r.frp) <- "GBM3_FRP"
-r.veg <- raster("/workspace/UA/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
+r.veg <- raster("atlas_scratch/mfleonawicz/projects/Flammability/data/alf2005.cavm.merged.030212.tif")
 r.veg[r.veg==0] <- NA
 r.veg <- mask(crop(r.veg, shp), shp)
 files <- list.files("3m100n_cavmDistTrunc_loop_L", full=T)
@@ -191,8 +191,12 @@ r3 <- calc(r3.all, function(x) c(mean(x), sd(x), min(x), max(x)))
 r5 <- calc(r5.all, function(x) c(mean(x), sd(x), min(x), max(x)))
 names(r3) <- paste("GBM3", c("Mean", "SD", "Min", "Max"), sep="_")
 names(r5) <- paste("GBM5", c("Mean", "SD", "Min", "Max"), sep="_")
+#r3 <- calc(r3.all, function(x, ...) c(min(x), quantile(x, seq(0.1, 0.9, by=0.1), na.rm=T), max(x), mean(x), sd(x)))
+#r5 <- calc(r5.all, function(x, ...) c(min(x), quantile(x, seq(0.1, 0.9, by=0.1), na.rm=T), max(x), mean(x), sd(x)))
+#names(r3) <- paste("GBM3", c("Min", paste0("Pct_0.", 1:9, "0"), "Max", "Mean", "SD"), sep="_")
+#names(r5) <- paste("GBM5", c("Min", paste0("Pct_0.", 1:9, "0"), "Max", "Mean", "SD"), sep="_")
 
-pts <- read.csv("/workspace/UA/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
+pts <- read.csv("/atlas_scratch/mfleonawicz/projects/Flammability/data/pts/Noatak_lake_locations.csv")
 #pts <- pts[order(pts$ID),]
 locs <- as.character(pts$ID)
 pts <- cbind(pts$Lon,pts$Lat)
@@ -273,6 +277,7 @@ print(p)
 dev.off()
 
 e.all <- extract(stack(r3.all, r5.all), pts, buffer=10000)
+#e.all <- lapply(as.list(as.data.frame(t(e.all))), function(x) matrix(x, 1))
 d.all <- rbindlist(lapply(1:length(e.all),
     function(i,x, locs) data.frame(Lake=locs[i], Var=rep(c("3-GBM", "5-GBM"), each=ncol(x[[i]])/2), Year=as.numeric(substr(gsub("gbm.flamm_", "", colnames(x[[i]])), 1, 4)), Val=as.numeric(t(x[[i]])), Obs=rep(1:nrow(x[[i]]), each=ncol(x[[i]]))),
     x=e.all, locs=locs))

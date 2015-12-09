@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -27,7 +27,7 @@ q.alp <- c(0.1373, 0.1410)
 q.for <- c(0.1566, 0.2694)
 
 verDir <- if(samples) "samples_based" else "means_based"
-setwd(file.path("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
+setwd(file.path("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
 dir.create(outDir <- paste0("../", mapset, "_cavmDistTrunc"), showWarnings=FALSE)
 
 library(raster)

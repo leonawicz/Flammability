@@ -4,7 +4,7 @@
 
 #### Script author:  Matthew Leonawicz ####
 #### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   09/24/2015        ####
+#### Last updated:   12/09/2015        ####
 
 # @knitr setup
 comargs <- (commandArgs(TRUE))
@@ -17,15 +17,15 @@ if(!(model %in% c("CRU32", "CCSM4", "GFDL-CM3", "GISS-E2-R", "IPSL-CM5A-LR", "MR
 if(!exists("samples")) samples <- TRUE
 if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.")
 if(!exists("lightning")) lightning <- TRUE
-if(!exists("cp2scratch")) cp2scratch <- TRUE
+if(!exists("cp2scratch")) cp2scratch <- FALSE
 if(!exists("cp_originals")) cp_originals <- FALSE
 
 verDir <- if(samples) "samples_based" else "means_based"
-setwd(file.path("/workspace/UA/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
+setwd(file.path("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
 suffix <- if(lightning) "_Lmap" else "_L"
 dir.create(outDir <- paste0("../", mapset, suffix), showWarnings=FALSE)
 if(cp2scratch){
-	dir.create(outDir2a <- file.path("/big_scratch/mfleonawicz/Alf_Files_20121129/gbmFlamMaps", period, model, mapset), recursive=TRUE, showWarnings=FALSE)
+	dir.create(outDir2a <- file.path("/atlas_scratch/mfleonawicz/alf_files/gbmFlamMaps", period, model, mapset), recursive=TRUE, showWarnings=FALSE)
 	dir.create(outDir2b <- paste0(outDir2a, suffix), showWarnings=FALSE)
 } else outDir2b <- NULL
 if(!cp_originals) outDir2a <- NULL
@@ -46,7 +46,7 @@ d.sub <- filter(d.all, Scenario==period & Model==model & Year %in% yrs)
 set.seed(51)
 if(lightning){
 	classes <- sapply(d.sub$Class, function(x) switch(as.character(x), 'Low'=1,'Medium'=2,'High'=3))
-	load("/workspace/UA/mfleonawicz/projects/Lightning/data/summerLightningMaps_2003_2011/summerLightningMaps.RData")
+	load("/atlas_scratch/mfleonawicz/projects/Lightning/data/summerLightningMaps_2003_2011/summerLightningMaps.RData")
 	light.yrs <- sapply(classes, function(x, d) sample(d$Year[d$Class==x], 1), d=d.coef)
 	ind <- which(d.sub$Year %in% d.coef$Year)
 	if(length(ind)) light.yrs[ind] <- d.sub$Year[ind]
