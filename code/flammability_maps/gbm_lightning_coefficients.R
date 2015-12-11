@@ -11,7 +11,7 @@ library(dplyr)
 
 # @knitr support_functions
 get_classes1 <- function(x, y=qtiles) cut(x, breaks=c(0, y, 99999), labels=F)
-get_coefficients <- function(x, b=bounds, use.ecdf=TRUE, trim=TRUE){
+get_coefficients <- function(x, b=bounds, use.ecdf=TRUE, trim=FALSE){
     if(use.ecdf){
         y <- ecdf(x)(x) # x represents lightning values
         if(trim) { y[y < 0.1] <- 0.1; y[y>0.9] <- 0.9 }
