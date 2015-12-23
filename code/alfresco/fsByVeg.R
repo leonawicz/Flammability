@@ -90,12 +90,19 @@ fsByRepEmp <- function(i, b, vid, v.veg, yrs, obs=NULL){
 
 # @knitr empirical_data_setup
 source("/big_scratch/shiny/obs_fire_setup.R")
-v.veg <- getValues(r)
+v.veg <- getValues(mask(r, shp))
+totalba <- length(v.veg[!is.na(v.veg) & v.veg > 0])
 v.veg[v.veg==3 | v.veg==4] <- 2 # 3 and 4 tree classes combine into class 2 to become 'forest', tundra types 1, 5, 6, and 7 remain as before
 vid <- sort(unique(v.veg[!is.na(v.veg) & v.veg > 0]))
 v.names <- c("Alpine", "Forest", "", "", "Shrub", "Graminoid", "Wetland")
 
 if(!exists("result2")) stop("empirical fire scar total fires map layer not loaded.")
+empba <- extract(result2, shp)[[1]]
+empba <- length(empba[!is.na(empba) & empba > 0])
+empba.totalba.ratio <- empba/totalba
+print(empba)
+print(totalba)
+print(empba.totalba.ratio)
 r.obs <- result2
 r.obs[r.obs==0] <- NA
 r.obs[r.obs>0] <- 1
@@ -160,6 +167,27 @@ plotRegionalTABbyTime(d.fs %>% filter(Domain=="Full"), c(yr.start, yr.end), cumu
 dev.off()
 png(paste0(out, "/CABvsTimeByVeg_maskedToObsFire_", yr.start, "_", yr.end, ".png"), width=3200, height=2400, res=200)
 plotRegionalTABbyTime(d.fs %>% filter(Domain=="Masked"), c(yr.start, yr.end), cumulative=TRUE, subject=subjects, grp="Vegetation", colpal=cbpalette, facet.by="~ Vegetation", facet.cols=3, facet.scales="free")
+dev.off()
+
+veg.lev <- c("Combined Area", unique(d.fs$Vegetation))
+d.fs2 <- d.fs %>% filter(Domain=="Full") %>% mutate(FS=ifelse(Source=="Modeled", FS*empba.totalba.ratio, FS)) %>% group_by(Domain, Source, Replicate, Year)
+d.fs2 <- d.fs2 %>% rbind(d.fs2 %>% summarise(FS=sum(FS), Vegetation=veg.lev[1])) %>% group_by(Domain, Source, Replicate, Vegetation) %>%
+    arrange(FS) %>% mutate(CAB=cumsum(FS)) %>% group_by %>% mutate(Vegetation=factor(Vegetation, levels=veg.lev), Source=factor(Source, levels=c("Observed", "Modeled")))
+
+png(paste0(out, "/CABvsFSByVeg_ObsFire_to_AlfArea_Ratio_scaledDomain_", yr.start, "_", yr.end, ".png"), width=3200, height=2400, res=200)
+ggplot(d.fs2, aes(x=FS, y=CAB, group=Replicate, Vegetation, colour=Source)) +
+    geom_step(data=filter(d.fs2, Source=="Modeled"), colour="gray") + geom_step(data=filter(d.fs2, Source=="Observed"), aes(group=Source, colour=Source), size=1) +
+    facet_wrap(~ Vegetation) + theme(legend.position="bottom") +
+    labs(title=paste(yr.start, "-", yr.end, "cumulative area burned vs. fire size by vegetation and combined area"), x=expression("Fire size "~(km^2)~""), y=expression("Cumulative burn area "~(km^2)~"")) +
+    scale_colour_manual(values=cbpalette)
+dev.off()
+
+png(paste0(out, "/CABvsFSByVeg_ObsFire_to_AlfArea_Ratio_scaledDomain_", yr.start, "_", yr.end, "_freeXY.png"), width=3200, height=2400, res=200)
+ggplot(d.fs2, aes(x=FS, y=CAB, group=Replicate, Vegetation, colour=Source)) +
+    geom_step(data=filter(d.fs2, Source=="Modeled"), colour="gray") + geom_step(data=filter(d.fs2, Source=="Observed"), aes(group=Source, colour=Source), size=1) +
+    facet_wrap(~ Vegetation, scales="free") + theme(legend.position="bottom") +
+    labs(title=paste(yr.start, "-", yr.end, "cumulative area burned vs. fire size by vegetation and combined area"), x=expression("Fire size "~(km^2)~""), y=expression("Cumulative burn area "~(km^2)~"")) +
+    scale_colour_manual(values=cbpalette)
 dev.off()
 
 sink(file=file.path(out, "message.txt"), append=TRUE)
