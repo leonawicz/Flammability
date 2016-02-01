@@ -71,7 +71,7 @@ fireEventsFun <- function(k, pts, locs, replicates, source="Modeled", buffer.lis
 	require(raster)
 	if(!is.null(burnable.cells.raster)) burnable.cells <- Which(burnable.cells.raster==1)
 	reps <- paste0("_",k-1,"_")
-	files <- list.files(mainDir,pattern=gsub("expression","",paste(bquote(expression("^FireSc.*.",.(reps),".*.tif$")),collapse="")),full=T)
+	files <- list.files(mainDir, pattern=gsub("expression","",paste(bquote(expression(".*.FireSc.*.",.(reps),".*.tif$")),collapse="")), recur=T, full=T)
 	yrs <- as.numeric(gsub("FireScar_\\d+_", "", gsub(".tif", "", basename(files))))
 	n <- length(yrs)
 	ord <- order(yrs)

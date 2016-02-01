@@ -48,7 +48,7 @@ fsByVeg <- function(i, v, f, obs=NULL){
 # @knitr func_fsByRep
 fsByRep <- function(d, mainDir, vid, v.veg, years, obs=NULL){
 	reps <- paste0("_",d-1,"_")
-	files <- list.files(mainDir, pattern=gsub("expression","",paste(bquote(expression("^FireSc.*.",.(reps),".*.tif$")),collapse="")), full=T)
+	files <- list.files(mainDir, pattern=gsub("expression","",paste(bquote(expression(".*.FireSc.*.",.(reps),".*.tif$")),collapse="")), recur=T, full=T)
 	yrs <- as.numeric(gsub("FireScar_\\d+_", "", gsub(".tif", "", basename(files))))
 	ord <- order(yrs)
 	files <- files[ord]
