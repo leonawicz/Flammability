@@ -2,10 +2,6 @@
 #### This R script cyclically duplicates flammability maps to simulate a backcast for use in longer ALFRESCO runs. ####
 #######################################################################################################################
 
-#### Script author:  Matthew Leonawicz ####
-#### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   12/09/2015        ####
-
 # @knitr duplicate
 comargs <- (commandArgs(TRUE))
 if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
