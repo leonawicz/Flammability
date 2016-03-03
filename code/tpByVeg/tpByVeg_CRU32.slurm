@@ -13,4 +13,5 @@
 #### $2 optional/required sample size argument, e.g., n=100, n is ignored if samples=FALSE;
 ####    Will throw exception if samples=TRUE and n not specified;
 #### $3 optional argument, vc (vegetation classes), defaults to \'all\'  if unspecified, options are \'all\', \'cavm\', or \'none'\;
-Rscript /workspace/UA/mfleonawicz/projects/Flammability/code/tpByVeg/tpByVeg_CRU32.R $1 $2 $3
+#### $4 optional argument, firemask, defaults to TRUE, applies 1950-2013 historical fire permiter mask;
+Rscript /workspace/UA/mfleonawicz/projects/Flammability/code/tpByVeg/tpByVeg_CRU32.R $1 $2 $3 $4
