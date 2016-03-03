@@ -2,10 +2,6 @@
 #### This R script applies vegetation-specific flammability distribution truncation to input flammability maps ####
 ###################################################################################################################
 
-#### Script author:  Matthew Leonawicz ####
-#### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   12/09/2015        ####
-
 # @knitr setup
 comargs <- (commandArgs(TRUE))
 if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
@@ -19,12 +15,12 @@ if(!exists("mapset")) stop("Argument 'mapset' not passed at command line.")
 if(substr(mapset, 1, 1) == "3") gbm <- 3 else gbm <- 5
 
 # 10th and 90th percentiles of the flammability distributions across space and through time, by vegetation class
-q.cavm <- c(0.1372, 0.1487)
-q.shrub <- c(0.1364, 0.1397)
-q.gram <- c(0.1363, 0.1427)
-q.wet <- c(0.1364, 0.1399)
-q.alp <- c(0.1373, 0.1410)
-q.for <- c(0.1566, 0.2694)
+q.cavm <- c(0.1250, 0.1361)
+q.shrub <- c(0.1258, 0.1292)
+q.gram <- c(0.1258, 0.1314)
+q.wet <- c(0.1254, 0.1290)
+q.alp <- c(0.1260, 0.1295)
+q.for <- c(0.1408, 0.2519)
 
 verDir <- if(samples) "samples_based" else "means_based"
 setwd(file.path("/atlas_scratch/mfleonawicz/projects/Flammability/data/gbmFlammability", verDir, period, model, mapset))
