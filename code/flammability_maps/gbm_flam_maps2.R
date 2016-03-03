@@ -2,10 +2,6 @@
 #### This R script finalizes climate-driven gradient-boosted flammability maps for use by ALFRESCO. ####
 ########################################################################################################
 
-#### Script author:  Matthew Leonawicz ####
-#### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   12/09/2015        ####
-
 # @knitr setup
 comargs <- (commandArgs(TRUE))
 if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
@@ -25,7 +21,7 @@ rasterOptions(chunksize=10e10,maxmemory=10e11)
 ncores <- 32
 
 verDir <- if(samples) "samples_based" else "means_based"
-setwd("/atlas_scratch/mfleonawicz/alfresco/workspaces")
+setwd("/atlas_scratch/mfleonawicz/projects/Flammability/workspaces")
 suffix <- if(samples) paste0(n, "n") else "Mean"
 out <- if(allcavm) paste0("3m", suffix) else paste0("5m", suffix)
 dir.create(outDir <- file.path("../data/gbmFlammability", verDir, period, model, out), recursive=T, showWarnings=F)
