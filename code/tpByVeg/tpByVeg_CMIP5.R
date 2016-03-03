@@ -2,10 +2,6 @@
 #### This R script calculates CMIP5 temperature and precipitation means by vegetation class. ####
 #################################################################################################
 
-#### Script author:  Matthew Leonawicz ####
-#### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   12/09/2015        ####
-
 # @knitr setup
 comargs <- (commandArgs(TRUE))
 if(length(comargs)) for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
@@ -14,6 +10,7 @@ if(!exists("samples")) samples <- TRUE
 if(!exists("vc")) vc <- "all"
 if(!exists("n") & samples) stop("Must provide n if samples=TRUE.")
 if(!is.logical(samples)) stop("Argument 'samples' must be logical.")
+if(!exists("firemask")) firemask <- TRUE
 if(!(vc %in% c("all", "cavm", "none"))) stop("Argument 'vc' must be one of 'all', 'cavm', or 'none'.")
 
 library(raster)
@@ -22,16 +19,19 @@ library(reshape2)
 library(parallel)
 
 setwd("/atlas_scratch/mfleonawicz/projects/Flammability/workspaces")
-dataDir <- "/big_scratch/mfleonawicz/Climate_1km_AKstatewide"
+dataDir <- "/atlas_scratch/mfleonawicz/Climate_1km_AKstatewide"
 
 r.veg <- raster("../data/alf2005.cavm.merged.030212.tif")
 veg.vec <- getValues(r.veg)
 sort(unique(veg.vec))
+r.fire <- Which(raster("../data/historicalFireObs/firescarlayer_total_observed_Statewide_lightning_1950_2013.tif") != 0)
+fire.vec <- getValues(r.fire)
 rm.eco <- T
 ecoreg <- raster(as.matrix(read.table("../data/ecoreg_mark_mask_zero.txt", skip=6, header=F)))
 drop.ind <- Which(ecoreg==4,cells=T)
 if(rm.eco) eco.ind <- values(Which(ecoreg!=0&ecoreg!=4)) else eco.ind <- 1
 veg.vec <- as.numeric(veg.vec!=0)*eco.ind*veg.vec
+if(firemask) veg.vec <- fire.vec*veg.vec
 
 if(vc=="none"){
     veg.vec[veg.vec > 1] <- 1 # not conditional on veg, e.g., for lightning analyses
