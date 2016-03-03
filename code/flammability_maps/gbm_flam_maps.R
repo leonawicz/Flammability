@@ -2,10 +2,6 @@
 #### This R script generates climate-driven gradient-boosted flammability maps for use by ALFRESCO. ####
 ########################################################################################################
 
-#### Script author:  Matthew Leonawicz ####
-#### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   12/09/2015        ####
-
 # @knitr setup
 comargs <- (commandArgs(TRUE))
 if(!length(comargs)) q("no") else for(z in 1:length(comargs)) eval(parse(text=comargs[[z]]))
@@ -97,7 +93,7 @@ f <- function(p, yrs=NULL, bins=1, standardize=FALSE){
 getGBMpreds <- function(a,b, nam1, nam2){
 	x0 <- get(nam1[b])
 	x1 <- get(nam2[a])
-	y <- predict.gbm(x0, x1, n.trees=tree.numbers[b])
+	y <- gbm:::predict.gbm(x0, x1, n.trees=tree.numbers[b])
 	data.frame(Predicted=y, ID=x1$ID)
 }
 
