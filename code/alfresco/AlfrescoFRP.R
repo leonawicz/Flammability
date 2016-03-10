@@ -213,7 +213,10 @@ dummy <- capture.output( gc() )
 #frp.dat[Replicate!="Observed", Source:="Modeled"]
 
 # Make Fire Return Interval data table
-filter(rab.dat, Value!=0) %>% group_by(Source, Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year))) %>% filter(!is.na(FRI)) %>% select(-Year) %>% data.table -> fri.dat
+# no fires = one FRI of period length; one fire = one FRI of time from fire to period end
+censor <- function(x, y) if(all(y==0)) length(x) else if(all(is.na(x))) as.integer(length(y) - which(y!=0)) else as.integer(x[!is.na(x)])
+fri.dat <- filter(rab.dat, Value!=0) %>% group_by(Source, Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year)))
+fri.dat <- left_join(rab.dat, fri.dat) %>% group_by(Source, Replicate, Buffer_km, Location) %>% summarise(FRI=censor(FRI, Value)) %>% data.table
 
 # Noatak-specific
 if(substr(alf.domain,1,6)=="Noatak"){
