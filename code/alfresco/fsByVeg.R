@@ -2,10 +2,6 @@
 #### This R script tables fire sizes (FS) by vegetation class and year for observed data and ALFRESCO outputs ####
 ##################################################################################################################
 
-#### Script author:  Matthew Leonawicz ####
-#### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   12/11/2015        ####
-
 # @knitr setup
 comArgs <- commandArgs(TRUE)
 if(length(comArgs>0)){
@@ -48,7 +44,7 @@ fsByVeg <- function(i, v, f, obs=NULL){
 # @knitr func_fsByRep
 fsByRep <- function(d, mainDir, vid, v.veg, years, obs=NULL){
 	reps <- paste0("_",d-1,"_")
-	files <- list.files(mainDir, pattern=gsub("expression","",paste(bquote(expression(".*.FireSc.*.",.(reps),".*.tif$")),collapse="")), recur=T, full=T)
+	files <- list.files(mainDir, pattern=gsub("expression","",paste(bquote(expression("FireSc.*.",.(reps),".*.tif$")),collapse="")), recur=T, full=T)
 	yrs <- as.numeric(gsub("FireScar_\\d+_", "", gsub(".tif", "", basename(files))))
 	ord <- order(yrs)
 	files <- files[ord]
@@ -117,7 +113,7 @@ fs.alf.list <- mclapply(1:n.sims, fsByRep, mainDir=mainDir, vid=vid, v.veg=v.veg
 fs.alf <- rbindlist(fs.alf.list)
 d.fs <- rbind(fs.emp, fs.alf)
 d.fs[, Vegetation:=v.names[Vegetation]]
-d.fs <- tidyr::complete(d.fs, Domain, c(Source, Replicate), Vegetation, Year, fill=list(FS=0)) %>% data.table
+d.fs <- tidyr::complete(d.fs, Domain, tidyr::nesting(Source, Replicate), Vegetation, Year=tidyr::full_seq(Year, 1L), fill=list(FS=0))
 dom <- if(substr(tolower(alf.domain),1,6)=="noatak") "Noatak" else if(substr(tolower(alf.domain),1,6)=="statew") "Statewide"
 save(d.fs, file=paste0(out, "/fsByVeg_df_", dom, ".RData"))
 
