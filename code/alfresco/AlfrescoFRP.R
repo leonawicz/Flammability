@@ -2,10 +2,6 @@
 #### This R script generates spatially explicit maps comparing fire rotation period maps for each replicate of an ALFRESCO run with empirical FRP ####
 ######################################################################################################################################################
 
-#### Script author:  Matthew Leonawicz ####
-#### Maintainted by: Matthew Leonawicz ####
-#### Last updated:   12/07/2015        ####
-
 # @knitr setup
 comArgs <- commandArgs(TRUE)
 if(length(comArgs>0)){
@@ -71,7 +67,7 @@ fireEventsFun <- function(k, pts, locs, replicates, source="Modeled", buffer.lis
 	require(raster)
 	if(!is.null(burnable.cells.raster)) burnable.cells <- Which(burnable.cells.raster==1)
 	reps <- paste0("_",k-1,"_")
-	files <- list.files(mainDir, pattern=gsub("expression","",paste(bquote(expression(".*.FireSc.*.",.(reps),".*.tif$")),collapse="")), recur=T, full=T)
+	files <- list.files(mainDir,pattern=gsub("expression","",paste(bquote(expression("^FireSc.*.",.(reps),".*.tif$")),collapse="")),full=T)
 	yrs <- as.numeric(gsub("FireScar_\\d+_", "", gsub(".tif", "", basename(files))))
 	n <- length(yrs)
 	ord <- order(yrs)
@@ -146,7 +142,7 @@ out.emp <- fireEventsFunEmpirical(b=result, pts=pts, locs=locs, replicates=c(rep
 # Process modeled data
 n.cores <- min(n.sims, 32)
 print(paste("Process modeled fire scar data from entire Alfresco run. Time:"))
-system.time( out.alf <- mclapply(1:n.sims, fireEventsFun, pts=pts, locs=locs, replicates=reps.alf, buffer.list=buffers, buffer.labels=buffers.labels, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=n.cores) )
+system.time( out.alf <- mclapply(1:n.cores, fireEventsFun, pts=pts, locs=locs, replicates=reps.alf, buffer.list=buffers, buffer.labels=buffers.labels, burnable.cells.raster=r.burnable, mainDir=mainDir, mc.cores=n.cores) )
 
 # @knitr FRP_maps
 alf.yrs <- out.alf[[1]][[4]]
@@ -200,10 +196,10 @@ obs.years.range <- range(d.emp$Year)
 mod.years.range <- range(alf.yrs)
 
 # Assemble final data frames
-d %>% rbind(d.emp) %>% setorder(Replicate, Buffer_km, Location) -> rab.dat
+d %>% bind_rows(d.emp) %>% setorder(Replicate, Buffer_km, Location) -> rab.dat
 rm(d,d.emp)
 dummy <- capture.output( gc() )
-d2 %>% rbind(d2.emp) %>% setorder(Replicate, Buffer_km, Location) -> frp.dat
+d2 %>% bind_rows(d2.emp) %>% setorder(Replicate, Buffer_km, Location) -> frp.dat
 rm(d2,d2.emp)
 dummy <- capture.output( gc() )
 
@@ -214,9 +210,11 @@ dummy <- capture.output( gc() )
 
 # Make Fire Return Interval data table
 # no fires = one FRI of period length; one fire = one FRI of time from fire to period end
+save(rab.dat, file=paste0(outDir,"/TESTME.RData"))
 censor <- function(x, y) if(all(y==0)) length(x) else if(all(is.na(x))) as.integer(length(y) - which(y!=0)) else as.integer(x[!is.na(x)])
 fri.dat <- filter(rab.dat, Value!=0) %>% group_by(Source, Replicate, Buffer_km, Location) %>% mutate(FRI=c(NA, diff(Year)))
-fri.dat <- left_join(rab.dat, fri.dat) %>% group_by(Source, Replicate, Buffer_km, Location) %>% summarise(FRI=censor(FRI, Value)) %>% data.table
+#fri.dat <- left_join(rab.dat, fri.dat) %>% group_by(Source, Replicate, Buffer_km, Location) %>% summarise(FRI=censor(FRI, Value)) %>% data.table # deprecated
+fri.dat <- left_join(rab.dat, fri.dat) %>% group_by(Source, Replicate, Buffer_km, Location) %>% do(data.frame(FRI=censor(.$FRI, .$Value))) %>% data.table
 
 # Noatak-specific
 if(substr(alf.domain,1,6)=="Noatak"){
