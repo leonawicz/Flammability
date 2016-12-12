@@ -32,7 +32,7 @@ if(!exists("n.sims")) n.sims <- 32
 n.cores <- min(n.sims, 32)
 
 pts <- read.csv(file.path(input,pts))
-if(substr(alf.domain,1,6)=="Noatak") pts$ID <- factor(pts$ID, levels=c(paste0(rep(c("", "Shrub_", "Gram_"), each=4), c("Raven", "Uchugrak", "Poktovik", "LittleIsac")), "Fire_LakeWest", "Fire_LakeEast"))
+if(substr(alf.domain,1,6)=="Noatak") pts$ID <- factor(pts$ID, levels=c(paste0(rep(c("", "Shrub_", "Gram_"), each=4), c("Raven", "Uchugrak", "Poktovik", "LittleIsac")), "Fire_RedLake", "Fire_FoxLake"))
 #pts <- pts[order(pts$ID),]
 locs <- as.character(pts$ID)
 pts <- cbind(pts$Lon,pts$Lat)
@@ -218,7 +218,7 @@ fri.dat <- left_join(rab.dat, fri.dat) %>% group_by(Source, Replicate, Buffer_km
 
 # Noatak-specific
 if(substr(alf.domain,1,6)=="Noatak"){
-    lev <- c("Raven", "Uchugrak", "Poktovik", "LittleIsac", "LakeWest", "LakeEast")
+    lev <- c("Raven", "Uchugrak", "Poktovik", "LittleIsac", "RedLake", "FoxLake")
     rab.dat[, LocGroup:="Origin"]
     rab.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
     rab.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
