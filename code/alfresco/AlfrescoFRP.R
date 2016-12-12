@@ -196,17 +196,17 @@ obs.years.range <- range(d.emp$Year)
 mod.years.range <- range(alf.yrs)
 
 # Assemble final data frames
-d %>% bind_rows(d.emp) %>% setorder(Replicate, Buffer_km, Location) -> rab.dat
+d %>% bind_rows(d.emp) %>% setorder(Replicate, Buffer_km, Location) %>% data.table -> rab.dat
 rm(d,d.emp)
 dummy <- capture.output( gc() )
-d2 %>% bind_rows(d2.emp) %>% setorder(Replicate, Buffer_km, Location) -> frp.dat
+d2 %>% bind_rows(d2.emp) %>% setorder(Replicate, Buffer_km, Location) %>% data.table -> frp.dat
 rm(d2,d2.emp)
 dummy <- capture.output( gc() )
 
-#rab.dat[, Source:="Observed"]
-#rab.dat[Replicate!="Observed", Source:="Modeled"]
-#frp.dat[, Source:="Observed"]
-#frp.dat[Replicate!="Observed", Source:="Modeled"]
+rab.dat[, Source:="Observed"]
+rab.dat[Replicate!="Observed", Source:="Modeled"]
+frp.dat[, Source:="Observed"]
+frp.dat[Replicate!="Observed", Source:="Modeled"]
 
 # Make Fire Return Interval data table
 # no fires = one FRI of period length; one fire = one FRI of time from fire to period end
