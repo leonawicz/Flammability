@@ -218,7 +218,7 @@ fri.dat <- left_join(rab.dat, fri.dat) %>% group_by(Source, Replicate, Buffer_km
 
 # Noatak-specific
 if(substr(alf.domain,1,6)=="Noatak"){
-    lev <- c("Raven", "Uchugrak", "Poktovik", "LittleIsac", "RedLake", "FoxLake")
+    lev <- c("RedLake", "Raven", "Uchugrak", "Poktovik", "LittleIsac", "FoxLake")
     rab.dat[, LocGroup:="Origin"]
     rab.dat[substr(Location,1,5)=="Gram_", LocGroup:="Graminoid"]
     rab.dat[substr(Location,1,5)=="Shrub", LocGroup:="Shrub"]
