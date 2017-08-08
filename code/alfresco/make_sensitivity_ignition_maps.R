@@ -15,12 +15,14 @@ if(substr(domain, 1, 6)=="Statew"){
   msk <- readAll(raster("binary_ignition.tif"))
 }
 
-apply_fmo <- function(r, mapid, fmo, fmo_max, domain){
+apply_fmo <- function(r, mapid, fmo, fmo_max, domain, ignore.one=TRUE){
   if(fmo=="None") return(r)
-  if(fmo=="Refuges"){
-    x <- readAll(raster(paste0("fmo_", mapid, "_refuges.tif")))
+  if(fmo=="fmo"){
+    x <- readAll(raster(paste0("fmo_2017_buffered_", mapid, ".tif")))
     if(substr(domain, 1, 6)=="Noatak") x <- mask(x, crop(x, r))
-    x <- 1 - fmo_max * x / max(x[], na.rm=TRUE)
+    if(ignore.one) idx <- which(x[]==1)
+    x.out <- 1 - fmo_max * x / max(x[], na.rm=TRUE)
+    if(ignore.one) x.out[idx] <- 1
     return(x*r)
   }
   return(r)
