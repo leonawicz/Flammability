@@ -4,8 +4,8 @@ setwd("/big_scratch/mfleonawicz/Alf_Files_20121129")
 comArgs <- commandArgs(trailingOnly=TRUE)
 ig_fmo <- comArgs[3]
 fs_fmo <- comArgs[4]
-ig_fmo_max <- comArgs[5]
-fs_fmo_max <- comArgs[6]
+ig_fmo_max <- as.numeric(comArgs[5])
+fs_fmo_max <- as.numeric(comArgs[6])
 outDir <- comArgs[7]
 domain <- comArgs[8]
 
