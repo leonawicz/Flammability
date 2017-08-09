@@ -251,11 +251,11 @@ Sys.sleep(0.1)
 # Create new app from template and copy data to app
 app.name <- ifelse(group.name=="none", "alf_results", paste0(group.name, "_alf_results"))
 alfDir <- "/var/www/shiny-server/shiny-apps/alfresco" # Alfresco apps directory
-templateDir <- file.path(alfDir, "alfout_template") # Alfresco FRP results template app directory
 appDir <- file.path(alfDir, app.name) # App directory to use this run's data
-system(paste("ssh eris.snap.uaf.edu mkdir -p", appDir)) # Make directory
+system(paste("ssh eris.snap.uaf.edu mkdir -p", paste0(appDir, "/www"))) # Make directory
 system(paste("ssh eris.snap.uaf.edu chmod 2775", appDir)) # Set permissions
-system(paste("ssh eris.snap.uaf.edu cp -r", file.path(templateDir, "*"), paste0(appDir, "/"))) # Copy template app files to new directory
+system(paste("ssh eris.snap.uaf.edu cp /var/www/shiny-server/shiny-apps/alfoutdev/*.R", paste0(appDir, "/"))) # Copy template app files to new directory
+system("ssh eris.snap.uaf.edu cp -R /var/www/shiny-server/shiny-apps/alfoutdev/www/*", paste0(appDir, "/www/")) # Copy template app files to new directory
 system(paste0("scp ", ws, " eris.snap.uaf.edu:", file.path(appDir, basename(ws)))) # Copy Alfresco run workspace file to new app directory
 
 cat("Alfresco output results:\n\n")
