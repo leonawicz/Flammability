@@ -6,9 +6,11 @@ r[r==0] <- 1
 r.ig <- r.fs <- r < 5
 
 r.ig[r==2] <- 1.25 # modified
+r.ig[r==3] <- 1.75 # critical
 r.ig[r==4] <- 1.5 # full
 
 r.fs[r==2] <- 1.25 # modified
+r.fs[r==3] <- 1.75 # critical
 r.fs[r==4] <- 1.5 # full
 
 writeRaster(r.ig, "data/fmo/fmo_2017_buffered_ig.tif", overwrite=TRUE, datatype='FLT4S')
@@ -17,13 +19,15 @@ writeRaster(r.fs, "data/fmo/fmo_2017_buffered_fs.tif", overwrite=TRUE, datatype=
 # FMO ratios plots
 r1 <- ratify(r.ig)
 r2 <- ratify(r.fs)
+lev <- levels(r1)[[1]]
+clrs <- c("#EEEEEE", rev(RColorBrewer::brewer.pal(9, "Spectral")[1:(length(lev$ID) - 1)]))
 Cairo::CairoPNG("data/fmo/fmo_ratios_ignition.png", width=1000, height=1000)
-levelplot(r1, att="ID", col.regions=RColorBrewer::brewer.pal(9, "Spectral")[seq_along(lev$ID)],
+levelplot(r1, att="ID", col.regions=clrs,
   maxpixels = 1e6, main="Fire suppression effort ratios: ignition factor",
   xlab=NULL, ylab=NULL, scales=list(draw=FALSE), colorkey = list(space='bottom'))
 dev.off()
 Cairo::CairoPNG("data/fmo/fmo_ratios_sensitivity.png", width=1000, height=1000)
-levelplot(r2, att="ID", col.regions=RColorBrewer::brewer.pal(9, "Spectral")[seq_along(lev$ID)],
+levelplot(r2, att="ID", col.regions=clrs,
   maxpixels = 1e6, main="Fire suppression effort ratios: fire sensitivity",
   xlab=NULL, ylab=NULL, scales=list(draw=FALSE), colorkey = list(space='bottom'))
 dev.off()
