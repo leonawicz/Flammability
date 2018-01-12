@@ -56,7 +56,7 @@ proj.files <- list(
 	c("header", "fs_eda1.html", "fs_eda2.html", "fs_eda3.html", "divider", "fs_mle1.html", "fs_mle2.html", "fs_mle3.html"),
 	c("header", "appcode_alf_global.html", "appcode_alf_ui.html", "appcode_alf_server.html", "appcode_alf_sidebar.html", "appcode_alf_reactives.html", "appcode_alf_about.html", "divider",
 		"header", "appcode_frp_ui.html", "appcode_frp_server.html", "appcode_frp_sidebar.html", "appcode_frp_app.html", "appcode_frp_reactives.html", "appcode_frp_plotFunctions.html", "appcode_frp_about.html"),
-	c("http://leonawicz.github.io")
+	c("https://leonawicz.github.io")
 )
 
 # generate navigation bar html file common to all pages
