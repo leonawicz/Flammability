@@ -1,5 +1,5 @@
 #!/bin/sh
-#SBATCH --reservation=shiny_2
+#SBATCH --reservation=snap_9
 ####SBATCH --exclusive
 #SBATCH --ntasks=32
 #SBATCH --nodes=1
@@ -37,8 +37,15 @@ echo ${18}
 
 if [ $7 -eq 1 ]
 then
+# Changes made by Bob to create a directory on fast_scratch
+rmdir Maps
+maps_location=/fast_scratch/shiny/`/bin/hostname -s`/`date +%m-%d-%Y-%H-%M`
+mkdir -p $maps_location/Maps
+ln -s $maps_location/Maps Maps
+## End changes by Bob
+
 ####mpirun -np 32 /home/UA/apbennett/bin/fresco-mpi --fif $6
 mpirun --oversubscribe -np ${17} /home/UA/apbennett/alf-altfire/bin/fresco-mpi --fif $6
 fi
 
-sbatch -D $2 CompileData.slurm $1 $3 $4 $5 $6 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18}
+sbatch -w `/bin/hostname -s` -D $2 CompileData.slurm $1 $3 $4 $5 $6 $8 $9 ${10} ${11} ${12} ${13} ${14} ${15} ${16} ${17} ${18} $maps_location
