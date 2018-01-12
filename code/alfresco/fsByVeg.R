@@ -2,6 +2,10 @@
 #### This R script tables fire sizes (FS) by vegetation class and year for observed data and ALFRESCO outputs ####
 ##################################################################################################################
 
+#### Script author:  Matthew Leonawicz ####
+#### Maintainted by: Matthew Leonawicz ####
+#### Last updated:   12/11/2015        ####
+
 # @knitr setup
 comArgs <- commandArgs(TRUE)
 if(length(comArgs>0)){
