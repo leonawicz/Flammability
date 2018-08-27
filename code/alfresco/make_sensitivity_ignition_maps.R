@@ -19,6 +19,8 @@ apply_fmo <- function(r, mapid, fmo, fmo_max, domain, ignore.one=TRUE){
   if(fmo=="None") return(r)
   if(fmo=="Standard"){
     infile <-  paste0("fmo_standard_", mapid, ".tif")
+  } else if(fmo=="5-km_buffered_full"){
+    infile <- paste0("fmo_buffer_full5_", mapid, ".tif")
   } else if(fmo=="15-km_buffered"){
     infile <- paste0("fmo_2017_buffered_", mapid, ".tif")
   }
